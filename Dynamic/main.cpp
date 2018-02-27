@@ -73,10 +73,8 @@ void marker_run(int argc,char** argv){
     SRef<display::I2DOverlay> overlay2D = opencvModule.createComponent<display::I2DOverlay>(MODULES::OPENCV::UUID::OVERLAY2D);
 
     SRef<Image> inputImage;
-    SRef<Image> greyImage  = xpcf::utils::make_shared<Image>(Image::ImageLayout::LAYOUT_GREY,
-                                     Image::PixelOrder::INTERLEAVED,Image::DataType::TYPE_8U);
-    SRef<Image> binaryImage  = xpcf::utils::make_shared<Image>(Image::ImageLayout::LAYOUT_GREY,
-                                     Image::PixelOrder::INTERLEAVED,Image::DataType::TYPE_8U);
+    SRef<Image> greyImage;
+    SRef<Image> binaryImage;
     SRef<Image> contoursImage;
     SRef<Image> filteredContoursImage;
 
@@ -182,7 +180,7 @@ void marker_run(int argc,char** argv){
         count++;
 
        // Convert Image from RGB to grey
-       imageConvertor->convert(inputImage, greyImage);
+       imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
        // Convert Image from grey to black and white
        imageFilter->binarize(greyImage,binaryImage,-1,255);
