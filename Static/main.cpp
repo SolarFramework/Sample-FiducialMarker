@@ -31,7 +31,7 @@
 #include "SolARDescriptorMatcherRadiusOpencv.h"
 #include "SolARSBPatternReIndexer.h"
 #include "SolARImage2WorldMapper4Marker2D.h"
-#include "SolARPoseEstimationOpencv.h"
+#include "SolARPoseEstimationPnpEPFL.h"
 #include "SolAR2DOverlayOpencv.h"
 #include "SolAR3DOverlayOpencv.h"
 
@@ -114,7 +114,7 @@ void marker_run(int argc,char** argv){
     xpcf::ComponentFactory::createComponent<SolARDescriptorMatcherRadiusOpencv>(gen(features::IDescriptorMatcher::UUID ), patternMatcher);
     xpcf::ComponentFactory::createComponent<SolARSBPatternReIndexer>(gen(features::ISBPatternReIndexer::UUID ), patternReIndexer);
     xpcf::ComponentFactory::createComponent<SolARImage2WorldMapper4Marker2D>(gen(geom::IImage2WorldMapper::UUID ), img2worldMapper);
-    xpcf::ComponentFactory::createComponent<SolARPoseEstimationOpencv>(gen(solver::pose::I3DTransformFinder::UUID ), PnP);
+    xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpEPFL>(gen(solver::pose::I3DTransformFinder::UUID ), PnP);
     xpcf::ComponentFactory::createComponent<SolAR2DOverlayOpencv>(gen(display::I2DOverlay::UUID ), overlay2D);
     xpcf::ComponentFactory::createComponent<SolAR3DOverlayOpencv>(gen(display::I3DOverlay::UUID ), overlay3D);
 
