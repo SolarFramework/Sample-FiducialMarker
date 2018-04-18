@@ -31,7 +31,7 @@
 #include "SolARDescriptorMatcherRadiusOpencv.h"
 #include "SolARSBPatternReIndexer.h"
 #include "SolARImage2WorldMapper4Marker2D.h"
-#include "SolARPoseEstimationOpencv.h"
+#include "SolARPoseEstimationPnpEPFL.h"
 #include "SolAR2DOverlayOpencv.h"
 #include "SolAR3DOverlayOpencv.h"
 
@@ -68,7 +68,7 @@ void marker_run(int argc,char** argv){
     SRef<features::IDescriptorMatcher>              patternMatcher;
     SRef<features::ISBPatternReIndexer>             patternReIndexer;
     SRef<geom::IImage2WorldMapper>                  img2worldMapper;
-    SRef<solver::pose::IPoseEstimation>             PnP;
+    SRef<solver::pose::I3DTransformFinder>          PnP;
     SRef<display::I3DOverlay>                       overlay3D;
     SRef<display::I2DOverlay>                       overlay2D;
 
@@ -114,7 +114,7 @@ void marker_run(int argc,char** argv){
     xpcf::ComponentFactory::createComponent<SolARDescriptorMatcherRadiusOpencv>(gen(features::IDescriptorMatcher::UUID ), patternMatcher);
     xpcf::ComponentFactory::createComponent<SolARSBPatternReIndexer>(gen(features::ISBPatternReIndexer::UUID ), patternReIndexer);
     xpcf::ComponentFactory::createComponent<SolARImage2WorldMapper4Marker2D>(gen(geom::IImage2WorldMapper::UUID ), img2worldMapper);
-    xpcf::ComponentFactory::createComponent<SolARPoseEstimationOpencv>(gen(solver::pose::IPoseEstimation::UUID ), PnP);
+    xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpEPFL>(gen(solver::pose::I3DTransformFinder::UUID ), PnP);
     xpcf::ComponentFactory::createComponent<SolAR2DOverlayOpencv>(gen(display::I2DOverlay::UUID ), overlay2D);
     xpcf::ComponentFactory::createComponent<SolAR3DOverlayOpencv>(gen(display::I3DOverlay::UUID ), overlay3D);
 
@@ -308,7 +308,7 @@ void marker_run(int argc,char** argv){
                 std::cout << std::endl;
 #endif
                 // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-                if (PnP->poseFromSolvePNP(pose, img2DPoints, pattern3DPoints) == FrameworkReturnCode::_SUCCESS)
+                if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
                 {
 #ifdef DEBUG
                     std::cout << "Camera pose :" << std::endl;

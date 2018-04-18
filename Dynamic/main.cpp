@@ -68,7 +68,7 @@ void marker_run(int argc,char** argv){
     SRef<features::IDescriptorMatcher> patternMatcher = opencvModule.createComponent<features::IDescriptorMatcher>(MODULES::OPENCV::UUID::DESCRIPTOR_MATCHER_RADIUS);
     SRef<features::ISBPatternReIndexer> patternReIndexer = toolsModule.createComponent<features::ISBPatternReIndexer>(MODULES::TOOLS::UUID::SBPATTERN_REINDEXER);
     SRef<geom::IImage2WorldMapper> img2worldMapper = toolsModule.createComponent<geom::IImage2WorldMapper>(MODULES::TOOLS::UUID::IMAGE2WORLD_MAPPER);
-    SRef<solver::pose::IPoseEstimation> PnP = opencvModule.createComponent<solver::pose::IPoseEstimation>(MODULES::OPENCV::UUID::POSE_ESTIMATION);
+    SRef<solver::pose::I3DTransformFinder> PnP = opencvModule.createComponent<solver::pose::I3DTransformFinder>(MODULES::OPENCV::UUID::POSE_ESTIMATION_PNP);
     SRef<display::I3DOverlay> overlay3D = opencvModule.createComponent<display::I3DOverlay>(MODULES::OPENCV::UUID::OVERLAY3D);
     SRef<display::I2DOverlay> overlay2D = opencvModule.createComponent<display::I2DOverlay>(MODULES::OPENCV::UUID::OVERLAY2D);
 
@@ -287,7 +287,7 @@ void marker_run(int argc,char** argv){
                 std::cout << std::endl;
 #endif
                 // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-                if (PnP->poseFromSolvePNP(pose, img2DPoints, pattern3DPoints) == FrameworkReturnCode::_SUCCESS)
+                if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
                 {
 #ifdef DEBUG
                     std::cout << "Camera pose :" << std::endl;
