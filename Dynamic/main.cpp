@@ -14,63 +14,101 @@
  * limitations under the License.
  */
 
+#include <boost/log/core.hpp>
+
 #include <iostream>
 #include <string>
+#include <map>
 
 // ADD COMPONENTS HEADERS HERE, e.g #include "SolarComponent.h"
 
-#include "SolARModuleManagerOpencv.h"
-#include "SolARModuleManagerTools.h"
-#include <iostream>
-#include <map>
+#include "SolARModuleOpencv_traits.h"
+
+#include "SolARModuleTools_traits.h"
+
+#include "IComponentManager.h"
+
+
+#include "api/input/devices/ICamera.h"
+#include "api/input/files/IMarker2DSquaredBinary.h"
+#include "api/display/IImageViewer.h"
+#include "api/image/IImageFilter.h"
+#include "api/image/IImageConvertor.h"
+#include "api/features/IContoursExtractor.h"
+#include "api/features/IContoursFilter.h"
+#include "api/image/IPerspectiveController.h"
+#include "api/features/IDescriptorsExtractorSBPattern.h"
+#include "api/features/IDescriptorMatcher.h"
+#include "api/features/ISBPatternReIndexer.h"
+#include "api/geom/IImage2WorldMapper.h"
+#include "api/solver/pose/I3DTransformFinder.h"
+#include "api/display/I3DOverlay.h"
+#include "api/display/I2DOverlay.h"
+
+
 
 using namespace std;
 using namespace SolAR;
+using namespace SolAR::MODULES::OPENCV;
+using namespace SolAR::MODULES::TOOLS;
 using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
 
 void marker_run(int argc,char** argv){
 
+#if NDEBUG
+    boost::log::core::get()->set_logging_enabled(false);
+#endif
+
     LOG_ADD_LOG_TO_CONSOLE();
 
+    /* instantiate component manager*/
+    /* this is needed in dynamic mode */
+    SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
+
+    // load required library
+    xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleOpenCV_registry.xml");
     // instantiate module managers
-    MODULES::OPENCV::SolARModuleManagerOpencv opencvModule(argv[4]);
-    if (!opencvModule.isLoaded()) // xpcf library load has failed
+    if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
     {
         LOG_ERROR("XPCF library load has failed")
-        return;
+        return ;
     }
 
-    MODULES::TOOLS::SolARModuleManagerTools toolsModule(argv[4]);
-    if (!toolsModule.isLoaded()) // xpcf library load has failed
+
+    // load required library
+    xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleTools_registry.xml");
+    // instantiate module managers
+    if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
     {
         LOG_ERROR("XPCF library load has failed")
-        return;
+        return ;
     }
 
     // declare and create components
     LOG_INFO("Start creating components");
 
-    SRef<input::devices::ICamera> camera = opencvModule.createComponent<input::devices::ICamera>(MODULES::OPENCV::UUID::CAMERA);
-    SRef<input::files::IMarker2DSquaredBinary> binaryMarker = opencvModule.createComponent<input::files::IMarker2DSquaredBinary>(MODULES::OPENCV::UUID::MARKER2D_SQUARED_BINARY);
-    SRef<display::IImageViewer> imageViewer = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<display::IImageViewer> imageViewerGrey = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<display::IImageViewer> imageViewerBinary = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<display::IImageViewer> imageViewerContours = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<display::IImageViewer> imageViewerFilteredContours = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<image::IImageFilter> imageFilter = opencvModule.createComponent<image::IImageFilter>(MODULES::OPENCV::UUID::IMAGE_FILTER);
-    SRef<image::IImageConvertor> imageConvertor = opencvModule.createComponent<image::IImageConvertor>(MODULES::OPENCV::UUID::IMAGE_CONVERTOR);
-    SRef<features::IContoursExtractor> contoursExtractor = opencvModule.createComponent<features::IContoursExtractor>(MODULES::OPENCV::UUID::CONTOURS_EXTRACTOR);
-    SRef<features::IContoursFilter> contoursFilter = opencvModule.createComponent<features::IContoursFilter>(MODULES::OPENCV::UUID::CONTOURS_FILTER_BINARY_MARKER);
-    SRef<image::IPerspectiveController> perspectiveController = opencvModule.createComponent<image::IPerspectiveController>(MODULES::OPENCV::UUID::PERSPECTIVE_CONTROLLER);
-    SRef<features::IDescriptorsExtractorSBPattern> patternDescriptorExtractor = opencvModule.createComponent<features::IDescriptorsExtractorSBPattern>(MODULES::OPENCV::UUID::DESCRIPTORS_EXTRACTOR_SBPATTERN);
-    SRef<features::IDescriptorMatcher> patternMatcher = opencvModule.createComponent<features::IDescriptorMatcher>(MODULES::OPENCV::UUID::DESCRIPTOR_MATCHER_RADIUS);
-    SRef<features::ISBPatternReIndexer> patternReIndexer = toolsModule.createComponent<features::ISBPatternReIndexer>(MODULES::TOOLS::UUID::SBPATTERN_REINDEXER);
-    SRef<geom::IImage2WorldMapper> img2worldMapper = toolsModule.createComponent<geom::IImage2WorldMapper>(MODULES::TOOLS::UUID::IMAGE2WORLD_MAPPER);
-    SRef<solver::pose::IPoseEstimation> PnP = opencvModule.createComponent<solver::pose::IPoseEstimation>(MODULES::OPENCV::UUID::POSE_ESTIMATION);
-    SRef<display::I3DOverlay> overlay3D = opencvModule.createComponent<display::I3DOverlay>(MODULES::OPENCV::UUID::OVERLAY3D);
-    SRef<display::I2DOverlay> overlay2D = opencvModule.createComponent<display::I2DOverlay>(MODULES::OPENCV::UUID::OVERLAY2D);
+
+    SRef<input::devices::ICamera> camera =xpcfComponentManager->create<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+    SRef<input::files::IMarker2DSquaredBinary> binaryMarker =xpcfComponentManager->create<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
+    SRef<display::IImageViewer> imageViewer =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    SRef<display::IImageViewer> imageViewerGrey =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    SRef<display::IImageViewer> imageViewerBinary =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    SRef<display::IImageViewer> imageViewerContours =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    SRef<display::IImageViewer> imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    SRef<image::IImageFilter> imageFilter =xpcfComponentManager->create<SolARImageFilterOpencv>()->bindTo<image::IImageFilter>();
+    SRef<image::IImageConvertor> imageConvertor =xpcfComponentManager->create<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
+    SRef<features::IContoursExtractor> contoursExtractor =xpcfComponentManager->create<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
+    SRef<features::IContoursFilter> contoursFilter =xpcfComponentManager->create<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
+    SRef<image::IPerspectiveController> perspectiveController =xpcfComponentManager->create<SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
+    SRef<features::IDescriptorsExtractorSBPattern> patternDescriptorExtractor =xpcfComponentManager->create<SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
+    SRef<features::IDescriptorMatcher> patternMatcher =xpcfComponentManager->create<SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
+    SRef<features::ISBPatternReIndexer> patternReIndexer = xpcfComponentManager->create<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
+    SRef<geom::IImage2WorldMapper> img2worldMapper = xpcfComponentManager->create<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
+    SRef<solver::pose::I3DTransformFinder> PnP =xpcfComponentManager->create<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinder>();
+    SRef<display::I3DOverlay> overlay3D =xpcfComponentManager->create<SolAR3DOverlayOpencv>()->bindTo<display::I3DOverlay>();
+    SRef<display::I2DOverlay> overlay2D =xpcfComponentManager->create<SolAR2DOverlayOpencv>()->bindTo<display::I2DOverlay>();
 
     SRef<Image> inputImage;
     SRef<Image> greyImage;
@@ -287,7 +325,7 @@ void marker_run(int argc,char** argv){
                 std::cout << std::endl;
 #endif
                 // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-                if (PnP->poseFromSolvePNP(pose, img2DPoints, pattern3DPoints) == FrameworkReturnCode::_SUCCESS)
+                if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
                 {
 #ifdef DEBUG
                     std::cout << "Camera pose :" << std::endl;
@@ -326,13 +364,13 @@ void marker_run(int argc,char** argv){
 
 int printHelp(){
         printf(" usage :\n");
-        printf(" exe FiducialMarkerFilename CameraCalibrationFile VideoFile|cameraId configFile\n\n");
+        printf(" exe FiducialMarkerFilename CameraCalibrationFile VideoFile|cameraId\n\n");
         printf(" Escape key to exit");
         return 1;
 }
 
 int main(int argc, char **argv){
-    if(argc ==5){
+    if(argc ==4){
         marker_run(argc,argv);
          return 1;
     }
