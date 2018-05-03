@@ -55,6 +55,25 @@ using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
 
+
+int intConfig(const char* initFile,SRef<xpcf::IComponentManager>& xpcfComponentManager){
+    FILE *pf=fopen(initFile,"r");
+    if(!pf)
+       return -1;
+    char l[256];
+    int ret;
+    while ((ret = fscanf (pf,"%s",&l)) != EOF && ret != 0){
+        xpcfComponentManager->load(l);
+        // instantiate module managers
+        if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
+        {
+            LOG_ERROR("XPCF library load has failed")
+            return -1;
+        }
+    }
+    return 0;
+}
+
 void marker_run(int argc,char** argv){
 
 #if NDEBUG
@@ -67,24 +86,8 @@ void marker_run(int argc,char** argv){
     /* this is needed in dynamic mode */
     SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-    // load required library
-    xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleOpenCV_registry.xml");
-    // instantiate module managers
-    if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
-    {
-        LOG_ERROR("XPCF library load has failed")
-        return ;
-    }
-
-
-    // load required library
-    xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleTools_registry.xml");
-    // instantiate module managers
-    if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
-    {
-        LOG_ERROR("XPCF library load has failed")
-        return ;
-    }
+    if( intConfig(argv[4],xpcfComponentManager)!=0 )
+        return;
 
     // declare and create components
     LOG_INFO("Start creating components");
@@ -364,13 +367,13 @@ void marker_run(int argc,char** argv){
 
 int printHelp(){
         printf(" usage :\n");
-        printf(" exe FiducialMarkerFilename CameraCalibrationFile VideoFile|cameraId\n\n");
+        printf(" exe FiducialMarkerFilename CameraCalibrationFile VideoFile|cameraId config_iniFile\n\n");
         printf(" Escape key to exit");
         return 1;
 }
 
 int main(int argc, char **argv){
-    if(argc ==4){
+    if(argc ==5){
         marker_run(argc,argv);
          return 1;
     }
