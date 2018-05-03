@@ -68,9 +68,11 @@ int intConfig(const char* initFile,SRef<xpcf::IComponentManager>& xpcfComponentM
         if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
         {
             LOG_ERROR("XPCF library load has failed")
+            fclose(pf);
             return -1;
         }
     }
+    fclose(pf);
     return 0;
 }
 
