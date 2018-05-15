@@ -55,28 +55,7 @@ using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
 
-
-int intConfig(const char* initFile,SRef<xpcf::IComponentManager>& xpcfComponentManager){
-    FILE *pf=fopen(initFile,"r");
-    if(!pf)
-       return -1;
-    char l[256];
-    int ret;
-    while ((ret = fscanf (pf,"%s",&l)) != EOF && ret != 0){
-        xpcfComponentManager->load(l);
-        // instantiate module managers
-        if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
-        {
-            LOG_ERROR("XPCF library load has failed")
-            fclose(pf);
-            return -1;
-        }
-    }
-    fclose(pf);
-    return 0;
-}
-
-void marker_run(int argc,char** argv){
+int marker_run(int argc,char** argv){
 
 #if NDEBUG
     boost::log::core::get()->set_logging_enabled(false);
@@ -88,8 +67,12 @@ void marker_run(int argc,char** argv){
     /* this is needed in dynamic mode */
     SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-    if( intConfig(argv[4],xpcfComponentManager)!=0 )
-        return;
+    xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/", true);
+    if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
+    {
+        LOG_ERROR("XPCF library load has failed")
+        return -1;
+    }
 
     // declare and create components
     LOG_INFO("Start creating components");
@@ -196,7 +179,7 @@ void marker_run(int argc,char** argv){
         if (camera->start(argv[3]) != FrameworkReturnCode::_SUCCESS) // videoFile
         {
             LOG_ERROR ("Video with url {} does not exist", argv[3]);
-            return ;
+            return -1;
         }
     }
     else
@@ -204,7 +187,7 @@ void marker_run(int argc,char** argv){
         if (camera->start(atoi(argv[3])) != FrameworkReturnCode::_SUCCESS) // Camera
         {
             LOG_ERROR ("Camera with id {} does not exist", argv[3]);
-            return ;
+            return -1;
         }
     }
 
@@ -365,19 +348,20 @@ void marker_run(int argc,char** argv){
     printf ("\n\nElasped time is %.2lf seconds.\n",duration );
     printf (  "Number of processed frames per second : %8.2f\n\n",count/duration );
 
+    return 0;
+
 }
 
 int printHelp(){
         printf(" usage :\n");
-        printf(" exe FiducialMarkerFilename CameraCalibrationFile VideoFile|cameraId config_iniFile\n\n");
+        printf(" exe FiducialMarkerFilename CameraCalibrationFile VideoFile|cameraId\n\n");
         printf(" Escape key to exit");
         return 1;
 }
 
 int main(int argc, char **argv){
-    if(argc ==5){
-        marker_run(argc,argv);
-         return 1;
+    if(argc == 4){
+        return marker_run(argc,argv);
     }
     else
         return(printHelp());
