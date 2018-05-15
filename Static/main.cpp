@@ -32,6 +32,8 @@
 #include "SolARSBPatternReIndexer.h"
 #include "SolARImage2WorldMapper4Marker2D.h"
 #include "SolARPoseEstimationPnpEPFL.h"
+#include "SolARPoseEstimationPnpOpencv.h"
+
 #include "SolAR2DOverlayOpencv.h"
 #include "SolAR3DOverlayOpencv.h"
 
@@ -88,7 +90,7 @@ void marker_run(int argc,char** argv){
     std::vector<SRef<Point2Df>>                pattern2DPoints;
     std::vector<SRef<Point2Df>>                img2DPoints;
     std::vector<SRef<Point3Df>>                pattern3DPoints;
-    Pose                                       pose;
+    Transform3Df                                       pose;
     // The Intrinsic parameters of the camera
     CamCalibration K;
     // The escape key to exit the sample
@@ -114,7 +116,10 @@ void marker_run(int argc,char** argv){
     xpcf::ComponentFactory::createComponent<SolARDescriptorMatcherRadiusOpencv>(gen(features::IDescriptorMatcher::UUID ), patternMatcher);
     xpcf::ComponentFactory::createComponent<SolARSBPatternReIndexer>(gen(features::ISBPatternReIndexer::UUID ), patternReIndexer);
     xpcf::ComponentFactory::createComponent<SolARImage2WorldMapper4Marker2D>(gen(geom::IImage2WorldMapper::UUID ), img2worldMapper);
-    xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpEPFL>(gen(solver::pose::I3DTransformFinder::UUID ), PnP);
+//  xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpEPFL>(gen(solver::pose::I3DTransformFinder::UUID ), PnP);
+
+    xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpOpencv>(gen(solver::pose::I3DTransformFinder::UUID ), PnP);
+
     xpcf::ComponentFactory::createComponent<SolAR2DOverlayOpencv>(gen(display::I2DOverlay::UUID ), overlay2D);
     xpcf::ComponentFactory::createComponent<SolAR3DOverlayOpencv>(gen(display::I3DOverlay::UUID ), overlay3D);
 
@@ -318,7 +323,7 @@ void marker_run(int argc,char** argv){
 
                     // Display a 3D box over the marker
                     Transform3Df cubeTransform = Transform3Df::Identity();
-                    overlay3D->drawBox(pose, binaryMarker->getWidth(), binaryMarker->getHeight(), binaryMarker->getHeight(), cubeTransform, inputImage);
+                    overlay3D->drawBox(pose, binaryMarker->getWidth(), binaryMarker->getHeight(), binaryMarker->getHeight()*0.5, cubeTransform, inputImage);
                 }
             }
        }

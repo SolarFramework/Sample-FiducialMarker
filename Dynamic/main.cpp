@@ -88,7 +88,7 @@ void marker_run(int argc,char** argv){
     std::vector<SRef<Point2Df>>                pattern2DPoints;
     std::vector<SRef<Point2Df>>                img2DPoints;
     std::vector<SRef<Point3Df>>                pattern3DPoints;
-    Pose                                       pose;
+    Transform3Df                               pose;
    
     CamCalibration K;
   
