@@ -31,3 +31,11 @@ x64
 # Fortran module files
 *.mod
 *.smod
+build-SolARFiducialMarkerSampleStatic/camera_calibration.yml
+build-SolARFiducialMarkerSampleStatic/SolARFiducialMarkerSampleStatic_resource.rc
+build-SolARFiducialMarkerSampleStatic/SolARFiducialMarkerSampleStatic.exe
+build-SolARFiducialMarkerSampleStatic/.qmake.stash
+build-SolARFiducialMarkerSampleStatic/fiducialMarker.yml
+build-SolARFiducialMarkerSampleStatic/SolARFiducialMarkerSampleStatic_resource.res
+build-SolARFiducialMarkerSampleStatic/Makefile
+build-SolARFiducialMarkerSampleStatic/SolARFiducialMarkerSampleStatic.exp

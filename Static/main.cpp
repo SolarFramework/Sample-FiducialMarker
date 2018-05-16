@@ -95,7 +95,7 @@ void marker_run(int argc,char** argv){
     std::vector<SRef<Point2Df>>                pattern2DPoints;
     std::vector<SRef<Point2Df>>                img2DPoints;
     std::vector<SRef<Point3Df>>                pattern3DPoints;
-    Pose                                       pose;
+    Transform3Df                                       pose;
     // The Intrinsic parameters of the camera
     CamCalibration K;
     // The escape key to exit the sample
@@ -324,7 +324,7 @@ void marker_run(int argc,char** argv){
 
                     // Display a 3D box over the marker
                     Transform3Df cubeTransform = Transform3Df::Identity();
-                    overlay3D->drawBox(pose, binaryMarker->getWidth(), binaryMarker->getHeight(), binaryMarker->getHeight(), cubeTransform, inputImage);
+                    overlay3D->drawBox(pose, binaryMarker->getWidth(), binaryMarker->getHeight(), binaryMarker->getHeight()*0.5, cubeTransform, inputImage);
                 }
             }
        }

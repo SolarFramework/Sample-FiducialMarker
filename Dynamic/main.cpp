@@ -98,6 +98,7 @@ int marker_run(int argc,char** argv){
     auto overlay3D =xpcfComponentManager->create<SolAR3DOverlayOpencv>()->bindTo<display::I3DOverlay>();
     auto overlay2D =xpcfComponentManager->create<SolAR2DOverlayOpencv>()->bindTo<display::I2DOverlay>();
 
+
     SRef<Image> inputImage;
     SRef<Image> greyImage;
     SRef<Image> binaryImage;
@@ -114,7 +115,7 @@ int marker_run(int argc,char** argv){
     std::vector<SRef<Point2Df>>                pattern2DPoints;
     std::vector<SRef<Point2Df>>                img2DPoints;
     std::vector<SRef<Point3Df>>                pattern3DPoints;
-    Pose                                       pose;
+    Transform3Df                               pose;
    
     CamCalibration K;
   
