@@ -169,7 +169,12 @@ void marker_run(int argc,char** argv){
     //patternMatcher->setParameters(maximalDistanceToMatch);
 
     //Load camera parameters and start it
-    camera->loadCameraParameters(argv[2]);
+    if (camera->loadCameraParameters(argv[2]) != FrameworkReturnCode::_SUCCESS){
+        {
+            LOG_ERROR ("camera calibration file {} does not exist", argv[2]);
+            return ;
+        }
+    }
 
     PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
     overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
