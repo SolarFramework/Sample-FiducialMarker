@@ -318,7 +318,12 @@ int marker_run(int argc,char** argv){
                 {
 #ifdef DEBUG
                     std::cout << "Camera pose :" << std::endl;
-                    std::cout << pose.toString();
+                    for(int ii = 0; ii < 4; ++ii){
+                        for(int jj = 0; jj < 4; ++jj){
+                            std::cout<<pose(ii,jj)<<" ";
+                        }
+                        std::cout<<std::endl;
+                    }
                     std::cout << std::endl;
 #endif
 
