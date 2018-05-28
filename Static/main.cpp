@@ -104,25 +104,25 @@ void marker_run(int argc,char** argv){
     std::vector<unsigned int> bgr{128, 128, 128};
 
     // component creation
-    xpcf::ComponentFactory::createComponent<SolARCameraOpencv>(xpcf::toUUID<input::devices::ICamera>(), camera);
-    xpcf::ComponentFactory::createComponent<SolARMarker2DSquaredBinaryOpencv>(xpcf::toUUID<input::files::IMarker2DSquaredBinary>(), binaryMarker);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(xpcf::toUUID<display::IImageViewer>(), imageViewer);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(xpcf::toUUID<display::IImageViewer>(), imageViewerGrey);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(xpcf::toUUID<display::IImageViewer>(), imageViewerBinary);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(xpcf::toUUID<display::IImageViewer>(), imageViewerContours);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(xpcf::toUUID<display::IImageViewer>(), imageViewerFilteredContours);
-    xpcf::ComponentFactory::createComponent<SolARImageConvertorOpencv>(xpcf::toUUID<image::IImageConvertor>(), imageConvertor);
-    xpcf::ComponentFactory::createComponent<SolARImageFilterOpencv>(xpcf::toUUID<image::IImageFilter>(), imageFilter);
-    xpcf::ComponentFactory::createComponent<SolARContoursExtractorOpencv>(xpcf::toUUID<features::IContoursExtractor>(), contoursExtractor);
-    xpcf::ComponentFactory::createComponent<SolARContoursFilterBinaryMarkerOpencv>(xpcf::toUUID<features::IContoursFilter>(), contoursFilter);
-    xpcf::ComponentFactory::createComponent<SolARPerspectiveControllerOpencv>(xpcf::toUUID<image::IPerspectiveController>(), perspectiveController);
-    xpcf::ComponentFactory::createComponent<SolARDescriptorsExtractorSBPatternOpencv>(xpcf::toUUID<features::IDescriptorsExtractorSBPattern>(), patternDescriptorExtractor);
-    xpcf::ComponentFactory::createComponent<SolARDescriptorMatcherRadiusOpencv>(xpcf::toUUID<features::IDescriptorMatcher>(), patternMatcher);
-    xpcf::ComponentFactory::createComponent<SolARSBPatternReIndexer>(xpcf::toUUID<features::ISBPatternReIndexer>(), patternReIndexer);
-    xpcf::ComponentFactory::createComponent<SolARImage2WorldMapper4Marker2D>(xpcf::toUUID<geom::IImage2WorldMapper>(), img2worldMapper);
-    xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpEPFL>(xpcf::toUUID<solver::pose::I3DTransformFinder>(), PnP);
-    xpcf::ComponentFactory::createComponent<SolAR2DOverlayOpencv>(xpcf::toUUID<display::I2DOverlay>(), overlay2D);
-    xpcf::ComponentFactory::createComponent<SolAR3DOverlayOpencv>(xpcf::toUUID<display::I3DOverlay>(), overlay3D);
+    xpcf::ComponentFactory::createComponent<SolARCameraOpencv>(camera);
+    xpcf::ComponentFactory::createComponent<SolARMarker2DSquaredBinaryOpencv>(binaryMarker);
+    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(imageViewer);
+    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(imageViewerGrey);
+    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(imageViewerBinary);
+    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(imageViewerContours);
+    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(imageViewerFilteredContours);
+    xpcf::ComponentFactory::createComponent<SolARImageConvertorOpencv>(imageConvertor);
+    xpcf::ComponentFactory::createComponent<SolARImageFilterOpencv>(imageFilter);
+    xpcf::ComponentFactory::createComponent<SolARContoursExtractorOpencv>(contoursExtractor);
+    xpcf::ComponentFactory::createComponent<SolARContoursFilterBinaryMarkerOpencv>(contoursFilter);
+    xpcf::ComponentFactory::createComponent<SolARPerspectiveControllerOpencv>(perspectiveController);
+    xpcf::ComponentFactory::createComponent<SolARDescriptorsExtractorSBPatternOpencv>(patternDescriptorExtractor);
+    xpcf::ComponentFactory::createComponent<SolARDescriptorMatcherRadiusOpencv>(patternMatcher);
+    xpcf::ComponentFactory::createComponent<SolARSBPatternReIndexer>(patternReIndexer);
+    xpcf::ComponentFactory::createComponent<SolARImage2WorldMapper4Marker2D>(img2worldMapper);
+    xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpEPFL>(PnP);
+    xpcf::ComponentFactory::createComponent<SolAR2DOverlayOpencv>(overlay2D);
+    xpcf::ComponentFactory::createComponent<SolAR3DOverlayOpencv>(overlay3D);
 
 
     // components initialisation
