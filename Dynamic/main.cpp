@@ -67,9 +67,7 @@ int marker_run(int argc,char** argv){
     /* this is needed in dynamic mode */
     SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-    xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/", true);
-    if (!xpcfComponentManager->isLoaded()) // xpcf library load has failed
-    {
+    if(xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/", true)!=org::bcom::xpcf::_SUCCESS){
         LOG_ERROR("XPCF library load has failed")
         return -1;
     }
