@@ -85,25 +85,25 @@ void marker_run(int argc,char** argv){
     std::vector<unsigned int> bgr{128, 128, 128};
 
     // component creation
-    auto camera =xpcf::ComponentFactory::createComponent<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
-    auto binaryMarker =xpcf::ComponentFactory::createComponent<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
-    auto imageViewer =xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerGrey =xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerBinary =xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerContours =xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerFilteredContours =xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageFilter =xpcf::ComponentFactory::createComponent<SolARImageFilterOpencv>()->bindTo<image::IImageFilter>();
-    auto imageConvertor =xpcf::ComponentFactory::createComponent<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
-    auto contoursExtractor =xpcf::ComponentFactory::createComponent<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
-    auto contoursFilter =xpcf::ComponentFactory::createComponent<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
-    auto perspectiveController =xpcf::ComponentFactory::createComponent<SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
-    auto patternDescriptorExtractor =xpcf::ComponentFactory::createComponent<SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
-    auto patternMatcher =xpcf::ComponentFactory::createComponent<SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
-    auto patternReIndexer = xpcf::ComponentFactory::createComponent<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
-    auto img2worldMapper = xpcf::ComponentFactory::createComponent<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
-    auto PnP =xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinder>();
-    auto overlay3D =xpcf::ComponentFactory::createComponent<SolAR3DOverlayOpencv>()->bindTo<display::I3DOverlay>();
-    auto overlay2D =xpcf::ComponentFactory::createComponent<SolAR2DOverlayOpencv>()->bindTo<display::I2DOverlay>();
+    auto camera =xpcf::ComponentFactory::createInstance<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+    auto binaryMarker =xpcf::ComponentFactory::createInstance<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
+    auto imageViewer =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerGrey =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerBinary =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerContours =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerFilteredContours =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageFilter =xpcf::ComponentFactory::createInstance<SolARImageFilterOpencv>()->bindTo<image::IImageFilter>();
+    auto imageConvertor =xpcf::ComponentFactory::createInstance<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
+    auto contoursExtractor =xpcf::ComponentFactory::createInstance<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
+    auto contoursFilter =xpcf::ComponentFactory::createInstance<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
+    auto perspectiveController =xpcf::ComponentFactory::createInstance<SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
+    auto patternDescriptorExtractor =xpcf::ComponentFactory::createInstance<SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
+    auto patternMatcher =xpcf::ComponentFactory::createInstance<SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
+    auto patternReIndexer = xpcf::ComponentFactory::createInstance<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
+    auto img2worldMapper = xpcf::ComponentFactory::createInstance<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
+    auto PnP =xpcf::ComponentFactory::createInstance<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinder>();
+    auto overlay3D =xpcf::ComponentFactory::createInstance<SolAR3DOverlayOpencv>()->bindTo<display::I3DOverlay>();
+    auto overlay2D =xpcf::ComponentFactory::createInstance<SolAR2DOverlayOpencv>()->bindTo<display::I2DOverlay>();
 
 
 
