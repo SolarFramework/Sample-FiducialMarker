@@ -317,7 +317,7 @@ void marker_run(int argc,char** argv){
                 {
 #ifndef NDEBUG
                     std::cout << "Camera pose :" << std::endl;
-                    std::cout << pose.toString();
+                    std::cout << pose.matrix();
                     std::cout << std::endl;
 #endif
 
