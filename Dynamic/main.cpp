@@ -128,7 +128,7 @@ int marker_run(int argc,char** argv){
     binaryMarker->loadMarker(argv[1]);
     patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
 
-#ifdef DEBUG
+#ifndef NDEBUG
     SquaredBinaryPatternMatrix patternMatrix = binaryMarker->getPattern()->getPatternMatrix();
     for (int i= 0; i < (int)patternMatrix.rows(); i++)
     {
@@ -217,14 +217,14 @@ int marker_run(int argc,char** argv){
 
        // Extract contours from binary image
        contoursExtractor->extract(binaryImage,contours);
-#ifdef DEBUG
+#ifndef NDEBUG
        contoursImage = binaryImage->copy();
        overlay2D->drawContours(contours, 3, bgr, contoursImage);
 #endif
        // Filter 4 edges contours to find those candidate for marker contours
        contoursFilter->filter(contours, filtered_contours);
 
-#ifdef DEBUG
+#ifndef NDEBUG
        filteredContoursImage = binaryImage->copy();
        overlay2D->drawContours(filtered_contours, 3, bgr, filteredContoursImage);
 #endif
@@ -235,7 +235,7 @@ int marker_run(int argc,char** argv){
        if (patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
        {
 
-#ifdef DEBUG
+#ifndef NDEBUG
            std::cout << "Looking for the following descriptor:" << std::endl;
            for (uint32_t i = 0; i < markerPatternDescriptor->getNbDescriptors()*markerPatternDescriptor->getDescriptorByteSize(); i++)
            {
@@ -289,7 +289,7 @@ int marker_run(int argc,char** argv){
             // From extracted squared binary pattern, match the one corresponding to the squared binary marker
             if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
             {
-#ifdef DEBUG
+#ifndef NDEBUG
                 std::cout << "Matches :" << std::endl;
                 for (int num_match = 0; num_match < patternMatches.size(); num_match++)
                     std::cout << "Match [" << patternMatches[num_match].getIndexInDescriptorA() << "," << patternMatches[num_match].getIndexInDescriptorB() << "], dist = " << patternMatches[num_match].getMatchingScore() << std::endl;
@@ -298,7 +298,7 @@ int marker_run(int argc,char** argv){
 
                 // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
                 patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
-#ifdef DEBUG
+#ifndef NDEBUG
                 std::cout << "2D Matched points :" << std::endl;
                 for (int i = 0; i < img2DPoints.size(); i++)
                     std::cout << "[" << img2DPoints[i]->x() << "," << img2DPoints[i]->y() <<"],";
@@ -310,7 +310,7 @@ int marker_run(int argc,char** argv){
 #endif
                 // Compute the 3D position of each corner of the marker
                 img2worldMapper->map(pattern2DPoints, pattern3DPoints);
-#ifdef DEBUG
+#ifndef NDEBUG
                 std::cout << "3D Points position:" << std::endl;
                 for (int i = 0; i < pattern3DPoints.size(); i++)
                     std::cout << "[" << pattern3DPoints[i]->x() << "," << pattern3DPoints[i]->y() <<"," << pattern3DPoints[i]->z() << "],";
@@ -319,14 +319,9 @@ int marker_run(int argc,char** argv){
                 // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
                 if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
                 {
-#ifdef DEBUG
+#ifndef NDEBUG
                     std::cout << "Camera pose :" << std::endl;
-                    for(int ii = 0; ii < 4; ++ii){
-                        for(int jj = 0; jj < 4; ++jj){
-                            std::cout<<pose(ii,jj)<<" ";
-                        }
-                        std::cout<<std::endl;
-                    }
+                    std::cout << pose.matrix();
                     std::cout << std::endl;
 #endif
 
@@ -340,7 +335,7 @@ int marker_run(int argc,char** argv){
        // display images in viewers
        if (
          (imageViewer->display("original image", inputImage, &escape_key) == FrameworkReturnCode::_STOP)
-#ifdef DEBUG
+#ifndef NDEBUG
          ||(imageViewerGrey->display("Grey Image", greyImage, &escape_key) == FrameworkReturnCode::_STOP)
          ||(imageViewerBinary->display("Binary Image", binaryImage, &escape_key) == FrameworkReturnCode::_STOP)
          ||(imageViewerContours->display("Contours Image", contoursImage, &escape_key) == FrameworkReturnCode::_STOP)
