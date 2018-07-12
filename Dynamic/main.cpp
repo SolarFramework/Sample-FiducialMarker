@@ -26,7 +26,7 @@
 
 #include "SolARModuleTools_traits.h"
 
-#include "IComponentManager.h"
+#include "xpcf/xpcf.h"
 
 
 #include "api/input/devices/ICamera.h"
@@ -83,7 +83,9 @@ int marker_run(int argc,char** argv){
     auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
     auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
     auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageFilter =xpcfComponentManager->create<SolARImageFilterOpencv>()->bindTo<image::IImageFilter>();
+    auto imageFilterBinary =xpcfComponentManager->create<SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
+    auto rIConfigurable_imageFilterBinary = imageFilterBinary->bindTo<xpcf::IConfigurable>();
+
     auto imageConvertor =xpcfComponentManager->create<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
     auto contoursExtractor =xpcfComponentManager->create<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
     auto contoursFilter =xpcfComponentManager->create<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
@@ -213,7 +215,11 @@ int marker_run(int argc,char** argv){
        imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
        // Convert Image from grey to black and white
-       imageFilter->binarize(greyImage,binaryImage,-1,255);
+       auto imageFilterBinary_property=rIConfigurable_imageFilterBinary->getProperty("min");
+       imageFilterBinary_property->setIntegerValue(-1);
+       imageFilterBinary_property=rIConfigurable_imageFilterBinary->getProperty("max");
+       imageFilterBinary_property->setIntegerValue(255);
+       imageFilterBinary->filter(greyImage,binaryImage);
 
        // Extract contours from binary image
        contoursExtractor->extract(binaryImage,contours);

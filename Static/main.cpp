@@ -21,11 +21,10 @@
 
 // ADD COMPONENTS HEADERS HERE, e.g #include "SolarComponent.h"
 #include "SolARCameraOpencv.h"
-#include "SolARImageFilterOpencv.h"
 #include "SolARImageViewerOpencv.h"
 #include "SolARImageConvertorOpencv.h"
 #include "SolARMarker2DSquaredBinaryOpencv.h"
-#include "SolARImageFilterOpencv.h"
+#include "SolARImageFilterBinaryOpencv.h"
 #include "SolARContoursExtractorOpencv.h"
 #include "SolARContoursFilterBinaryMarkerOpencv.h"
 #include "SolARPerspectiveControllerOpencv.h"
@@ -92,7 +91,9 @@ void marker_run(int argc,char** argv){
     auto imageViewerBinary =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
     auto imageViewerContours =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
     auto imageViewerFilteredContours =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageFilter =xpcf::ComponentFactory::createInstance<SolARImageFilterOpencv>()->bindTo<image::IImageFilter>();
+    auto imageFilterBinary =xpcf::ComponentFactory::createInstance<SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
+    auto rIConfigurable_imageFilterBinary = imageFilterBinary->bindTo<xpcf::IConfigurable>();
+
     auto imageConvertor =xpcf::ComponentFactory::createInstance<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
     auto contoursExtractor =xpcf::ComponentFactory::createInstance<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
     auto contoursFilter =xpcf::ComponentFactory::createInstance<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
@@ -197,7 +198,11 @@ void marker_run(int argc,char** argv){
        imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
        // Convert Image from grey to black and white
-       imageFilter->binarize(greyImage,binaryImage,-1,255);
+       auto imageFilterBinary_property=rIConfigurable_imageFilterBinary->getProperty("min");
+       imageFilterBinary_property->setIntegerValue(-1);
+       imageFilterBinary_property=rIConfigurable_imageFilterBinary->getProperty("max");
+       imageFilterBinary_property->setIntegerValue(255);
+       imageFilterBinary->filter(greyImage,binaryImage);
 
        // Extract contours from binary image
        contoursExtractor->extract(binaryImage,contours);
