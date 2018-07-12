@@ -67,10 +67,17 @@ int marker_run(int argc,char** argv){
     /* this is needed in dynamic mode */
     SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-    if(xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/", true)!=org::bcom::xpcf::_SUCCESS){
+    if(xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleOpenCV_registry.xml")!=org::bcom::xpcf::_SUCCESS)
+    {
         LOG_ERROR("XPCF library load has failed")
         return -1;
     }
+    if(xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleTools_registry.xml")!=org::bcom::xpcf::_SUCCESS)
+    {
+        LOG_ERROR("XPCF library load has failed")
+        return -1;
+    }
+
 
     // declare and create components
     LOG_INFO("Start creating components");
