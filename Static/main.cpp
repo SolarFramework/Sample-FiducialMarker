@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
+#include <boost/log/core.hpp>
+
 #include <iostream>
 #include <string>
 
 // ADD COMPONENTS HEADERS HERE, e.g #include "SolarComponent.h"
 #include "SolARCameraOpencv.h"
-#include "SolARImageFilterOpencv.h"
 #include "SolARImageViewerOpencv.h"
 #include "SolARImageConvertorOpencv.h"
 #include "SolARMarker2DSquaredBinaryOpencv.h"
-#include "SolARImageFilterOpencv.h"
+#include "SolARImageFilterBinaryOpencv.h"
 #include "SolARContoursExtractorOpencv.h"
 #include "SolARContoursFilterBinaryMarkerOpencv.h"
 #include "SolARPerspectiveControllerOpencv.h"
@@ -31,9 +32,7 @@
 #include "SolARDescriptorMatcherRadiusOpencv.h"
 #include "SolARSBPatternReIndexer.h"
 #include "SolARImage2WorldMapper4Marker2D.h"
-#include "SolARPoseEstimationPnpEPFL.h"
 #include "SolARPoseEstimationPnpOpencv.h"
-
 #include "SolAR2DOverlayOpencv.h"
 #include "SolAR3DOverlayOpencv.h"
 
@@ -51,28 +50,14 @@ namespace xpcf  = org::bcom::xpcf;
 
 void marker_run(int argc,char** argv){
 
+#if NDEBUG
+    boost::log::core::get()->set_logging_enabled(false);
+#endif
+
+
     LOG_ADD_LOG_TO_CONSOLE();
 
     // declarations
-    SRef<input::devices::ICamera>                   camera;
-    SRef<input::files::IMarker2DSquaredBinary>      binaryMarker;
-    SRef<display::IImageViewer>                     imageViewer;
-    SRef<display::IImageViewer>                     imageViewerGrey;
-    SRef<display::IImageViewer>                     imageViewerBinary;
-    SRef<display::IImageViewer>                     imageViewerContours;
-    SRef<display::IImageViewer>                     imageViewerFilteredContours;
-    SRef<image::IImageFilter>                       imageFilter;
-    SRef<image::IImageConvertor>                    imageConvertor;
-    SRef<features::IContoursExtractor>              contoursExtractor;
-    SRef<features::IContoursFilter>                 contoursFilter;
-    SRef<image::IPerspectiveController>             perspectiveController;
-    SRef<features::IDescriptorsExtractorSBPattern>  patternDescriptorExtractor;
-    SRef<features::IDescriptorMatcher>              patternMatcher;
-    SRef<features::ISBPatternReIndexer>             patternReIndexer;
-    SRef<geom::IImage2WorldMapper>                  img2worldMapper;
-    SRef<solver::pose::I3DTransformFinder>          PnP;
-    SRef<display::I3DOverlay>                       overlay3D;
-    SRef<display::I2DOverlay>                       overlay2D;
 
     SRef<Image> inputImage;
     SRef<Image> greyImage;
@@ -99,29 +84,28 @@ void marker_run(int argc,char** argv){
     std::vector<unsigned int> bgr{128, 128, 128};
 
     // component creation
-    boost::uuids::string_generator gen;
-    xpcf::ComponentFactory::createComponent<SolARCameraOpencv>(gen(input::devices::ICamera::UUID ), camera);
-    xpcf::ComponentFactory::createComponent<SolARMarker2DSquaredBinaryOpencv>(gen(input::files::IMarker2DSquaredBinary::UUID ), binaryMarker);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(gen(display::IImageViewer::UUID ), imageViewer);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(gen(display::IImageViewer::UUID ), imageViewerGrey);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(gen(display::IImageViewer::UUID ), imageViewerBinary);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(gen(display::IImageViewer::UUID ), imageViewerContours);
-    xpcf::ComponentFactory::createComponent<SolARImageViewerOpencv>(gen(display::IImageViewer::UUID ), imageViewerFilteredContours);
-    xpcf::ComponentFactory::createComponent<SolARImageConvertorOpencv>(gen(image::IImageConvertor::UUID ), imageConvertor);
-    xpcf::ComponentFactory::createComponent<SolARImageFilterOpencv>(gen(image::IImageFilter::UUID ), imageFilter);
-    xpcf::ComponentFactory::createComponent<SolARContoursExtractorOpencv>(gen(features::IContoursExtractor::UUID ), contoursExtractor);
-    xpcf::ComponentFactory::createComponent<SolARContoursFilterBinaryMarkerOpencv>(gen(features::IContoursFilter::UUID ), contoursFilter);
-    xpcf::ComponentFactory::createComponent<SolARPerspectiveControllerOpencv>(gen(image::IPerspectiveController::UUID ), perspectiveController);
-    xpcf::ComponentFactory::createComponent<SolARDescriptorsExtractorSBPatternOpencv>(gen(features::IDescriptorsExtractorSBPattern::UUID ), patternDescriptorExtractor);
-    xpcf::ComponentFactory::createComponent<SolARDescriptorMatcherRadiusOpencv>(gen(features::IDescriptorMatcher::UUID ), patternMatcher);
-    xpcf::ComponentFactory::createComponent<SolARSBPatternReIndexer>(gen(features::ISBPatternReIndexer::UUID ), patternReIndexer);
-    xpcf::ComponentFactory::createComponent<SolARImage2WorldMapper4Marker2D>(gen(geom::IImage2WorldMapper::UUID ), img2worldMapper);
-//  xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpEPFL>(gen(solver::pose::I3DTransformFinder::UUID ), PnP);
+    auto camera =xpcf::ComponentFactory::createInstance<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+    auto binaryMarker =xpcf::ComponentFactory::createInstance<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
+    auto imageViewer =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerGrey =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerBinary =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerContours =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerFilteredContours =xpcf::ComponentFactory::createInstance<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageFilterBinary =xpcf::ComponentFactory::createInstance<SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
+    auto rIConfigurable_imageFilterBinary = imageFilterBinary->bindTo<xpcf::IConfigurable>();
 
-    xpcf::ComponentFactory::createComponent<SolARPoseEstimationPnpOpencv>(gen(solver::pose::I3DTransformFinder::UUID ), PnP);
+    auto imageConvertor =xpcf::ComponentFactory::createInstance<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
+    auto contoursExtractor =xpcf::ComponentFactory::createInstance<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
+    auto contoursFilter =xpcf::ComponentFactory::createInstance<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
+    auto perspectiveController =xpcf::ComponentFactory::createInstance<SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
+    auto patternDescriptorExtractor =xpcf::ComponentFactory::createInstance<SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
+    auto patternMatcher =xpcf::ComponentFactory::createInstance<SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
+    auto patternReIndexer = xpcf::ComponentFactory::createInstance<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
+    auto img2worldMapper = xpcf::ComponentFactory::createInstance<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
+    auto PnP =xpcf::ComponentFactory::createInstance<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinder>();
+    auto overlay3D =xpcf::ComponentFactory::createInstance<SolAR3DOverlayOpencv>()->bindTo<display::I3DOverlay>();
+    auto overlay2D =xpcf::ComponentFactory::createInstance<SolAR2DOverlayOpencv>()->bindTo<display::I2DOverlay>();
 
-    xpcf::ComponentFactory::createComponent<SolAR2DOverlayOpencv>(gen(display::I2DOverlay::UUID ), overlay2D);
-    xpcf::ComponentFactory::createComponent<SolAR3DOverlayOpencv>(gen(display::I3DOverlay::UUID ), overlay3D);
 
 
     // components initialisation
@@ -168,7 +152,12 @@ void marker_run(int argc,char** argv){
     //patternMatcher->setParameters(maximalDistanceToMatch);
 
     //Load camera parameters and start it
-    camera->loadCameraParameters(argv[2]);
+    if (camera->loadCameraParameters(argv[2]) != FrameworkReturnCode::_SUCCESS){
+        {
+            LOG_ERROR ("camera calibration file {} does not exist", argv[2]);
+            return ;
+        }
+    }
 
     PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
     overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
@@ -209,7 +198,11 @@ void marker_run(int argc,char** argv){
        imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
        // Convert Image from grey to black and white
-       imageFilter->binarize(greyImage,binaryImage,-1,255);
+       auto imageFilterBinary_property=rIConfigurable_imageFilterBinary->getProperty("min");
+       imageFilterBinary_property->setIntegerValue(-1);
+       imageFilterBinary_property=rIConfigurable_imageFilterBinary->getProperty("max");
+       imageFilterBinary_property->setIntegerValue(255);
+       imageFilterBinary->filter(greyImage,binaryImage);
 
        // Extract contours from binary image
        contoursExtractor->extract(binaryImage,contours);
@@ -319,7 +312,7 @@ void marker_run(int argc,char** argv){
                     std::cout << "Camera pose :" << std::endl;
                     std::cout << pose.matrix();
                     std::cout << std::endl;
-#endif
+ #endif
 
                     // Display a 3D box over the marker
                     Transform3Df cubeTransform = Transform3Df::Identity();
