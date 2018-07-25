@@ -101,6 +101,9 @@ void marker_run(int argc,char** argv){
     auto patternDescriptorExtractor =xpcf::ComponentFactory::createInstance<SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
     auto patternMatcher =xpcf::ComponentFactory::createInstance<SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
     auto patternReIndexer = xpcf::ComponentFactory::createInstance<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
+    auto rIConfigurable_patternReIndexer = patternReIndexer->bindTo<xpcf::IConfigurable>();
+
+
     auto img2worldMapper = xpcf::ComponentFactory::createInstance<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
     auto PnP =xpcf::ComponentFactory::createInstance<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinder>();
     auto overlay3D =xpcf::ComponentFactory::createInstance<SolAR3DOverlayOpencv>()->bindTo<display::I3DOverlay>();
@@ -141,7 +144,8 @@ void marker_run(int argc,char** argv){
     int patternSize = binaryMarker->getPattern()->getSize();
     patternDescriptorExtractor->setParameters(patternSize);
 
-    patternReIndexer->setParameters(patternSize);
+    auto patternReIndexer_property=rIConfigurable_patternReIndexer->getProperty("sbPatternSize");
+    patternReIndexer_property->setIntegerValue(patternSize);
 
     Sizei sbPatternSize;
     sbPatternSize.width = patternSize;
