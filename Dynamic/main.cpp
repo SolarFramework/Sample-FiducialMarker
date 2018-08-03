@@ -98,7 +98,8 @@ int marker_run(int argc,char** argv){
     auto img2worldMapper = xpcfComponentManager->create<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
     auto PnP =xpcfComponentManager->create<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinder>();
     auto overlay3D =xpcfComponentManager->create<SolAR3DOverlayOpencv>()->bindTo<display::I3DOverlay>();
-    auto overlay2D =xpcfComponentManager->create<SolAR2DOverlayOpencv>()->bindTo<display::I2DOverlay>();
+    auto overlay2DContours =xpcfComponentManager->create<SolAR2DOverlayOpencv>("contours")->bindTo<display::I2DOverlay>();
+    auto overlay2DCircles =xpcfComponentManager->create<SolAR2DOverlayOpencv>("circles")->bindTo<display::I2DOverlay>();
 
 
     SRef<Image> inputImage;
@@ -121,9 +122,6 @@ int marker_run(int argc,char** argv){
    
     CamCalibration K;
   
-    // color used to draw contours
-    std::vector<unsigned int> bgr{128, 128, 128};
-
     // components initialisation
 
     binaryMarker->loadMarker();
@@ -203,14 +201,14 @@ int marker_run(int argc,char** argv){
        contoursExtractor->extract(binaryImage,contours);
 #ifndef NDEBUG
        contoursImage = binaryImage->copy();
-       overlay2D->drawContours(contours, 3, bgr, contoursImage);
+       overlay2DContours->drawContours(contours, contoursImage);
 #endif
        // Filter 4 edges contours to find those candidate for marker contours
        contoursFilter->filter(contours, filtered_contours);
 
 #ifndef NDEBUG
        filteredContoursImage = binaryImage->copy();
-       overlay2D->drawContours(filtered_contours, 3, bgr, filteredContoursImage);
+       overlay2DContours->drawContours(filtered_contours, filteredContoursImage);
 #endif
        // Create one warpped and cropped image by contour
        perspectiveController->correct(binaryImage, filtered_contours, patches);
@@ -290,7 +288,7 @@ int marker_run(int argc,char** argv){
                 for (int i = 0; i < pattern2DPoints.size(); i++)
                     std::cout << "[" << pattern2DPoints[i]->x() << "," << pattern2DPoints[i]->y() <<"],";
                 std::cout << std::endl;
-                overlay2D->drawCircles(img2DPoints, 6, 3, inputImage);
+                overlay2DCircles->drawCircles(img2DPoints, inputImage);
 #endif
                 // Compute the 3D position of each corner of the marker
                 img2worldMapper->map(pattern2DPoints, pattern3DPoints);

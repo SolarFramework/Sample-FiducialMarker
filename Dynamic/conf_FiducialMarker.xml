@@ -92,6 +92,19 @@
 			<property name="outputImageWidth" type="Integer" value="640"/>
 			<property name="outputImageHeight" type="Integer" value="480"/>
 		</component>
+		<component uuid="cc51d685-9797-4ffd-a9dd-cec4f367fa6a" name="contours"> <!-- SolAROverlay2DOpencv -->
+			<property name="color" type="UnsignedInteger">
+                    <value>128</value>
+                    <value>128</value>
+                    <value>128</value>
+            </property>
+			<property name="thickness" type="UnsignedInteger" value="3"/> 
+		</component>
+		<component uuid="cc51d685-9797-4ffd-a9dd-cec4f367fa6a" name="circles"> <!-- SolAROverlay2DOpencv -->
+			<property name="thickness" type="UnsignedInteger" value="3"/>
+			<property name="radius" type="UnsignedInteger" value="6"/>
+			<property name="randomColor" type="UnsignedInteger" value="1"/>
+		</component>
 		<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b"> <!-- SolARImageViewerOpencv -->
 			<property name="title" type="string" value="Original Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
