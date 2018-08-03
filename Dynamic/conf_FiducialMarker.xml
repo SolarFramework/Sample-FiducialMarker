@@ -32,10 +32,6 @@
                 <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" description="IComponentIntrospect"/>
                 <interface uuid="42d82ab6-cc62-11e7-abc4-cec278b6b50a" description="IContoursExtractor"/>
         </component>
-		<component uuid="4309dcc6-cc73-11e7-abc4-cec278b6b50a" description="SolARContoursFilterBinaryMarkerOpencv">
-                <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" description="IComponentIntrospect"/>
-                <interface uuid="6b3de3a0-cc72-11e7-abc4-cec278b6b50a" description="IContoursFilter"/>
-        </component>
 		<component uuid="9c960f2a-cd6e-11e7-abc4-cec278b6b50a" description="SolARPerspectiveControllerOpencv">
                 <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" description="IComponentIntrospect"/>
                 <interface uuid="4a7d5c34-cd6e-11e7-abc4-cec278b6b50a" description="IPerspectiveController"/>
@@ -80,23 +76,27 @@
 		<component uuid="5d2b8da9-528e-4e5e-96c1-f883edcf3b1c"> <!-- SolARMarker2DSquaredBinaryOpencv -->
             <property name="filePath" type="string" value="fiducialMarker.yml"/>
         </component>
+		<component uuid="e5fd7e9a-fcae-4f86-bfc7-ea8584c298b2"> <!-- SolARImageFilterBinaryOpencv -->
+			 <property name="min" type="Integer" value="-1"/>
+			 <property name="max" type="Integer" value="255"/>
+        </component>
 		<component uuid="6acf8de2-cc63-11e7-abc4-cec278b6b50a"> <!-- SolARContoursExtractorOpencv -->
 			<property name="minContourEdges" type="Integer" value="4"/>
 		</component>
-		<component uuid="4309dcc6-cc73-11e7-abc4-cec278b6b50a">
+		<component uuid="4309dcc6-cc73-11e7-abc4-cec278b6b50a"> <!-- SolARContoursFilterBinaryMarkerOpencv -->
 			<property name="epsilon" type="Float" value="0.05"/>
 			<property name="minContourLength" type="Float" value="20.0"/>
 			<property name="minDistanceBetweenContourCorners" type="Float" value="10.0"/>
 		</component>
-		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459"> <!-- SolARContoursFilterBinaryMarkerOpencv -->
+		<component uuid="9c960f2a-cd6e-11e7-abc4-cec278b6b50a"> <!-- SolARPerspectiveControllerOpencv -->
+			<property name="outputImageWidth" type="Integer" value="640"/>
+			<property name="outputImageHeight" type="Integer" value="480"/>
+		</component>
+		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459"> <!-- SolARImageViewerExitKeyOpencv -->
 			<property name="title" type="string" value="Original Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
 			<property name="width" type="Integer" value="0"/>
 			<property name="height" type="Integer" value="0"/>
-		</component>
-		<component uuid="9c960f2a-cd6e-11e7-abc4-cec278b6b50a"> <!-- SolARPerspectiveControllerOpencv -->
-			<property name="outputImageWidth" type="Integer" value="640"/>
-			<property name="outputImageHeight" type="Integer" value="480"/>
 		</component>
 		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459" name="grey"> <!-- SolARImageViewerExitKeyOpencv -->
 			<property name="title" type="string" value="Grey Image"/>
