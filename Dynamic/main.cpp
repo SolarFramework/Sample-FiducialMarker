@@ -86,20 +86,13 @@ int marker_run(int argc,char** argv){
     auto camera =xpcfComponentManager->create<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
     auto binaryMarker =xpcfComponentManager->create<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
     auto imageViewer =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
-/*
-    auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
-*/
+
     auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("grey")->bindTo<display::IImageViewer>();
     auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("binary")->bindTo<display::IImageViewer>();
     auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("contours")->bindTo<display::IImageViewer>();
     auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("filteredContours")->bindTo<display::IImageViewer>();
 
     auto imageFilterBinary =xpcfComponentManager->create<SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
-    auto rIConfigurable_imageFilterBinary = imageFilterBinary->bindTo<xpcf::IConfigurable>();
-
     auto imageConvertor =xpcfComponentManager->create<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
     auto contoursExtractor =xpcfComponentManager->create<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
     auto contoursFilter =xpcfComponentManager->create<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
@@ -137,8 +130,6 @@ int marker_run(int argc,char** argv){
    
     CamCalibration K;
   
-    string title = imageViewerContours->bindTo<xpcf::IConfigurable>()->getProperty("title")->getStringValue();
-
     // color used to draw contours
     std::vector<unsigned int> bgr{128, 128, 128};
 
@@ -175,7 +166,7 @@ int marker_run(int argc,char** argv){
 
     //int maximalDistanceToMatch = 0;
     //patternMatcher->setParameters(maximalDistanceToMatch);
-
+    //PnP->bindTo<xpcf::IConfigurable>()->getProperty("intrinsicsParameters")->set
     PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
     overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
 
@@ -215,10 +206,6 @@ int marker_run(int argc,char** argv){
        imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
        // Convert Image from grey to black and white
-       auto imageFilterBinary_property=rIConfigurable_imageFilterBinary->getProperty("min");
-       imageFilterBinary_property->setIntegerValue(-1);
-       imageFilterBinary_property=rIConfigurable_imageFilterBinary->getProperty("max");
-       imageFilterBinary_property->setIntegerValue(255);
        imageFilterBinary->filter(greyImage,binaryImage);
 
        // Extract contours from binary image
