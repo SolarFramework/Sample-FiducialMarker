@@ -67,29 +67,36 @@ int marker_run(int argc,char** argv){
     /* this is needed in dynamic mode */
     SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-    if(xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleOpenCV_registry.xml")!=org::bcom::xpcf::_SUCCESS)
+    if(xpcfComponentManager->load(argv[1])!=org::bcom::xpcf::_SUCCESS)
     {
-        LOG_ERROR("XPCF library load has failed")
+        LOG_ERROR("Failed to load the configuration file {}", argv[1])
         return -1;
     }
+    /*
     if(xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleTools_registry.xml")!=org::bcom::xpcf::_SUCCESS)
     {
         LOG_ERROR("XPCF library load has failed")
         return -1;
     }
-
+    */
 
     // declare and create components
     LOG_INFO("Start creating components");
 
-
     auto camera =xpcfComponentManager->create<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
     auto binaryMarker =xpcfComponentManager->create<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
-    auto imageViewer =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-    auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewer =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
+/*
+    auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
+*/
+    auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("grey")->bindTo<display::IImageViewer>();
+    auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("binary")->bindTo<display::IImageViewer>();
+    auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("contours")->bindTo<display::IImageViewer>();
+    auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("filteredContours")->bindTo<display::IImageViewer>();
+
     auto imageFilterBinary =xpcfComponentManager->create<SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
     auto rIConfigurable_imageFilterBinary = imageFilterBinary->bindTo<xpcf::IConfigurable>();
 
@@ -98,6 +105,7 @@ int marker_run(int argc,char** argv){
     auto contoursFilter =xpcfComponentManager->create<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
     auto perspectiveController =xpcfComponentManager->create<SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
     auto patternDescriptorExtractor =xpcfComponentManager->create<SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
+
     auto patternMatcher =xpcfComponentManager->create<SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
     auto patternReIndexer = xpcfComponentManager->create<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
     auto rIConfigurable_patternReIndexer = patternReIndexer->bindTo<xpcf::IConfigurable>();
@@ -129,15 +137,14 @@ int marker_run(int argc,char** argv){
    
     CamCalibration K;
   
-    // The escape key to exit the sample
-    char escape_key = 27;
+    string title = imageViewerContours->bindTo<xpcf::IConfigurable>()->getProperty("title")->getStringValue();
+
     // color used to draw contours
     std::vector<unsigned int> bgr{128, 128, 128};
 
-
     // components initialisation
 
-    binaryMarker->loadMarker(argv[1]);
+    binaryMarker->loadMarker();
     patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
 
 #ifndef NDEBUG
@@ -156,21 +163,10 @@ int marker_run(int argc,char** argv){
     }
 #endif
 
-    int minContourSize = 4;
-    contoursExtractor->setParameters(minContourSize);
-
-    int minContourLength = 20;
-    contoursFilter->setParameters(minContourLength);
-
-    Sizei CorrectedImagesSize = {640,480};
-    perspectiveController->setParameters(CorrectedImagesSize);
-
     int patternSize = binaryMarker->getPattern()->getSize();
-    patternDescriptorExtractor->setParameters(patternSize);
 
-    auto patternReIndexer_property=rIConfigurable_patternReIndexer->getProperty("sbPatternSize");
-    patternReIndexer_property->setIntegerValue(patternSize);
-    // patternReIndexer->setParameters(patternSize);
+    patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
+    patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
 
     Sizei sbPatternSize;
     sbPatternSize.width = patternSize;
@@ -180,31 +176,23 @@ int marker_run(int argc,char** argv){
     //int maximalDistanceToMatch = 0;
     //patternMatcher->setParameters(maximalDistanceToMatch);
 
-    //Load camera parameters and start it
-    if (camera->loadCameraParameters(argv[2]) != FrameworkReturnCode::_SUCCESS){
-        {
-            LOG_ERROR ("camera calibration file {} does not exist", argv[2]);
-            return -1;
-        }
-    }
-
     PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
     overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
 
-    std::string cameraArg=std::string(argv[3]);
+    std::string cameraArg=std::string(argv[2]);
     if(cameraArg.find("mp4")!=std::string::npos || cameraArg.find("wmv")!=std::string::npos || cameraArg.find("avi")!=std::string::npos )
     {
-        if (camera->start(argv[3]) != FrameworkReturnCode::_SUCCESS) // videoFile
+        if (camera->start(argv[2]) != FrameworkReturnCode::_SUCCESS) // videoFile
         {
-            LOG_ERROR ("Video with url {} does not exist", argv[3]);
+            LOG_ERROR ("Video with url {} does not exist", argv[2]);
             return -1;
         }
     }
     else
     {
-        if (camera->start(atoi(argv[3])) != FrameworkReturnCode::_SUCCESS) // Camera
+        if (camera->start(atoi(argv[2])) != FrameworkReturnCode::_SUCCESS) // Camera
         {
-            LOG_ERROR ("Camera with id {} does not exist", argv[3]);
+            LOG_ERROR ("Camera with id {} does not exist", argv[2]);
             return -1;
         }
     }
@@ -352,12 +340,12 @@ int marker_run(int argc,char** argv){
 
        // display images in viewers
        if (
-         (imageViewer->display("original image", inputImage, &escape_key) == FrameworkReturnCode::_STOP)
+         (imageViewer->display(inputImage) == FrameworkReturnCode::_STOP)
 #ifndef NDEBUG
-         ||(imageViewerGrey->display("Grey Image", greyImage, &escape_key) == FrameworkReturnCode::_STOP)
-         ||(imageViewerBinary->display("Binary Image", binaryImage, &escape_key) == FrameworkReturnCode::_STOP)
-         ||(imageViewerContours->display("Contours Image", contoursImage, &escape_key) == FrameworkReturnCode::_STOP)
-         ||(imageViewerFilteredContours->display("Filtered Contours Image", filteredContoursImage, &escape_key) == FrameworkReturnCode::_STOP)
+         ||(imageViewerGrey->display(greyImage) == FrameworkReturnCode::_STOP)
+         ||(imageViewerBinary->display(binaryImage) == FrameworkReturnCode::_STOP)
+         ||(imageViewerContours->display(contoursImage) == FrameworkReturnCode::_STOP)
+         ||(imageViewerFilteredContours->display(filteredContoursImage) == FrameworkReturnCode::_STOP)
 
 #endif
          )
@@ -376,13 +364,13 @@ int marker_run(int argc,char** argv){
 
 int printHelp(){
         printf(" usage :\n");
-        printf(" exe FiducialMarkerFilename CameraCalibrationFile VideoFile|cameraId\n\n");
+        printf(" exe ConfFile VideoFile|cameraId\n\n");
         printf(" Escape key to exit");
         return 1;
 }
 
 int main(int argc, char **argv){
-    if(argc == 4){
+    if(argc == 3){
         return marker_run(argc,argv);
     }
     else
