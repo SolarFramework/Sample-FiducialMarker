@@ -46,6 +46,7 @@
 #include "api/display/I2DOverlay.h"
 
 
+//#define VIDEO_INPUT
 
 using namespace std;
 using namespace SolAR;
@@ -76,7 +77,11 @@ int marker_run(int argc,char** argv){
     // declare and create components
     LOG_INFO("Start creating components");
 
+#ifdef VIDEO_INPUT
+    auto camera =xpcfComponentManager->create<SolARVideoAsCameraOpencv>()->bindTo<input::devices::ICamera>();
+#else
     auto camera =xpcfComponentManager->create<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+#endif
     auto binaryMarker =xpcfComponentManager->create<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
 
     auto imageViewer =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
@@ -123,7 +128,6 @@ int marker_run(int argc,char** argv){
     CamCalibration K;
   
     // components initialisation
-
     binaryMarker->loadMarker();
     patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
 
@@ -153,35 +157,18 @@ int marker_run(int argc,char** argv){
     sbPatternSize.height = patternSize;
     img2worldMapper->setParameters(sbPatternSize, binaryMarker->getSize());
 
-    //int maximalDistanceToMatch = 0;
-    //patternMatcher->setParameters(maximalDistanceToMatch);
-    //PnP->bindTo<xpcf::IConfigurable>()->getProperty("intrinsicsParameters")->set
     PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
     overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
 
-    std::string cameraArg=std::string(argv[2]);
-    if(cameraArg.find("mp4")!=std::string::npos || cameraArg.find("wmv")!=std::string::npos || cameraArg.find("avi")!=std::string::npos )
+    if (camera->start() != FrameworkReturnCode::_SUCCESS) // Camera
     {
-        if (camera->start(argv[2]) != FrameworkReturnCode::_SUCCESS) // videoFile
-        {
-            LOG_ERROR ("Video with url {} does not exist", argv[2]);
-            return -1;
-        }
-    }
-    else
-    {
-        if (camera->start(atoi(argv[2])) != FrameworkReturnCode::_SUCCESS) // Camera
-        {
-            LOG_ERROR ("Camera with id {} does not exist", argv[2]);
-            return -1;
-        }
+        LOG_ERROR ("Camera start the camera");
+        return -1;
     }
 
     // to count the average number of processed frames per seconds
     int count=0;
     clock_t start,end;
-
-    count=0;
     start= clock();
 
     //cv::Mat img_temp;
@@ -340,13 +327,13 @@ int marker_run(int argc,char** argv){
 
 int printHelp(){
         printf(" usage :\n");
-        printf(" exe ConfFile VideoFile|cameraId\n\n");
+        printf(" exe ConfFile \n\n");
         printf(" Escape key to exit");
         return 1;
 }
 
 int main(int argc, char **argv){
-    if(argc == 3){
+    if(argc == 2){
         return marker_run(argc,argv);
     }
     else
