@@ -16,7 +16,7 @@
                 <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" description="IComponentIntrospect"/>
                 <interface uuid="6b3de3a0-cc72-11e7-abc4-cec278b6b50a" description="IContoursFilter"/>
         </component>
-		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459" description="SolARImageViewerExitKeyOpencv">
+		<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b" description="SolARImageViewerOpencv">
                 <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" description="IComponentIntrospect"/>
                 <interface uuid="b05f3dbb-f93d-465c-aee1-fb58e1480c42" description="IImageViewer"/>
         </component>
@@ -92,31 +92,31 @@
 			<property name="outputImageWidth" type="Integer" value="640"/>
 			<property name="outputImageHeight" type="Integer" value="480"/>
 		</component>
-		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459"> <!-- SolARImageViewerExitKeyOpencv -->
+		<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b"> <!-- SolARImageViewerOpencv -->
 			<property name="title" type="string" value="Original Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
 			<property name="width" type="Integer" value="0"/>
 			<property name="height" type="Integer" value="0"/>
 		</component>
-		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459" name="grey"> <!-- SolARImageViewerExitKeyOpencv -->
+		<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b" name="grey"> <!-- SolARImageViewerOpencv -->
 			<property name="title" type="string" value="Grey Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
 			<property name="width" type="Integer" value="0"/>
 			<property name="height" type="Integer" value="0"/>
 		</component>
-		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459" name="binary"> <!-- SolARImageViewerExitKeyOpencv -->
+		<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b" name="binary"> <!-- SolARImageViewerOpencv -->
 			<property name="title" type="string" value="Binary Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
 			<property name="width" type="Integer" value="0"/>
 			<property name="height" type="Integer" value="0"/>
 		</component>
-		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459" name="contours"> <!-- SolARImageViewerExitKeyOpencv -->
+		<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b" name="contours"> <!-- SolARImageViewerOpencv -->
 			<property name="title" type="string" value="Contours Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
 			<property name="width" type="Integer" value="0"/>
 			<property name="height" type="Integer" value="0"/>
 		</component>
-		<component uuid="e1bec8f2-963c-11e8-9eb6-529269fb1459" name="filteredContours"> <!-- SolARImageViewerExitKeyOpencv -->
+		<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b" name="filteredContours"> <!-- SolARImageViewerOpencv -->
 			<property name="title" type="string" value="Filtered Contours Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
 			<property name="width" type="Integer" value="0"/>

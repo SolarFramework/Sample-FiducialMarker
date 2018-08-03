@@ -72,25 +72,18 @@ int marker_run(int argc,char** argv){
         LOG_ERROR("Failed to load the configuration file {}", argv[1])
         return -1;
     }
-    /*
-    if(xpcfComponentManager->load("$BCOMDEVROOT/.xpcf/SolAR/xpcf_SolARModuleTools_registry.xml")!=org::bcom::xpcf::_SUCCESS)
-    {
-        LOG_ERROR("XPCF library load has failed")
-        return -1;
-    }
-    */
 
     // declare and create components
     LOG_INFO("Start creating components");
 
     auto camera =xpcfComponentManager->create<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
     auto binaryMarker =xpcfComponentManager->create<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
-    auto imageViewer =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>()->bindTo<display::IImageViewer>();
 
-    auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("grey")->bindTo<display::IImageViewer>();
-    auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("binary")->bindTo<display::IImageViewer>();
-    auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("contours")->bindTo<display::IImageViewer>();
-    auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerExitKeyOpencv>("filteredContours")->bindTo<display::IImageViewer>();
+    auto imageViewer =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerOpencv>("grey")->bindTo<display::IImageViewer>();
+    auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerOpencv>("binary")->bindTo<display::IImageViewer>();
+    auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerOpencv>("contours")->bindTo<display::IImageViewer>();
+    auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerOpencv>("filteredContours")->bindTo<display::IImageViewer>();
 
     auto imageFilterBinary =xpcfComponentManager->create<SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
     auto imageConvertor =xpcfComponentManager->create<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
