@@ -162,7 +162,7 @@ int marker_run(int argc,char** argv){
 
     if (camera->start() != FrameworkReturnCode::_SUCCESS) // Camera
     {
-        LOG_ERROR ("Camera start the camera");
+        LOG_ERROR ("Camera cannot start");
         return -1;
     }
 
