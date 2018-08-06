@@ -56,7 +56,7 @@ using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
 
-int marker_run(int argc,char** argv){
+int main(int argc, char *argv[]){
 
 #if NDEBUG
     boost::log::core::get()->set_logging_enabled(false);
@@ -68,9 +68,9 @@ int marker_run(int argc,char** argv){
     /* this is needed in dynamic mode */
     SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-    if(xpcfComponentManager->load(argv[1])!=org::bcom::xpcf::_SUCCESS)
+    if(xpcfComponentManager->load("conf_FiducialMarker.xml")!=org::bcom::xpcf::_SUCCESS)
     {
-        LOG_ERROR("Failed to load the configuration file {}", argv[1])
+        LOG_ERROR("Failed to load the configuration file conf_FiducialMarker.xml", argv[1])
         return -1;
     }
 
@@ -102,7 +102,7 @@ int marker_run(int argc,char** argv){
 
     auto img2worldMapper = xpcfComponentManager->create<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
     auto PnP =xpcfComponentManager->create<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinder>();
-    auto overlay3D =xpcfComponentManager->create<SolAR3DOverlayOpencv>()->bindTo<display::I3DOverlay>();
+    auto overlay3D =xpcfComponentManager->create<SolAR3DOverlayBoxOpencv>()->bindTo<display::I3DOverlay>();
     auto overlay2DContours =xpcfComponentManager->create<SolAR2DOverlayOpencv>("contours")->bindTo<display::I2DOverlay>();
     auto overlay2DCircles =xpcfComponentManager->create<SolAR2DOverlayOpencv>("circles")->bindTo<display::I2DOverlay>();
 
@@ -147,15 +147,22 @@ int marker_run(int argc,char** argv){
     }
 #endif
 
+    // Set the size of the box to display according to the marker size in world unit
+    overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().width,0);
+    overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().height,1);
+    overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().height/2.0f,2);
+
+
     int patternSize = binaryMarker->getPattern()->getSize();
 
     patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
     patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
 
-    Sizei sbPatternSize;
-    sbPatternSize.width = patternSize;
-    sbPatternSize.height = patternSize;
-    img2worldMapper->setParameters(sbPatternSize, binaryMarker->getSize());
+    // NOT WORKING ! initialize image mapper with the reference image size and marker size
+    img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalWidth")->setIntegerValue(patternSize);
+    img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalHeight")->setIntegerValue(patternSize);
+    img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(binaryMarker->getSize().width);
+    img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(binaryMarker->getSize().height);
 
     PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
     overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
@@ -295,8 +302,7 @@ int marker_run(int argc,char** argv){
 #endif
 
                     // Display a 3D box over the marker
-                    Transform3Df cubeTransform = Transform3Df::Identity();
-                    overlay3D->drawBox(pose, binaryMarker->getWidth(), binaryMarker->getHeight(), binaryMarker->getHeight(), cubeTransform, inputImage);
+                    overlay3D->draw(pose,inputImage);
                 }
             }
        }
@@ -323,21 +329,6 @@ int marker_run(int argc,char** argv){
 
     return 0;
 
-}
-
-int printHelp(){
-        printf(" usage :\n");
-        printf(" exe ConfFile \n\n");
-        printf(" Escape key to exit");
-        return 1;
-}
-
-int main(int argc, char **argv){
-    if(argc == 2){
-        return marker_run(argc,argv);
-    }
-    else
-        return(printHelp());
 }
 
 

@@ -114,6 +114,23 @@
 			<property name="radius" type="UnsignedInteger" value="6"/>
 			<property name="randomColor" type="UnsignedInteger" value="1"/>
 		</component>
+		<component uuid="2db01f59-9793-4cd5-8e13-b25d0ed5735b"> <!-- SolAR3DOverlayBoxOpencv -->
+            <property name="position"  type="Float">
+				<value>0</value>
+				<value>0</value>
+				<value>0</value>
+			</property>
+			<property name="orientation"  type="Float">
+				<value>0.0</value>
+				<value>0.0</value>
+				<value>0.0</value>
+			</property>
+			<property name="size"  type="Float">
+				<value>0.157</value>
+				<value>0.157</value>
+				<value>0.157</value>
+			</property>
+        </component>
 		<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b"> <!-- SolARImageViewerOpencv -->
 			<property name="title" type="string" value="Original Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
