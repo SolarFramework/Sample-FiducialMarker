@@ -113,7 +113,7 @@ void marker_run(int argc,char** argv){
 
     // components initialisation
 
-    binaryMarker->loadMarker(argv[1]);
+    binaryMarker->loadMarker();
     patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
 
 #ifndef NDEBUG
