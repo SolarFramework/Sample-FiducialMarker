@@ -41,7 +41,7 @@
 #include "api/features/IDescriptorMatcher.h"
 #include "api/features/ISBPatternReIndexer.h"
 #include "api/geom/IImage2WorldMapper.h"
-#include "api/solver/pose/I3DTransformFinder.h"
+#include "api/solver/pose/I3DTransformFinderFrom2D3D.h"
 #include "api/display/I3DOverlay.h"
 #include "api/display/I2DOverlay.h"
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]){
     auto patternReIndexer = xpcfComponentManager->create<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
 
     auto img2worldMapper = xpcfComponentManager->create<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
-    auto PnP =xpcfComponentManager->create<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinder>();
+    auto PnP =xpcfComponentManager->create<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
     auto overlay3D =xpcfComponentManager->create<SolAR3DOverlayBoxOpencv>()->bindTo<display::I3DOverlay>();
     auto overlay2DContours =xpcfComponentManager->create<SolAR2DOverlayOpencv>("contours")->bindTo<display::I2DOverlay>();
     auto overlay2DCircles =xpcfComponentManager->create<SolAR2DOverlayOpencv>("circles")->bindTo<display::I2DOverlay>();
