@@ -131,21 +131,7 @@ int main(int argc, char *argv[]){
     binaryMarker->loadMarker();
     patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
 
-#ifndef NDEBUG
-    SquaredBinaryPatternMatrix patternMatrix = binaryMarker->getPattern()->getPatternMatrix();
-    for (int i= 0; i < (int)patternMatrix.rows(); i++)
-    {
-        std::cout<<"[";
-        for (int j = 0; j < (int)patternMatrix.cols(); j++)
-        {
-            if (patternMatrix(i,j))
-                std::cout<<"w ";
-            else
-                std::cout<<"b ";
-        }
-        std::cout<<"]"<<std::endl;;
-    }
-#endif
+    LOG_DEBUG ("Marker pattern:\n {}", binaryMarker->getPattern()->getPatternMatrix())
 
     // Set the size of the box to display according to the marker size in world unit
     overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().width,0);
@@ -212,9 +198,10 @@ int main(int argc, char *argv[]){
        {
 
 #ifndef NDEBUG
-           std::cout << "Looking for the following descriptor:" << std::endl;
+           LOG_DEBUG("Looking for the following descriptor:");
            for (uint32_t i = 0; i < markerPatternDescriptor->getNbDescriptors()*markerPatternDescriptor->getDescriptorByteSize(); i++)
            {
+
                if (i%patternSize == 0)
                    std::cout<<"[";
                if (i%patternSize != patternSize-1)
@@ -275,13 +262,11 @@ int main(int argc, char *argv[]){
                 // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
                 patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
 #ifndef NDEBUG
-                std::cout << "2D Matched points :" << std::endl;
+                LOG_DEBUG("2D Matched points :");
                 for (int i = 0; i < img2DPoints.size(); i++)
-                    std::cout << "[" << img2DPoints[i]->x() << "," << img2DPoints[i]->y() <<"],";
-                std::cout << std::endl;
+                    LOG_DEBUG("{}",img2DPoints[i]);
                 for (int i = 0; i < pattern2DPoints.size(); i++)
-                    std::cout << "[" << pattern2DPoints[i]->x() << "," << pattern2DPoints[i]->y() <<"],";
-                std::cout << std::endl;
+                    LOG_DEBUG("{}",pattern2DPoints[i]);
                 overlay2DCircles->drawCircles(img2DPoints, inputImage);
 #endif
                 // Compute the 3D position of each corner of the marker
@@ -289,18 +274,12 @@ int main(int argc, char *argv[]){
 #ifndef NDEBUG
                 std::cout << "3D Points position:" << std::endl;
                 for (int i = 0; i < pattern3DPoints.size(); i++)
-                    std::cout << "[" << pattern3DPoints[i]->x() << "," << pattern3DPoints[i]->y() <<"," << pattern3DPoints[i]->z() << "],";
-                std::cout << std::endl;
+                    LOG_DEBUG("{}", pattern3DPoints[i]);
 #endif
                 // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
                 if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
                 {
-#ifndef NDEBUG
-                    std::cout << "Camera pose :" << std::endl;
-                    std::cout << pose.matrix();
-                    std::cout << std::endl;
-#endif
-
+                    LOG_DEBUG("Camera pose : \n {}", pose.matrix());
                     // Display a 3D box over the marker
                     overlay3D->draw(pose,inputImage);
                 }
