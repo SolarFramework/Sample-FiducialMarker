@@ -14,63 +14,98 @@
  * limitations under the License.
  */
 
+#include <boost/log/core.hpp>
+
 #include <iostream>
 #include <string>
+#include <map>
 
 // ADD COMPONENTS HEADERS HERE, e.g #include "SolarComponent.h"
 
-#include "SolARModuleManagerOpencv.h"
-#include "SolARModuleManagerTools.h"
-#include <iostream>
-#include <map>
+#include "SolARModuleOpencv_traits.h"
+
+#include "SolARModuleTools_traits.h"
+
+#include "xpcf/xpcf.h"
+
+
+#include "api/input/devices/ICamera.h"
+#include "api/input/files/IMarker2DSquaredBinary.h"
+#include "api/display/IImageViewer.h"
+#include "api/image/IImageFilter.h"
+#include "api/image/IImageConvertor.h"
+#include "api/features/IContoursExtractor.h"
+#include "api/features/IContoursFilter.h"
+#include "api/image/IPerspectiveController.h"
+#include "api/features/IDescriptorsExtractorSBPattern.h"
+#include "api/features/IDescriptorMatcher.h"
+#include "api/features/ISBPatternReIndexer.h"
+#include "api/geom/IImage2WorldMapper.h"
+#include "api/solver/pose/I3DTransformFinderFrom2D3D.h"
+#include "api/display/I3DOverlay.h"
+#include "api/display/I2DOverlay.h"
+
+
+//#define VIDEO_INPUT
 
 using namespace std;
 using namespace SolAR;
+using namespace SolAR::MODULES::OPENCV;
+using namespace SolAR::MODULES::TOOLS;
 using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
 
-void marker_run(int argc,char** argv){
+int main(int argc, char *argv[]){
+
+#if NDEBUG
+    boost::log::core::get()->set_logging_enabled(false);
+#endif
 
     LOG_ADD_LOG_TO_CONSOLE();
 
-    // instantiate module managers
-    MODULES::OPENCV::SolARModuleManagerOpencv opencvModule(argv[4]);
-    if (!opencvModule.isLoaded()) // xpcf library load has failed
-    {
-        LOG_ERROR("XPCF library load has failed")
-        return;
-    }
+    /* instantiate component manager*/
+    /* this is needed in dynamic mode */
+    SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-    MODULES::TOOLS::SolARModuleManagerTools toolsModule(argv[4]);
-    if (!toolsModule.isLoaded()) // xpcf library load has failed
+    if(xpcfComponentManager->load("conf_FiducialMarker.xml")!=org::bcom::xpcf::_SUCCESS)
     {
-        LOG_ERROR("XPCF library load has failed")
-        return;
+        LOG_ERROR("Failed to load the configuration file conf_FiducialMarker.xml")
+        return -1;
     }
 
     // declare and create components
     LOG_INFO("Start creating components");
 
-    SRef<input::devices::ICamera> camera = opencvModule.createComponent<input::devices::ICamera>(MODULES::OPENCV::UUID::CAMERA);
-    SRef<input::files::IMarker2DSquaredBinary> binaryMarker = opencvModule.createComponent<input::files::IMarker2DSquaredBinary>(MODULES::OPENCV::UUID::MARKER2D_SQUARED_BINARY);
-    SRef<display::IImageViewer> imageViewer = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<display::IImageViewer> imageViewerGrey = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<display::IImageViewer> imageViewerBinary = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<display::IImageViewer> imageViewerContours = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<display::IImageViewer> imageViewerFilteredContours = opencvModule.createComponent<display::IImageViewer>(MODULES::OPENCV::UUID::IMAGE_VIEWER);
-    SRef<image::IImageFilter> imageFilter = opencvModule.createComponent<image::IImageFilter>(MODULES::OPENCV::UUID::IMAGE_FILTER);
-    SRef<image::IImageConvertor> imageConvertor = opencvModule.createComponent<image::IImageConvertor>(MODULES::OPENCV::UUID::IMAGE_CONVERTOR);
-    SRef<features::IContoursExtractor> contoursExtractor = opencvModule.createComponent<features::IContoursExtractor>(MODULES::OPENCV::UUID::CONTOURS_EXTRACTOR);
-    SRef<features::IContoursFilter> contoursFilter = opencvModule.createComponent<features::IContoursFilter>(MODULES::OPENCV::UUID::CONTOURS_FILTER_BINARY_MARKER);
-    SRef<image::IPerspectiveController> perspectiveController = opencvModule.createComponent<image::IPerspectiveController>(MODULES::OPENCV::UUID::PERSPECTIVE_CONTROLLER);
-    SRef<features::IDescriptorsExtractorSBPattern> patternDescriptorExtractor = opencvModule.createComponent<features::IDescriptorsExtractorSBPattern>(MODULES::OPENCV::UUID::DESCRIPTORS_EXTRACTOR_SBPATTERN);
-    SRef<features::IDescriptorMatcher> patternMatcher = opencvModule.createComponent<features::IDescriptorMatcher>(MODULES::OPENCV::UUID::DESCRIPTOR_MATCHER_RADIUS);
-    SRef<features::ISBPatternReIndexer> patternReIndexer = toolsModule.createComponent<features::ISBPatternReIndexer>(MODULES::TOOLS::UUID::SBPATTERN_REINDEXER);
-    SRef<geom::IImage2WorldMapper> img2worldMapper = toolsModule.createComponent<geom::IImage2WorldMapper>(MODULES::TOOLS::UUID::IMAGE2WORLD_MAPPER);
-    SRef<solver::pose::IPoseEstimation> PnP = opencvModule.createComponent<solver::pose::IPoseEstimation>(MODULES::OPENCV::UUID::POSE_ESTIMATION);
-    SRef<display::I3DOverlay> overlay3D = opencvModule.createComponent<display::I3DOverlay>(MODULES::OPENCV::UUID::OVERLAY3D);
-    SRef<display::I2DOverlay> overlay2D = opencvModule.createComponent<display::I2DOverlay>(MODULES::OPENCV::UUID::OVERLAY2D);
+#ifdef VIDEO_INPUT
+    auto camera =xpcfComponentManager->create<SolARVideoAsCameraOpencv>()->bindTo<input::devices::ICamera>();
+#else
+    auto camera =xpcfComponentManager->create<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+#endif
+    auto binaryMarker =xpcfComponentManager->create<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
+
+    auto imageViewer =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
+    auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerOpencv>("grey")->bindTo<display::IImageViewer>();
+    auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerOpencv>("binary")->bindTo<display::IImageViewer>();
+    auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerOpencv>("contours")->bindTo<display::IImageViewer>();
+    auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerOpencv>("filteredContours")->bindTo<display::IImageViewer>();
+
+    auto imageFilterBinary =xpcfComponentManager->create<SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
+    auto imageConvertor =xpcfComponentManager->create<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
+    auto contoursExtractor =xpcfComponentManager->create<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
+    auto contoursFilter =xpcfComponentManager->create<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
+    auto perspectiveController =xpcfComponentManager->create<SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
+    auto patternDescriptorExtractor =xpcfComponentManager->create<SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
+
+    auto patternMatcher =xpcfComponentManager->create<SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
+    auto patternReIndexer = xpcfComponentManager->create<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
+
+    auto img2worldMapper = xpcfComponentManager->create<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
+    auto PnP =xpcfComponentManager->create<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
+    auto overlay3D =xpcfComponentManager->create<SolAR3DOverlayBoxOpencv>()->bindTo<display::I3DOverlay>();
+    auto overlay2DContours =xpcfComponentManager->create<SolAR2DOverlayOpencv>("contours")->bindTo<display::I2DOverlay>();
+    auto overlay2DCircles =xpcfComponentManager->create<SolAR2DOverlayOpencv>("circles")->bindTo<display::I2DOverlay>();
+
 
     SRef<Image> inputImage;
     SRef<Image> greyImage;
@@ -88,88 +123,45 @@ void marker_run(int argc,char** argv){
     std::vector<SRef<Point2Df>>                pattern2DPoints;
     std::vector<SRef<Point2Df>>                img2DPoints;
     std::vector<SRef<Point3Df>>                pattern3DPoints;
-    Pose                                       pose;
+    Transform3Df                               pose;
    
     CamCalibration K;
   
-    // The escape key to exit the sample
-    char escape_key = 27;
-    // color used to draw contours
-    std::vector<unsigned int> bgr{128, 128, 128};
-
-
     // components initialisation
-
-    binaryMarker->loadMarker(argv[1]);
+    binaryMarker->loadMarker();
     patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
 
-#ifdef DEBUG
-    SquaredBinaryPatternMatrix patternMatrix = binaryMarker->getPattern()->getPatternMatrix();
-    for (int i= 0; i < (int)patternMatrix.rows(); i++)
-    {
-        std::cout<<"[";
-        for (int j = 0; j < (int)patternMatrix.cols(); j++)
-        {
-            if (patternMatrix(i,j))
-                std::cout<<"w ";
-            else
-                std::cout<<"b ";
-        }
-        std::cout<<"]"<<std::endl;;
-    }
-#endif
+    LOG_DEBUG ("Marker pattern:\n {}", binaryMarker->getPattern()->getPatternMatrix())
 
-    int minContourSize = 4;
-    contoursExtractor->setParameters(minContourSize);
+    // Set the size of the box to display according to the marker size in world unit
+    overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().width,0);
+    overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().height,1);
+    overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().height/2.0f,2);
 
-    int minContourLength = 20;
-    contoursFilter->setParameters(minContourLength);
-
-    Sizei CorrectedImagesSize = {640,480};
-    perspectiveController->setParameters(CorrectedImagesSize);
 
     int patternSize = binaryMarker->getPattern()->getSize();
-    patternDescriptorExtractor->setParameters(patternSize);
 
-    patternReIndexer->setParameters(patternSize);
+    patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
+    patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
 
-    Sizei sbPatternSize;
-    sbPatternSize.width = patternSize;
-    sbPatternSize.height = patternSize;
-    img2worldMapper->setParameters(sbPatternSize, binaryMarker->getSize());
-
-    //int maximalDistanceToMatch = 0;
-    //patternMatcher->setParameters(maximalDistanceToMatch);
-
-    //Load camera parameters and start it
-    camera->loadCameraParameters(argv[2]);
+    // NOT WORKING ! initialize image mapper with the reference image size and marker size
+    img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalWidth")->setIntegerValue(patternSize);
+    img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalHeight")->setIntegerValue(patternSize);
+    img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(binaryMarker->getSize().width);
+    img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(binaryMarker->getSize().height);
 
     PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
     overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
 
-    std::string cameraArg=std::string(argv[3]);
-    if(cameraArg.find("mp4")!=std::string::npos || cameraArg.find("wmv")!=std::string::npos || cameraArg.find("avi")!=std::string::npos )
+    if (camera->start() != FrameworkReturnCode::_SUCCESS) // Camera
     {
-        if (camera->start(argv[3]) != FrameworkReturnCode::_SUCCESS) // videoFile
-        {
-            LOG_ERROR ("Video with url {} does not exist", argv[3]);
-            return ;
-        }
-    }
-    else
-    {
-        if (camera->start(atoi(argv[3])) != FrameworkReturnCode::_SUCCESS) // Camera
-        {
-            LOG_ERROR ("Camera with id {} does not exist", argv[3]);
-            return ;
-        }
+        LOG_ERROR ("Camera cannot start");
+        return -1;
     }
 
     // to count the average number of processed frames per seconds
     int count=0;
     clock_t start,end;
-
-    count=0;
     start= clock();
 
     //cv::Mat img_temp;
@@ -183,20 +175,20 @@ void marker_run(int argc,char** argv){
        imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
        // Convert Image from grey to black and white
-       imageFilter->binarize(greyImage,binaryImage,-1,255);
+       imageFilterBinary->filter(greyImage,binaryImage);
 
        // Extract contours from binary image
        contoursExtractor->extract(binaryImage,contours);
-#ifdef DEBUG
+#ifndef NDEBUG
        contoursImage = binaryImage->copy();
-       overlay2D->drawContours(contours, 3, bgr, contoursImage);
+       overlay2DContours->drawContours(contours, contoursImage);
 #endif
        // Filter 4 edges contours to find those candidate for marker contours
        contoursFilter->filter(contours, filtered_contours);
 
-#ifdef DEBUG
+#ifndef NDEBUG
        filteredContoursImage = binaryImage->copy();
-       overlay2D->drawContours(filtered_contours, 3, bgr, filteredContoursImage);
+       overlay2DContours->drawContours(filtered_contours, filteredContoursImage);
 #endif
        // Create one warpped and cropped image by contour
        perspectiveController->correct(binaryImage, filtered_contours, patches);
@@ -205,10 +197,11 @@ void marker_run(int argc,char** argv){
        if (patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
        {
 
-#ifdef DEBUG
-           std::cout << "Looking for the following descriptor:" << std::endl;
+#ifndef NDEBUG
+           LOG_DEBUG("Looking for the following descriptor:");
            for (uint32_t i = 0; i < markerPatternDescriptor->getNbDescriptors()*markerPatternDescriptor->getDescriptorByteSize(); i++)
            {
+
                if (i%patternSize == 0)
                    std::cout<<"[";
                if (i%patternSize != patternSize-1)
@@ -259,7 +252,7 @@ void marker_run(int argc,char** argv){
             // From extracted squared binary pattern, match the one corresponding to the squared binary marker
             if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
             {
-#ifdef DEBUG
+#ifndef NDEBUG
                 std::cout << "Matches :" << std::endl;
                 for (int num_match = 0; num_match < patternMatches.size(); num_match++)
                     std::cout << "Match [" << patternMatches[num_match].getIndexInDescriptorA() << "," << patternMatches[num_match].getIndexInDescriptorB() << "], dist = " << patternMatches[num_match].getMatchingScore() << std::endl;
@@ -268,48 +261,39 @@ void marker_run(int argc,char** argv){
 
                 // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
                 patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
-#ifdef DEBUG
-                std::cout << "2D Matched points :" << std::endl;
+#ifndef NDEBUG
+                LOG_DEBUG("2D Matched points :");
                 for (int i = 0; i < img2DPoints.size(); i++)
-                    std::cout << "[" << img2DPoints[i]->x() << "," << img2DPoints[i]->y() <<"],";
-                std::cout << std::endl;
+                    LOG_DEBUG("{}",img2DPoints[i]);
                 for (int i = 0; i < pattern2DPoints.size(); i++)
-                    std::cout << "[" << pattern2DPoints[i]->x() << "," << pattern2DPoints[i]->y() <<"],";
-                std::cout << std::endl;
-                overlay2D->drawCircles(img2DPoints, 6, 3, inputImage);
+                    LOG_DEBUG("{}",pattern2DPoints[i]);
+                overlay2DCircles->drawCircles(img2DPoints, inputImage);
 #endif
                 // Compute the 3D position of each corner of the marker
                 img2worldMapper->map(pattern2DPoints, pattern3DPoints);
-#ifdef DEBUG
+#ifndef NDEBUG
                 std::cout << "3D Points position:" << std::endl;
                 for (int i = 0; i < pattern3DPoints.size(); i++)
-                    std::cout << "[" << pattern3DPoints[i]->x() << "," << pattern3DPoints[i]->y() <<"," << pattern3DPoints[i]->z() << "],";
-                std::cout << std::endl;
+                    LOG_DEBUG("{}", pattern3DPoints[i]);
 #endif
                 // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-                if (PnP->poseFromSolvePNP(pose, img2DPoints, pattern3DPoints) == FrameworkReturnCode::_SUCCESS)
+                if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
                 {
-#ifdef DEBUG
-                    std::cout << "Camera pose :" << std::endl;
-                    std::cout << pose.toString();
-                    std::cout << std::endl;
-#endif
-
+                    LOG_DEBUG("Camera pose : \n {}", pose.matrix());
                     // Display a 3D box over the marker
-                    Transform3Df cubeTransform = Transform3Df::Identity();
-                    overlay3D->drawBox(pose, binaryMarker->getWidth(), binaryMarker->getHeight(), binaryMarker->getHeight(), cubeTransform, inputImage);
+                    overlay3D->draw(pose,inputImage);
                 }
             }
        }
 
        // display images in viewers
        if (
-         (imageViewer->display("original image", inputImage, &escape_key) == FrameworkReturnCode::_STOP)
-#ifdef DEBUG
-         ||(imageViewerGrey->display("Grey Image", greyImage, &escape_key) == FrameworkReturnCode::_STOP)
-         ||(imageViewerBinary->display("Binary Image", binaryImage, &escape_key) == FrameworkReturnCode::_STOP)
-         ||(imageViewerContours->display("Contours Image", contoursImage, &escape_key) == FrameworkReturnCode::_STOP)
-         ||(imageViewerFilteredContours->display("Filtered Contours Image", filteredContoursImage, &escape_key) == FrameworkReturnCode::_STOP)
+         (imageViewer->display(inputImage) == FrameworkReturnCode::_STOP)
+#ifndef NDEBUG
+         ||(imageViewerGrey->display(greyImage) == FrameworkReturnCode::_STOP)
+         ||(imageViewerBinary->display(binaryImage) == FrameworkReturnCode::_STOP)
+         ||(imageViewerContours->display(contoursImage) == FrameworkReturnCode::_STOP)
+         ||(imageViewerFilteredContours->display(filteredContoursImage) == FrameworkReturnCode::_STOP)
 
 #endif
          )
@@ -322,22 +306,8 @@ void marker_run(int argc,char** argv){
     printf ("\n\nElasped time is %.2lf seconds.\n",duration );
     printf (  "Number of processed frames per second : %8.2f\n\n",count/duration );
 
-}
+    return 0;
 
-int printHelp(){
-        printf(" usage :\n");
-        printf(" exe FiducialMarkerFilename CameraCalibrationFile VideoFile|cameraId configFile\n\n");
-        printf(" Escape key to exit");
-        return 1;
-}
-
-int main(int argc, char **argv){
-    if(argc ==5){
-        marker_run(argc,argv);
-         return 1;
-    }
-    else
-        return(printHelp());
 }
 
 

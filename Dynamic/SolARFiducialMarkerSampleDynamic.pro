@@ -23,12 +23,20 @@ DEPENDENCIESCONFIG = sharedlib
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
 include ($$(BCOMDEVROOT)/builddefs/qmake/templateappconfig.pri)
 
+
+#DEFINES += BOOST_ALL_NO_LIB
+DEFINES += BOOST_ALL_DYN_LINK
+DEFINES += BOOST_AUTO_LINK_NOMANGLE
+DEFINES += BOOST_LOG_DYN_LINK
+
 HEADERS += \
 
 SOURCES += \
 main.cpp
 
 unix {
+    LIBS += -ldl
+    QMAKE_CXXFLAGS += -DBOOST_LOG_DYN_LINK
 }
 
 macx {
