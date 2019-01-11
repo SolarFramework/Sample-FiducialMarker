@@ -18,6 +18,8 @@
 #include "SolARModuleTools_traits.h"
 #include "SolARModuleOpengl_traits.h"
 
+#include "core/Log.h"
+
 namespace xpcf=org::bcom::xpcf;
 
 // Declaration of the module embedding the fiducial marker pipeline
@@ -50,12 +52,13 @@ PipelineFiducialMarker::PipelineFiducialMarker():ConfigurableBase(xpcf::toUUID<P
    m_initOK = false;
    m_startedOK = false;
    m_stopFlag = false;
+   m_taskProcess = nullptr;
    LOG_DEBUG(" Pipeline constructor");
 }
 
 PipelineFiducialMarker::~PipelineFiducialMarker()
 {
-    if(m_taskProcess)
+    if(m_taskProcess != nullptr)
         delete m_taskProcess;
     LOG_DEBUG(" Pipeline destructor")
 }
@@ -64,21 +67,47 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
 {
     LOG_DEBUG("Start init")
     m_camera = xpcfComponentManager->create<MODULES::OPENCV::SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+    if (m_camera)
+        LOG_INFO("Camera component loaded");
     m_binaryMarker =xpcfComponentManager->create<MODULES::OPENCV::SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
+    if (m_binaryMarker)
+        LOG_INFO("Binary Marker component loaded");
     m_imageFilterBinary =xpcfComponentManager->create<MODULES::OPENCV::SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
+    if (m_imageFilterBinary)
+        LOG_INFO("Image Filter component loaded");
     m_imageConvertor =xpcfComponentManager->create<MODULES::OPENCV::SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
+    if (m_imageConvertor)
+        LOG_INFO("Image Convertor component loaded");
     m_contoursExtractor =xpcfComponentManager->create<MODULES::OPENCV::SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
+    if (m_contoursExtractor)
+        LOG_INFO("Controus Extracor component loaded");
     m_contoursFilter =xpcfComponentManager->create<MODULES::OPENCV::SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
+    if (m_contoursFilter)
+        LOG_INFO("Contours Filter component loaded");
     m_perspectiveController =xpcfComponentManager->create<MODULES::OPENCV::SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
+    if (m_perspectiveController)
+        LOG_INFO("Perspective Controller component loaded");
     m_patternDescriptorExtractor =xpcfComponentManager->create<MODULES::OPENCV::SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
+    if (m_patternDescriptorExtractor)
+        LOG_INFO("Descriptor Extractor component loaded");
     m_patternMatcher =xpcfComponentManager->create<MODULES::OPENCV::SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
+    if (m_patternMatcher)
+        LOG_INFO("Pattern Matcher component loaded");
     m_patternReIndexer = xpcfComponentManager->create<MODULES::TOOLS::SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
+    if (m_patternReIndexer)
+        LOG_INFO("Pattern Reindexer component loaded");
     m_img2worldMapper = xpcfComponentManager->create<MODULES::TOOLS::SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
+    if (m_img2worldMapper)
+        LOG_INFO("Image To World Mapper component loaded");
     m_PnP =xpcfComponentManager->create<MODULES::OPENCV::SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
+    if (m_PnP)
+        LOG_INFO("PnP component loaded");
     m_sink = xpcfComponentManager->create<MODULES::OPENGL::SinkPoseTextureBuffer>()->bindTo<sink::ISinkPoseTextureBuffer>();
+    if (m_sink)
+        LOG_INFO("Pose Texture Buffer Sink component loaded");
 
-    if (!m_camera && !m_binaryMarker && !m_imageFilterBinary && !m_imageConvertor && !m_contoursExtractor && !m_contoursFilter && !m_perspectiveController &&
-        !m_patternDescriptorExtractor && !m_patternMatcher && !m_patternReIndexer && !m_img2worldMapper && !m_PnP && !m_sink)
+    if (m_camera && m_binaryMarker && m_imageFilterBinary && m_imageConvertor && m_contoursExtractor && m_contoursFilter && m_perspectiveController &&
+        m_patternDescriptorExtractor && m_patternMatcher && m_patternReIndexer && m_img2worldMapper && m_PnP && m_sink)
     {
         LOG_DEBUG("All components have been created");
     }
@@ -138,11 +167,16 @@ bool PipelineFiducialMarker::processCamImage()
     std::vector<SRef<Point2Df>>     img2DPoints;
     std::vector<SRef<Point3Df>>     pattern3DPoints;
     Transform3Df                    pose;
+    Transform3Df                    finalPose = Transform3Df::Identity();
 
-
-    if (m_stopFlag)
+    if (m_stopFlag || !m_initOK || !m_startedOK)
         return false;
-    if (m_camera->getNextImage(camImage) == SolAR::FrameworkReturnCode::_ERROR_LOAD_IMAGE) {
+
+    bool poseComputed = false;
+
+    if (m_camera->getNextImage(camImage) == SolAR::FrameworkReturnCode::_ERROR_LOAD_IMAGE)
+    {
+        LOG_WARNING("The camera cannot load any image");
         m_stopFlag = true;
         return false;
     }
@@ -177,10 +211,17 @@ bool PipelineFiducialMarker::processCamImage()
             // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
             if (m_PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
             {
-                m_sink->set(pose, camImage);
+                poseComputed = true;
             }
         }
     }
+
+    if (poseComputed)
+    {
+        m_sink->set(pose, camImage);
+    }
+    m_sink->set(camImage);
+
     return true;
 }
 
@@ -197,7 +238,7 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* textureHandle)
 
     if (m_camera->start() != FrameworkReturnCode::_SUCCESS)
     {
-        LOG_ERROR("Camera cannot start");
+        LOG_ERROR("Camera cannot start")
         return FrameworkReturnCode::_ERROR_;
     }
 
@@ -213,6 +254,9 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* textureHandle)
 
 FrameworkReturnCode PipelineFiducialMarker::stop()
 {
+    if (m_taskProcess != nullptr)
+        m_taskProcess->stop();
+
     if(!m_initOK)
     {
         LOG_WARNING("Try to stop a pipeline that has not been initialized");
@@ -224,8 +268,6 @@ FrameworkReturnCode PipelineFiducialMarker::stop()
         return FrameworkReturnCode::_ERROR_;
     }
     m_stopFlag=true;
-
-    m_taskProcess->stop();
 
     LOG_INFO("Pipeline has stopped: \n");
 
