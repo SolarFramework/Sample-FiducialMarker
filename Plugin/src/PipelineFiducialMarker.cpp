@@ -233,7 +233,7 @@ FrameworkReturnCode PipelineFiducialMarker::stop()
 }
 
 
-FrameworkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
+SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
 {
     return m_sink->tryUpdate(pose);
 }

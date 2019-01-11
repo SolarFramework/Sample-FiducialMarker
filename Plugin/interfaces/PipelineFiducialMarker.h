@@ -62,6 +62,7 @@
 namespace SolAR {
 using namespace datastructure;
 using namespace api;
+using namespace api::sink;
 using namespace api::pipeline;
 namespace PIPELINES {
 
@@ -95,7 +96,7 @@ public:
 
     /// @brief update the pipeline
     /// Get the new pose and update the texture buffer with the image that has to be displayed
-    FrameworkReturnCode update(Transform3Df& pose) override;
+    SinkReturnCode update(Transform3Df& pose) override;
 
     void unloadComponent () override final;
 
