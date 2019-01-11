@@ -20,7 +20,7 @@
 // ADD COMPONENTS HEADERS HERE, e.g #include "SolarComponent.h"
 
 #include "PipelineManager.h"
-#include "gl/GL.h"
+#include "freeglut.h"
 
 using namespace SolAR;
 using namespace SolAR::PIPELINE;
