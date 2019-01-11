@@ -27,7 +27,7 @@ using namespace SolAR::PIPELINE;
 
 namespace xpcf  = org::bcom::xpcf;
 
-int main(int argc, char *argv[]){
+int main(){
 
 #if NDEBUG
     boost::log::core::get()->set_logging_enabled(false);
@@ -36,7 +36,6 @@ int main(int argc, char *argv[]){
     LOG_ADD_LOG_TO_CONSOLE();
 
     PipelineManager pipeline;
-
     if (pipeline.init("PipelineFiducialMarker.xml", "3898cc3b-3986-4edc-b7c8-f4fba0f6c22a"))
     {
 
@@ -54,11 +53,13 @@ int main(int argc, char *argv[]){
             while (true)
             {
                 PipelineManager::Pose pose;
-                pipeline.udpate(pose);
-                //LOG_INFO("Camera Pose {}", pose);
-
+                if (pipeline.udpate(pose))
+                {
+                    LOG_INFO("Camera Pose translation ({}, {}, {})", pose.translation(0), pose.translation(1), pose.translation(2));
+                }
             }
         }
+        pipeline.stop();
     }
 }
 
