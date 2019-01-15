@@ -224,8 +224,10 @@ bool PipelineFiducialMarker::processCamImage()
         }
     }
 
-    m_sink->set(m_pose, camImage);
-
+    if(poseComputed)
+        m_sink->set(m_pose, camImage);
+    else
+        m_sink->set(camImage);
 
     return true;
 }
