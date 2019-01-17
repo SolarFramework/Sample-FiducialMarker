@@ -65,7 +65,7 @@ PipelineFiducialMarker::~PipelineFiducialMarker()
 
 FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> xpcfComponentManager)
 {
-    LOG_DEBUG("Start init")
+    LOG_INFO("Start init")
     m_camera = xpcfComponentManager->create<MODULES::OPENCV::SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
     if (m_camera)
         LOG_INFO("Camera component loaded");
@@ -109,19 +109,20 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
     if (m_camera && m_binaryMarker && m_imageFilterBinary && m_imageConvertor && m_contoursExtractor && m_contoursFilter && m_perspectiveController &&
         m_patternDescriptorExtractor && m_patternMatcher && m_patternReIndexer && m_img2worldMapper && m_PnP && m_sink)
     {
-        LOG_DEBUG("All components have been created");
+        LOG_INFO("All components have been created");
     }
     else
     {
-        LOG_DEBUG("One or more components cannot be created");
+        LOG_INFO("One or more components cannot be created");
         return FrameworkReturnCode::_ERROR_;
     }
 
     // load marker
     LOG_INFO("LOAD MARKER IMAGE ");
     m_binaryMarker->loadMarker();
+    LOG_INFO("MARKER IMAGE LOADED");
     m_patternDescriptorExtractor->extract(m_binaryMarker->getPattern(), m_markerPatternDescriptor);
-    LOG_DEBUG ("Marker pattern:\n {}", m_binaryMarker->getPattern()->getPatternMatrix())
+    LOG_INFO ("Marker pattern:\n {}", m_binaryMarker->getPattern()->getPatternMatrix())
 
     int patternSize = m_binaryMarker->getPattern()->getSize();
 
@@ -150,6 +151,8 @@ CameraParameters PipelineFiducialMarker::getCameraParameters()
         camParam.height = resolution.height;
         camParam.focalX = calib(0,0);
         camParam.focalY = calib(1,1);
+        camParam.centerX = calib(2,0);
+        camParam.centerY = calib(2,1);
     }
     return camParam;
 }
@@ -180,7 +183,6 @@ bool PipelineFiducialMarker::processCamImage()
         m_stopFlag = true;
         return false;
     }
-
     // Convert Image from RGB to grey
     m_imageConvertor->convert(camImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
@@ -217,10 +219,9 @@ bool PipelineFiducialMarker::processCamImage()
     }
 
     if (poseComputed)
-    {
         m_sink->set(pose, camImage);
-    }
-    m_sink->set(camImage);
+    else
+        m_sink->set(camImage);
 
     return true;
 }
@@ -247,13 +248,14 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* textureHandle)
 
     m_taskProcess = new xpcf::DelegateTask(processCamImageThread);
     m_taskProcess->start();
-    LOG_DEBUG("Fiducial marker pipeline has started");
+    LOG_INFO("Fiducial marker pipeline has started");
     m_startedOK = true;
     return FrameworkReturnCode::_SUCCESS;
 }
 
 FrameworkReturnCode PipelineFiducialMarker::stop()
-{
+{    
+    m_camera->stop();
     if (m_taskProcess != nullptr)
         m_taskProcess->stop();
 
@@ -274,6 +276,10 @@ FrameworkReturnCode PipelineFiducialMarker::stop()
     return FrameworkReturnCode::_SUCCESS;
 }
 
+void PipelineFiducialMarker::updateFrameDataOGL(int enventID)
+{
+    return m_sink->updateFrameDataOGL(enventID);
+}
 
 SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
 {
