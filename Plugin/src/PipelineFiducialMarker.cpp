@@ -102,7 +102,11 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
     m_PnP =xpcfComponentManager->create<MODULES::OPENCV::SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
     if (m_PnP)
         LOG_INFO("PnP component loaded");
+#ifdef USE_OPENGL
     m_sink = xpcfComponentManager->create<MODULES::OPENGL::SinkPoseTextureBuffer>()->bindTo<sink::ISinkPoseTextureBuffer>();
+#else
+    m_sink = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSink>()->bindTo<sink::ISinkPoseImage>();
+#endif
     if (m_sink)
         LOG_INFO("Pose Texture Buffer Sink component loaded");
 
@@ -135,6 +139,10 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
     m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(m_binaryMarker->getSize().height);
 
     m_PnP->setCameraParameters(m_camera->getIntrinsicsParameters(), m_camera->getDistorsionParameters());
+
+    for(int i=0;i<4;i++)
+        for(int j=0;j<4;j++)
+            m_pose(i,j)=0.f;
 
     m_initOK = true;
     return FrameworkReturnCode::_SUCCESS;
@@ -169,8 +177,6 @@ bool PipelineFiducialMarker::processCamImage()
     std::vector<SRef<Point2Df>>     pattern2DPoints;
     std::vector<SRef<Point2Df>>     img2DPoints;
     std::vector<SRef<Point3Df>>     pattern3DPoints;
-    Transform3Df                    pose;
-    Transform3Df                    finalPose = Transform3Df::Identity();
 
     if (m_stopFlag || !m_initOK || !m_startedOK)
         return false;
@@ -211,7 +217,7 @@ bool PipelineFiducialMarker::processCamImage()
             m_img2worldMapper->map(pattern2DPoints, pattern3DPoints);
 
             // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-            if (m_PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
+            if (m_PnP->estimate(img2DPoints, pattern3DPoints, m_pose) == FrameworkReturnCode::_SUCCESS)
             {
                 poseComputed = true;
             }
@@ -219,14 +225,18 @@ bool PipelineFiducialMarker::processCamImage()
     }
 
     if (poseComputed)
-        m_sink->set(pose, camImage);
+        m_sink->set(m_pose, camImage);
     else
         m_sink->set(camImage);
 
     return true;
 }
 
+#ifdef USE_OPENGL
 FrameworkReturnCode PipelineFiducialMarker::start(void* textureHandle)
+#else
+FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
+#endif
 {
     if (m_initOK==false)
     {
@@ -234,9 +244,11 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* textureHandle)
         return FrameworkReturnCode::_ERROR_;
     }
     m_stopFlag=false;
-
+#ifdef USE_OPENGL
     m_sink->setTextureBuffer(textureHandle);
-
+#else
+    m_sink->setImageBuffer((unsigned char*)imageDataBuffer);
+#endif
     if (m_camera->start() != FrameworkReturnCode::_SUCCESS)
     {
         LOG_ERROR("Camera cannot start")
@@ -285,6 +297,8 @@ SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
 {
     return m_sink->tryUpdate(pose);
 }
+
+
 
 }
 }

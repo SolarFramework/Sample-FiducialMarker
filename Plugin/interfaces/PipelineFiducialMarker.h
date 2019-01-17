@@ -17,6 +17,8 @@
 #ifndef PIPELINEFIDUCIALMARKER_H
 #define PIPELINEFIDUCIALMARKER_H
 
+#define USE_OPENGL
+
 #if _WIN32
 #ifdef PipelineFiducialMarker_API_DLLEXPORT
 #define SOLARPIPELINEFIDUCIALMARKER_EXPORT_API __declspec(dllexport)
@@ -53,7 +55,12 @@
 #include "api/solver/pose/I3DTransformFinderFrom2D3D.h"
 #include "api/geom/IImage2WorldMapper.h"
 #include "api/geom/I2DTransform.h"
-#include "api/sink/ISinkPoseTextureBuffer.h"
+
+#ifdef USE_OPENGL
+    #include "api/sink/ISinkPoseTextureBuffer.h"
+#else
+    #include "api/sink/ISinkPoseImage.h"
+#endif
 
 #include "xpcf/threading/SharedBuffer.h"
 #include "xpcf/threading/DropBuffer.h"
@@ -89,7 +96,11 @@ public:
 
     /// @brief Starts the pipeline and provides a texture buffer which will be updated when required.
     /// @param[in] textureHandle a pointer to the texture buffer which will be updated at each call of the update method.
+#ifdef USE_OPENGL
     FrameworkReturnCode start(void* textureHandle) override;
+#else
+    FrameworkReturnCode start(void* imageDataBuffer) override;
+#endif
 
     /// @brief Stop the pipeline.
     FrameworkReturnCode stop() override;
@@ -119,14 +130,20 @@ private:
     SRef<features::ISBPatternReIndexer> m_patternReIndexer;
     SRef<geom::IImage2WorldMapper> m_img2worldMapper;
     SRef<solver::pose::I3DTransformFinderFrom2D3D> m_PnP;
+#ifdef USE_OPENGL
     SRef<sink::ISinkPoseTextureBuffer> m_sink;
-
+#else
+    SRef<sink::ISinkPoseImage> m_sink;
+#endif
     // State flag of the pipeline
     bool m_stopFlag, m_initOK, m_startedOK;
 
     // Threads
     bool processCamImage();
     xpcf::DelegateTask* m_taskProcess;
+
+    Transform3Df m_pose;
+
 };
 
 }
