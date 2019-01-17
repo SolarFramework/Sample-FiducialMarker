@@ -17,6 +17,8 @@
 #ifndef PIPELINEFIDUCIALMARKER_H
 #define PIPELINEFIDUCIALMARKER_H
 
+#define USE_OPENGL
+
 #if _WIN32
 #ifdef PipelineFiducialMarker_API_DLLEXPORT
 #define SOLARPIPELINEFIDUCIALMARKER_EXPORT_API __declspec(dllexport)
@@ -107,6 +109,7 @@ public:
     /// Get the new pose and update the texture buffer with the image that has to be displayed
     SinkReturnCode update(Transform3Df& pose) override;
 
+    void updateFrameDataOGL(int enventID) override;
 
     void unloadComponent () override final;
 
