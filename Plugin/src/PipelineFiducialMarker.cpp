@@ -125,7 +125,9 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
 
     // load marker
     LOG_INFO("LOAD MARKER IMAGE ");
-    m_binaryMarker->loadMarker();
+   if( m_binaryMarker->loadMarker()==FrameworkReturnCode::_ERROR_){
+       return FrameworkReturnCode::_ERROR_;
+    }
     m_patternDescriptorExtractor->extract(m_binaryMarker->getPattern(), m_markerPatternDescriptor);
     LOG_DEBUG ("Marker pattern:\n {}", m_binaryMarker->getPattern()->getPatternMatrix())
 
