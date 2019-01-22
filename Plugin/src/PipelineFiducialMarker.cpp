@@ -11,6 +11,9 @@
  *
  */
 
+
+//#define USE_OPENGL
+
 #include "xpcf/module/ModuleFactory.h"
 #include "PipelineFiducialMarker.h"
 
@@ -291,6 +294,7 @@ FrameworkReturnCode PipelineFiducialMarker::stop()
     return FrameworkReturnCode::_SUCCESS;
 }
 
+#ifdef USE_OPENGL
 void PipelineFiducialMarker::updateFrameDataOGL(int enventID)
 {
     return m_sink->updateFrameDataOGL(enventID);
@@ -301,6 +305,17 @@ SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
     return m_sink->tryUpdate(pose);
 }
 
+#else
+void PipelineFiducialMarker::updateFrameDataOGL(int enventID)
+{
+    return ;
+}
+
+SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
+{
+    return m_sink->tryGet(pose);
+}
+#endif
 
 
 }

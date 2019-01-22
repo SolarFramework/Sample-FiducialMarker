@@ -17,7 +17,7 @@
 #ifndef PIPELINEFIDUCIALMARKER_H
 #define PIPELINEFIDUCIALMARKER_H
 
-#define USE_OPENGL
+
 
 #if _WIN32
 #ifdef PipelineFiducialMarker_API_DLLEXPORT
