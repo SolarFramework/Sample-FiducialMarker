@@ -12,15 +12,10 @@
  */
 
 
-//#define USE_OPENGL
-
 #include "xpcf/module/ModuleFactory.h"
 #include "PipelineFiducialMarker.h"
-
 #include "SolARModuleOpencv_traits.h"
 #include "SolARModuleTools_traits.h"
-#include "SolARModuleOpengl_traits.h"
-
 #include "core/Log.h"
 
 namespace xpcf=org::bcom::xpcf;
@@ -105,11 +100,7 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
     m_PnP =xpcfComponentManager->create<MODULES::OPENCV::SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
     if (m_PnP)
         LOG_INFO("PnP component loaded");
-#ifdef USE_OPENGL
-    m_sink = xpcfComponentManager->create<MODULES::OPENGL::SinkPoseTextureBuffer>()->bindTo<sink::ISinkPoseTextureBuffer>();
-#else
     m_sink = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSink>()->bindTo<sink::ISinkPoseImage>();
-#endif
     if (m_sink)
         LOG_INFO("Pose Texture Buffer Sink component loaded");
 
@@ -238,11 +229,7 @@ bool PipelineFiducialMarker::processCamImage()
     return true;
 }
 
-#ifdef USE_OPENGL
-FrameworkReturnCode PipelineFiducialMarker::start(void* textureHandle)
-#else
 FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
-#endif
 {
     if (m_initOK==false)
     {
@@ -250,11 +237,8 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
         return FrameworkReturnCode::_ERROR_;
     }
     m_stopFlag=false;
-#ifdef USE_OPENGL
-    m_sink->setTextureBuffer(textureHandle);
-#else
     m_sink->setImageBuffer((unsigned char*)imageDataBuffer);
-#endif
+
     if (m_camera->start() != FrameworkReturnCode::_SUCCESS)
     {
         LOG_ERROR("Camera cannot start")
@@ -294,29 +278,10 @@ FrameworkReturnCode PipelineFiducialMarker::stop()
     return FrameworkReturnCode::_SUCCESS;
 }
 
-#ifdef USE_OPENGL
-void PipelineFiducialMarker::updateFrameDataOGL(int enventID)
-{
-    return m_sink->updateFrameDataOGL(enventID);
-}
-
-SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
-{
-    return m_sink->tryUpdate(pose);
-}
-
-#else
-void PipelineFiducialMarker::updateFrameDataOGL(int enventID)
-{
-    return ;
-}
-
 SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
 {
     return m_sink->tryGet(pose);
 }
-#endif
-
 
 }
 }
