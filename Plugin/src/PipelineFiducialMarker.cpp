@@ -50,6 +50,7 @@ PipelineFiducialMarker::PipelineFiducialMarker():ConfigurableBase(xpcf::toUUID<P
    m_initOK = false;
    m_startedOK = false;
    m_stopFlag = false;
+   m_haveToBeFlip = false;
    m_taskProcess = nullptr;
    LOG_DEBUG(" Pipeline constructor");
 }
@@ -102,10 +103,13 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
         LOG_INFO("PnP component loaded");
     m_sink = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSink>()->bindTo<sink::ISinkPoseImage>();
     if (m_sink)
-        LOG_INFO("Pose Texture Buffer Sink component loaded");
+        LOG_INFO("Pose Texture Buffer Source component loaded");
+    m_source = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSource>()->bindTo<source::ISourceImage>();
+    if (m_source)
+        LOG_INFO("Source image component loaded");
 
     if (m_camera && m_binaryMarker && m_imageFilterBinary && m_imageConvertor && m_contoursExtractor && m_contoursFilter && m_perspectiveController &&
-        m_patternDescriptorExtractor && m_patternMatcher && m_patternReIndexer && m_img2worldMapper && m_PnP && m_sink)
+        m_patternDescriptorExtractor && m_patternMatcher && m_patternReIndexer && m_img2worldMapper && m_PnP && m_sink && m_source)
     {
         LOG_INFO("All components have been created");
     }
@@ -179,15 +183,19 @@ bool PipelineFiducialMarker::processCamImage()
         return false;
 
     bool poseComputed = false;
-
-    if (m_camera->getNextImage(camImage) == SolAR::FrameworkReturnCode::_ERROR_LOAD_IMAGE)
+    if(m_haveToBeFlip)
+    {
+        m_source->getNextImage(camImage);
+    }
+    else if (m_camera->getNextImage(camImage) == SolAR::FrameworkReturnCode::_ERROR_LOAD_IMAGE)
     {
         LOG_WARNING("The camera cannot load any image");
         m_stopFlag = true;
         return false;
     }
+
     // Convert Image from RGB to grey
-    m_imageConvertor->convert(camImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
+    m_imageConvertor->convert(camImage, greyImage, Image::ImageLayout::LAYOUT_GREY, m_haveToBeFlip);
 
     // Convert Image from grey to black and white
     m_imageFilterBinary->filter(greyImage, binaryImage);
@@ -229,6 +237,14 @@ bool PipelineFiducialMarker::processCamImage()
     return true;
 }
 
+//////////////////////////////// ADD
+SourceReturnCode PipelineFiducialMarker::loadSourceImage(void* sourceTextureHandle, int width, int height)
+{
+   m_haveToBeFlip = true;
+   return m_source->setInputTexture((unsigned char *)sourceTextureHandle, width, height);
+}
+////////////////////////////////////
+
 FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
 {
     if (m_initOK==false)
@@ -239,7 +255,7 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
     m_stopFlag=false;
     m_sink->setImageBuffer((unsigned char*)imageDataBuffer);
 
-    if (m_camera->start() != FrameworkReturnCode::_SUCCESS)
+    if (!m_haveToBeFlip && (m_camera->start() != FrameworkReturnCode::_SUCCESS))
     {
         LOG_ERROR("Camera cannot start")
         return FrameworkReturnCode::_ERROR_;
@@ -257,7 +273,8 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
 
 FrameworkReturnCode PipelineFiducialMarker::stop()
 {    
-    m_camera->stop();
+    if( !m_haveToBeFlip)
+        m_camera->stop();
     if (m_taskProcess != nullptr)
         m_taskProcess->stop();
 
