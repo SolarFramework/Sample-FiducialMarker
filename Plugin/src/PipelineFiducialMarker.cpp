@@ -273,7 +273,7 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
 
 FrameworkReturnCode PipelineFiducialMarker::stop()
 {    
-    if( !m_haveToBeFlip)
+    //if( !m_haveToBeFlip)
         m_camera->stop();
     if (m_taskProcess != nullptr)
         m_taskProcess->stop();
