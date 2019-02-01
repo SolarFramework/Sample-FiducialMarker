@@ -272,8 +272,10 @@ FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
 }
 
 FrameworkReturnCode PipelineFiducialMarker::stop()
-{    
-    //if( !m_haveToBeFlip)
+{
+    m_stopFlag=true;
+
+    if( !m_haveToBeFlip)
         m_camera->stop();
     if (m_taskProcess != nullptr)
         m_taskProcess->stop();
@@ -288,7 +290,6 @@ FrameworkReturnCode PipelineFiducialMarker::stop()
         LOG_WARNING("Try to stop a pipeline that has not been started");
         return FrameworkReturnCode::_ERROR_;
     }
-    m_stopFlag=true;
 
     LOG_INFO("Pipeline has stopped: \n");
 
