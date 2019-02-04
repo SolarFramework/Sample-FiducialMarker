@@ -107,9 +107,12 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
     m_source = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSource>()->bindTo<source::ISourceImage>();
     if (m_source)
         LOG_INFO("Source image component loaded");
+    m_imageConvertorUnity =xpcfComponentManager->create<MODULES::OPENCV::SolARImageConvertorUnity>()->bindTo<image::IImageConvertor>();
+    if (m_imageConvertorUnity)
+        LOG_INFO("Image Convertor Unity component loaded");
 
     if (m_camera && m_binaryMarker && m_imageFilterBinary && m_imageConvertor && m_contoursExtractor && m_contoursFilter && m_perspectiveController &&
-        m_patternDescriptorExtractor && m_patternMatcher && m_patternReIndexer && m_img2worldMapper && m_PnP && m_sink && m_source)
+        m_patternDescriptorExtractor && m_patternMatcher && m_patternReIndexer && m_img2worldMapper && m_PnP && m_sink && m_source && m_imageConvertorUnity)
     {
         LOG_INFO("All components have been created");
     }
@@ -194,8 +197,12 @@ bool PipelineFiducialMarker::processCamImage()
         return false;
     }
 
+    if(m_haveToBeFlip)
+    {
+        m_imageConvertorUnity->convert(camImage,camImage,Image::ImageLayout::LAYOUT_RGB);
+    }
     // Convert Image from RGB to grey
-    m_imageConvertor->convert(camImage, greyImage, Image::ImageLayout::LAYOUT_GREY, m_haveToBeFlip);
+    m_imageConvertor->convert(camImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
     // Convert Image from grey to black and white
     m_imageFilterBinary->filter(greyImage, binaryImage);
