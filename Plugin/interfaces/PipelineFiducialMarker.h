@@ -134,6 +134,10 @@ private:
 
     Transform3Df m_pose;
 
+    int m_minThreshold = 50;
+    int m_maxThreshold = 220;
+    int m_nbTestedThreshold = 6;
+
 };
 
 }

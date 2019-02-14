@@ -47,6 +47,11 @@ namespace PIPELINES {
 PipelineFiducialMarker::PipelineFiducialMarker():ConfigurableBase(xpcf::toUUID<PipelineFiducialMarker>())
 {
    addInterface<api::pipeline::IPipeline>(this);
+   SRef<xpcf::IPropertyMap> params = getPropertyRootNode();
+   params->wrapInteger("minThreshold", m_minThreshold);
+   params->wrapInteger("maxThreshold", m_maxThreshold);
+   params->wrapInteger("nbTestedThreshold", m_nbTestedThreshold);
+
    m_initOK = false;
    m_startedOK = false;
    m_stopFlag = false;
@@ -204,34 +209,44 @@ bool PipelineFiducialMarker::processCamImage()
     // Convert Image from RGB to grey
     m_imageConvertor->convert(camImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
-    // Convert Image from grey to black and white
-    m_imageFilterBinary->filter(greyImage, binaryImage);
-
-    // Extract contours from binary image
-    m_contoursExtractor->extract(binaryImage, contours);
-
-     // Filter 4 edges contours to find those candidate for marker contours
-    m_contoursFilter->filter(contours, filtered_contours);
-
-    // Create one warpped and cropped image by contour
-    m_perspectiveController->correct(binaryImage, filtered_contours, patches);
-
-    // test if this last image is really a squared binary marker, and if it is the case, extract its descriptor
-    if (m_patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
+    for (int num_threshold = 0; !poseComputed && num_threshold < m_nbTestedThreshold; num_threshold++)
     {
-        // From extracted squared binary pattern, match the one corresponding to the squared binary marker
-        if (m_patternMatcher->match(m_markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
+         // Compute the current Threshold valu for image binarization
+         int threshold = m_minThreshold + (m_maxThreshold - m_minThreshold)*((float)num_threshold/(float)(m_nbTestedThreshold-1));
+
+         // Convert Image from grey to black and white
+         m_imageFilterBinary->bindTo<xpcf::IConfigurable>()->getProperty("min")->setIntegerValue(threshold);
+         m_imageFilterBinary->bindTo<xpcf::IConfigurable>()->getProperty("max")->setIntegerValue(255);
+
+        // Convert Image from grey to black and white
+        m_imageFilterBinary->filter(greyImage, binaryImage);
+
+        // Extract contours from binary image
+        m_contoursExtractor->extract(binaryImage, contours);
+
+         // Filter 4 edges contours to find those candidate for marker contours
+        m_contoursFilter->filter(contours, filtered_contours);
+
+        // Create one warpped and cropped image by contour
+        m_perspectiveController->correct(binaryImage, filtered_contours, patches);
+
+        // test if this last image is really a squared binary marker, and if it is the case, extract its descriptor
+        if (m_patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
         {
-            // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
-            m_patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
-
-            // Compute the 3D position of each corner of the marker
-            m_img2worldMapper->map(pattern2DPoints, pattern3DPoints);
-
-            // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-            if (m_PnP->estimate(img2DPoints, pattern3DPoints, m_pose) == FrameworkReturnCode::_SUCCESS)
+            // From extracted squared binary pattern, match the one corresponding to the squared binary marker
+            if (m_patternMatcher->match(m_markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
             {
-                poseComputed = true;
+                // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
+                m_patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
+
+                // Compute the 3D position of each corner of the marker
+                m_img2worldMapper->map(pattern2DPoints, pattern3DPoints);
+
+                // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
+                if (m_PnP->estimate(img2DPoints, pattern3DPoints, m_pose) == FrameworkReturnCode::_SUCCESS)
+                {
+                    poseComputed = true;
+                }
             }
         }
     }

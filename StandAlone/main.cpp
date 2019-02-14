@@ -28,7 +28,6 @@
 
 #include "xpcf/xpcf.h"
 
-
 #include "api/input/devices/ICamera.h"
 #include "api/input/files/IMarker2DSquaredBinary.h"
 #include "api/display/IImageViewer.h"
@@ -45,7 +44,9 @@
 #include "api/display/I3DOverlay.h"
 #include "api/display/I2DOverlay.h"
 
-
+#define MIN_THRESHOLD 20
+#define MAX_THRESHOLD 220
+#define NB_THRESHOLD 8
 //#define VIDEO_INPUT
 
 using namespace std;
@@ -174,114 +175,125 @@ int main(int argc, char *argv[]){
        // Convert Image from RGB to grey
        imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
-       // Convert Image from grey to black and white
-       imageFilterBinary->filter(greyImage,binaryImage);
-
-       // Extract contours from binary image
-       contoursExtractor->extract(binaryImage,contours);
-#ifndef NDEBUG
-       contoursImage = binaryImage->copy();
-       overlay2DContours->drawContours(contours, contoursImage);
-#endif
-       // Filter 4 edges contours to find those candidate for marker contours
-       contoursFilter->filter(contours, filtered_contours);
-
-#ifndef NDEBUG
-       filteredContoursImage = binaryImage->copy();
-       overlay2DContours->drawContours(filtered_contours, filteredContoursImage);
-#endif
-       // Create one warpped and cropped image by contour
-       perspectiveController->correct(binaryImage, filtered_contours, patches);
-
-       // test if this last image is really a squared binary marker, and if it is the case, extract its descriptor
-       if (patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
+       bool marker_found = false;
+       for (int num_threshold = 0; !marker_found && num_threshold < NB_THRESHOLD; num_threshold++)
        {
+            // Compute the current Threshold valu for image binarization
+            int threshold = MIN_THRESHOLD + (MAX_THRESHOLD - MIN_THRESHOLD)*((float)num_threshold/(float)(NB_THRESHOLD-1));
+
+            // Convert Image from grey to black and white
+            imageFilterBinary->bindTo<xpcf::IConfigurable>()->getProperty("min")->setIntegerValue(threshold);
+            imageFilterBinary->bindTo<xpcf::IConfigurable>()->getProperty("max")->setIntegerValue(255);
+
+           // Convert Image from grey to black and white
+           imageFilterBinary->filter(greyImage,binaryImage);
+
+           // Extract contours from binary image
+           contoursExtractor->extract(binaryImage,contours);
+#ifndef NDEBUG
+           contoursImage = binaryImage->copy();
+           overlay2DContours->drawContours(contours, contoursImage);
+#endif
+           // Filter 4 edges contours to find those candidate for marker contours
+           contoursFilter->filter(contours, filtered_contours);
 
 #ifndef NDEBUG
-           LOG_DEBUG("Looking for the following descriptor:");
-           for (uint32_t i = 0; i < markerPatternDescriptor->getNbDescriptors()*markerPatternDescriptor->getDescriptorByteSize(); i++)
-           {
+           filteredContoursImage = binaryImage->copy();
+           overlay2DContours->drawContours(filtered_contours, filteredContoursImage);
+#endif
+           // Create one warpped and cropped image by contour
+           perspectiveController->correct(binaryImage, filtered_contours, patches);
 
-               if (i%patternSize == 0)
-                   std::cout<<"[";
-               if (i%patternSize != patternSize-1)
-                   std::cout << (int)((unsigned char*)markerPatternDescriptor->data())[i] << ", ";
-               else
-                    std::cout << (int)((unsigned char*)markerPatternDescriptor->data())[i] <<"]" << std::endl;
-           }
-           std::cout << std::endl;
-
-           std::cout << recognizedPatternsDescriptors->getNbDescriptors() <<" recognized Pattern Descriptors " << std::endl;
-           int desrciptorSize = recognizedPatternsDescriptors->getDescriptorByteSize();
-           for (uint32_t i = 0; i < recognizedPatternsDescriptors->getNbDescriptors()/4; i++)
+           // test if this last image is really a squared binary marker, and if it is the case, extract its descriptor
+           if (patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
            {
-               for (int j = 0; j < patternSize; j++)
+#ifndef NDEBUG
+               LOG_DEBUG("Looking for the following descriptor:");
+               for (uint32_t i = 0; i < markerPatternDescriptor->getNbDescriptors()*markerPatternDescriptor->getDescriptorByteSize(); i++)
                {
-                   for (int k = 0; k < 4; k++)
-                   {
+
+                   if (i%patternSize == 0)
                        std::cout<<"[";
-                       for (int l = 0; l < patternSize; l++)
-                       {
-                            std::cout << (int)((unsigned char*)recognizedPatternsDescriptors->data())[desrciptorSize*((i*4)+k) + j*patternSize + l];
-                            if (l != patternSize-1)
-                                std::cout << ", ";
-                       }
-                        std::cout <<"]";
-                   }
-                   std::cout << std::endl;
+                   if (i%patternSize != patternSize-1)
+                       std::cout << (int)((unsigned char*)markerPatternDescriptor->data())[i] << ", ";
+                   else
+                        std::cout << (int)((unsigned char*)markerPatternDescriptor->data())[i] <<"]" << std::endl;
                }
-               std::cout << std::endl << std::endl;
-           }
+               std::cout << std::endl;
 
-           std::cout << recognizedContours.size() <<" Recognized Pattern contour " << std::endl;
-           for (int i = 0; i < recognizedContours.size()/4; i++)
-           {
-               for (int j = 0; j < recognizedContours[0]->size(); j++)
+               std::cout << recognizedPatternsDescriptors->getNbDescriptors() <<" recognized Pattern Descriptors " << std::endl;
+               int desrciptorSize = recognizedPatternsDescriptors->getDescriptorByteSize();
+               for (uint32_t i = 0; i < recognizedPatternsDescriptors->getNbDescriptors()/4; i++)
                {
-                   for (int k = 0; k < 4; k++)
+                   for (int j = 0; j < patternSize; j++)
                    {
-                       std::cout<<"[" << (*(recognizedContours[i*4+k]))[j][0] <<", "<< (*(recognizedContours[i*4+k]))[j][1] << "] ";
+                       for (int k = 0; k < 4; k++)
+                       {
+                           std::cout<<"[";
+                           for (int l = 0; l < patternSize; l++)
+                           {
+                                std::cout << (int)((unsigned char*)recognizedPatternsDescriptors->data())[desrciptorSize*((i*4)+k) + j*patternSize + l];
+                                if (l != patternSize-1)
+                                    std::cout << ", ";
+                           }
+                            std::cout <<"]";
+                       }
+                       std::cout << std::endl;
                    }
-                   std::cout << std::endl;
+                   std::cout << std::endl << std::endl;
                }
-               std::cout << std::endl << std::endl;
-           }
-           std::cout << std::endl;
+
+               std::cout << recognizedContours.size() <<" Recognized Pattern contour " << std::endl;
+               for (int i = 0; i < recognizedContours.size()/4; i++)
+               {
+                   for (int j = 0; j < recognizedContours[0]->size(); j++)
+                   {
+                       for (int k = 0; k < 4; k++)
+                       {
+                           std::cout<<"[" << (*(recognizedContours[i*4+k]))[j][0] <<", "<< (*(recognizedContours[i*4+k]))[j][1] << "] ";
+                       }
+                       std::cout << std::endl;
+                   }
+                   std::cout << std::endl << std::endl;
+               }
+               std::cout << std::endl;
 #endif
 
-            // From extracted squared binary pattern, match the one corresponding to the squared binary marker
-            if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
-            {
-#ifndef NDEBUG
-                std::cout << "Matches :" << std::endl;
-                for (int num_match = 0; num_match < patternMatches.size(); num_match++)
-                    std::cout << "Match [" << patternMatches[num_match].getIndexInDescriptorA() << "," << patternMatches[num_match].getIndexInDescriptorB() << "], dist = " << patternMatches[num_match].getMatchingScore() << std::endl;
-                std::cout << std::endl << std::endl;
-#endif
-
-                // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
-                patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
-#ifndef NDEBUG
-                LOG_DEBUG("2D Matched points :");
-                for (int i = 0; i < img2DPoints.size(); i++)
-                    LOG_DEBUG("{}",img2DPoints[i]);
-                for (int i = 0; i < pattern2DPoints.size(); i++)
-                    LOG_DEBUG("{}",pattern2DPoints[i]);
-                overlay2DCircles->drawCircles(img2DPoints, inputImage);
-#endif
-                // Compute the 3D position of each corner of the marker
-                img2worldMapper->map(pattern2DPoints, pattern3DPoints);
-#ifndef NDEBUG
-                std::cout << "3D Points position:" << std::endl;
-                for (int i = 0; i < pattern3DPoints.size(); i++)
-                    LOG_DEBUG("{}", pattern3DPoints[i]);
-#endif
-                // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-                if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
+                // From extracted squared binary pattern, match the one corresponding to the squared binary marker
+                if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
                 {
-                    LOG_DEBUG("Camera pose : \n {}", pose.matrix());
-                    // Display a 3D box over the marker
-                    overlay3D->draw(pose,inputImage);
+#ifndef NDEBUG
+                    std::cout << "Matches :" << std::endl;
+                    for (int num_match = 0; num_match < patternMatches.size(); num_match++)
+                        std::cout << "Match [" << patternMatches[num_match].getIndexInDescriptorA() << "," << patternMatches[num_match].getIndexInDescriptorB() << "], dist = " << patternMatches[num_match].getMatchingScore() << std::endl;
+                    std::cout << std::endl << std::endl;
+#endif
+
+                    // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
+                    patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
+#ifndef NDEBUG
+                    LOG_DEBUG("2D Matched points :");
+                    for (int i = 0; i < img2DPoints.size(); i++)
+                        LOG_DEBUG("{}",img2DPoints[i]);
+                    for (int i = 0; i < pattern2DPoints.size(); i++)
+                        LOG_DEBUG("{}",pattern2DPoints[i]);
+                    overlay2DCircles->drawCircles(img2DPoints, inputImage);
+#endif
+                    // Compute the 3D position of each corner of the marker
+                    img2worldMapper->map(pattern2DPoints, pattern3DPoints);
+#ifndef NDEBUG
+                    std::cout << "3D Points position:" << std::endl;
+                    for (int i = 0; i < pattern3DPoints.size(); i++)
+                        LOG_DEBUG("{}", pattern3DPoints[i]);
+#endif
+                    // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
+                    if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
+                    {
+                        LOG_DEBUG("Camera pose : \n {}", pose.matrix());
+                        // Display a 3D box over the marker
+                        overlay3D->draw(pose,inputImage);
+                        marker_found = true;
+                    }
                 }
             }
        }
