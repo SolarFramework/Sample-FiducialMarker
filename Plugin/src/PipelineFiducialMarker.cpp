@@ -69,72 +69,69 @@ PipelineFiducialMarker::~PipelineFiducialMarker()
 
 FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> xpcfComponentManager)
 {
-    LOG_INFO("Start init")
-    m_camera = xpcfComponentManager->create<MODULES::OPENCV::SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
-    if (m_camera)
-        LOG_INFO("Camera component loaded");
-    m_binaryMarker =xpcfComponentManager->create<MODULES::OPENCV::SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
-    if (m_binaryMarker)
-        LOG_INFO("Binary Marker component loaded");
-    m_imageFilterBinary =xpcfComponentManager->create<MODULES::OPENCV::SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
-    if (m_imageFilterBinary)
-        LOG_INFO("Image Filter component loaded");
-    m_imageConvertor =xpcfComponentManager->create<MODULES::OPENCV::SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
-    if (m_imageConvertor)
-        LOG_INFO("Image Convertor component loaded");
-    m_contoursExtractor =xpcfComponentManager->create<MODULES::OPENCV::SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
-    if (m_contoursExtractor)
-        LOG_INFO("Controus Extracor component loaded");
-    m_contoursFilter =xpcfComponentManager->create<MODULES::OPENCV::SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
-    if (m_contoursFilter)
-        LOG_INFO("Contours Filter component loaded");
-    m_perspectiveController =xpcfComponentManager->create<MODULES::OPENCV::SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
-    if (m_perspectiveController)
-        LOG_INFO("Perspective Controller component loaded");
-    m_patternDescriptorExtractor =xpcfComponentManager->create<MODULES::OPENCV::SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
-    if (m_patternDescriptorExtractor)
-        LOG_INFO("Descriptor Extractor component loaded");
-    m_patternMatcher =xpcfComponentManager->create<MODULES::OPENCV::SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
-    if (m_patternMatcher)
-        LOG_INFO("Pattern Matcher component loaded");
-    m_patternReIndexer = xpcfComponentManager->create<MODULES::TOOLS::SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
-    if (m_patternReIndexer)
-        LOG_INFO("Pattern Reindexer component loaded");
-    m_img2worldMapper = xpcfComponentManager->create<MODULES::TOOLS::SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
-    if (m_img2worldMapper)
-        LOG_INFO("Image To World Mapper component loaded");
-    m_PnP =xpcfComponentManager->create<MODULES::OPENCV::SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
-    if (m_PnP)
-        LOG_INFO("PnP component loaded");
-    m_sink = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSink>()->bindTo<sink::ISinkPoseImage>();
-    if (m_sink)
-        LOG_INFO("Pose Texture Buffer Source component loaded");
-    m_source = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSource>()->bindTo<source::ISourceImage>();
-    if (m_source)
-        LOG_INFO("Source image component loaded");
-    m_imageConvertorUnity =xpcfComponentManager->create<MODULES::OPENCV::SolARImageConvertorUnity>()->bindTo<image::IImageConvertor>();
-    if (m_imageConvertorUnity)
-        LOG_INFO("Image Convertor Unity component loaded");
-
-    if (m_camera && m_binaryMarker && m_imageFilterBinary && m_imageConvertor && m_contoursExtractor && m_contoursFilter && m_perspectiveController &&
-        m_patternDescriptorExtractor && m_patternMatcher && m_patternReIndexer && m_img2worldMapper && m_PnP && m_sink && m_source && m_imageConvertorUnity)
-    {
-        LOG_INFO("All components have been created");
+    try {
+        LOG_INFO("Start init")
+        m_camera = xpcfComponentManager->create<MODULES::OPENCV::SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+        if (m_camera)
+            LOG_INFO("Camera component loaded");
+        m_binaryMarker =xpcfComponentManager->create<MODULES::OPENCV::SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
+        if (m_binaryMarker)
+            LOG_INFO("Binary Marker component loaded");
+        m_imageFilterBinary =xpcfComponentManager->create<MODULES::OPENCV::SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
+        if (m_imageFilterBinary)
+            LOG_INFO("Image Filter component loaded");
+        m_imageConvertor =xpcfComponentManager->create<MODULES::OPENCV::SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
+        if (m_imageConvertor)
+            LOG_INFO("Image Convertor component loaded");
+        m_contoursExtractor =xpcfComponentManager->create<MODULES::OPENCV::SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
+        if (m_contoursExtractor)
+            LOG_INFO("Controus Extracor component loaded");
+        m_contoursFilter =xpcfComponentManager->create<MODULES::OPENCV::SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
+        if (m_contoursFilter)
+            LOG_INFO("Contours Filter component loaded");
+        m_perspectiveController =xpcfComponentManager->create<MODULES::OPENCV::SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
+        if (m_perspectiveController)
+            LOG_INFO("Perspective Controller component loaded");
+        m_patternDescriptorExtractor =xpcfComponentManager->create<MODULES::OPENCV::SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
+        if (m_patternDescriptorExtractor)
+            LOG_INFO("Descriptor Extractor component loaded");
+        m_patternMatcher =xpcfComponentManager->create<MODULES::OPENCV::SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
+        if (m_patternMatcher)
+            LOG_INFO("Pattern Matcher component loaded");
+        m_patternReIndexer = xpcfComponentManager->create<MODULES::TOOLS::SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
+        if (m_patternReIndexer)
+            LOG_INFO("Pattern Reindexer component loaded");
+        m_img2worldMapper = xpcfComponentManager->create<MODULES::TOOLS::SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
+        if (m_img2worldMapper)
+            LOG_INFO("Image To World Mapper component loaded");
+        m_PnP =xpcfComponentManager->create<MODULES::OPENCV::SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
+        if (m_PnP)
+            LOG_INFO("PnP component loaded");
+        m_sink = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSink>()->bindTo<sink::ISinkPoseImage>();
+        if (m_sink)
+            LOG_INFO("Pose Texture Buffer Source component loaded");
+        m_source = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSource>()->bindTo<source::ISourceImage>();
+        if (m_source)
+            LOG_INFO("Source image component loaded");
+        m_imageConvertorUnity =xpcfComponentManager->create<MODULES::OPENCV::SolARImageConvertorUnity>()->bindTo<image::IImageConvertor>();
+        if (m_imageConvertorUnity)
+            LOG_INFO("Image Convertor Unity component loaded");
     }
-    else
+    catch (xpcf::Exception e)
     {
-        LOG_INFO("One or more components cannot be created");
-        return FrameworkReturnCode::_ERROR_;
+       LOG_WARNING("One or more components cannot be created: {}", e.what());
+       return FrameworkReturnCode::_ERROR_;
     }
+    LOG_INFO("All components have been created");
 
     // load marker
     LOG_INFO("LOAD MARKER IMAGE ");
-  if( m_binaryMarker->loadMarker()==FrameworkReturnCode::_ERROR_){
+    if( m_binaryMarker->loadMarker()==FrameworkReturnCode::_ERROR_){
        return FrameworkReturnCode::_ERROR_;
     }
     LOG_INFO("MARKER IMAGE LOADED");
 
-   m_patternDescriptorExtractor->extract(m_binaryMarker->getPattern(), m_markerPatternDescriptor);
+    m_patternDescriptorExtractor->extract(m_binaryMarker->getPattern(), m_markerPatternDescriptor);
     LOG_INFO ("Marker pattern:\n {}", m_binaryMarker->getPattern()->getPatternMatrix())
 
     int patternSize = m_binaryMarker->getPattern()->getSize();
