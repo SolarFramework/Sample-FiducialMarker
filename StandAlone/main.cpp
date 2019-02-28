@@ -27,7 +27,7 @@
 #include "SolARModuleTools_traits.h"
 
 #include "xpcf/xpcf.h"
-
+#include "core/Log.h"
 #include "api/input/devices/ICamera.h"
 #include "api/input/files/IMarker2DSquaredBinary.h"
 #include "api/display/IImageViewer.h"
