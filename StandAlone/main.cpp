@@ -43,6 +43,7 @@
 #include "api/solver/pose/I3DTransformFinderFrom2D3D.h"
 #include "api/display/I3DOverlay.h"
 #include "api/display/I2DOverlay.h"
+#include "core/Log.h"
 
 #define MIN_THRESHOLD -1
 #define MAX_THRESHOLD 220
@@ -321,6 +322,7 @@ int main(int argc, char *argv[]){
     catch (xpcf::Exception e)
     {
         LOG_ERROR ("The following exception has been catch : {}", e.what());
+        return -1;
     }
 
     return 0;
