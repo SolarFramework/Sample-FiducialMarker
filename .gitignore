@@ -39,3 +39,6 @@ build-SolARFiducialMarkerSampleStatic/fiducialMarker.yml
 build-SolARFiducialMarkerSampleStatic/SolARFiducialMarkerSampleStatic_resource.res
 build-SolARFiducialMarkerSampleStatic/Makefile
 build-SolARFiducialMarkerSampleStatic/SolARFiducialMarkerSampleStatic.exp
+build-PipelineFiducialMarker-D/
+build-PipelineFiducialMarker-R/
+Plugin/PipelineFiducialMarker.pro.user.9582bec
