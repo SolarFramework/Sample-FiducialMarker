@@ -250,7 +250,7 @@ int main(int argc, char *argv[]){
                        {
                            for (int k = 0; k < 4; k++)
                            {
-                               std::cout<<"[" << (*(recognizedContours[i*4+k]))[j][0] <<", "<< (*(recognizedContours[i*4+k]))[j][1] << "] ";
+                               std::cout<<"[" << (*(recognizedContours[i*4+k]))[j]->getX() <<", "<< (*(recognizedContours[i*4+k]))[j]->getY() << "] ";
                            }
                            std::cout << std::endl;
                        }
@@ -272,11 +272,6 @@ int main(int argc, char *argv[]){
                         // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
                         patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
     #ifndef NDEBUG
-                        LOG_DEBUG("2D Matched points :");
-                        for (int i = 0; i < img2DPoints.size(); i++)
-                            LOG_DEBUG("{}",img2DPoints[i]);
-                        for (int i = 0; i < pattern2DPoints.size(); i++)
-                            LOG_DEBUG("{}",pattern2DPoints[i]);
                         overlay2DCircles->drawCircles(img2DPoints, inputImage);
     #endif
                         // Compute the 3D position of each corner of the marker
