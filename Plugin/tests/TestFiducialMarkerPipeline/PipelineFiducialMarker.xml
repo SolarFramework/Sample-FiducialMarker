@@ -57,6 +57,14 @@
 			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
 			<interface uuid="9c982719-6cb4-4831-aa88-9e01afacbd16" name="IImageConvertor" description="SolAR::api::image::IImageConvertor"/>
 	</component>
+	<component uuid="2db01f59-9793-4cd5-8e13-b25d0ed5735b" name="SolAR3DOverlayOpencv" description="SolAR3DOverlayOpencv">
+                <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+                <interface uuid="81a20f52-6bf9-4949-b914-df2f614bc945" name="I3DOverlay" description="I3DOverlay"/>
+	</component>
+	<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b" name="SolARImageViewerOpencv" description="SolARImageViewerOpencv">
+			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+			<interface uuid="b05f3dbb-f93d-465c-aee1-fb58e1480c42" name="IImageViewer" description="IImageViewer"/>
+	</component>
   </module>
   <module uuid="28b89d39-41bd-451d-b19e-d25a3d7c5797" name="SolARModuleTools" path="$BCOMDEVROOT/bcomBuild/SolARModuleTools/0.5.2/lib/x86_64/shared" description="Module Tools">
     <component uuid="a2ef5542-029e-4fce-9974-0aea14b29d6f" name="SolARSBPatternReIndexer" description="SolARSBPatternReIndexer">
@@ -118,5 +126,28 @@
       <property name="outputImageHeight" type="Integer" value="480" description="The width in pixels of the corrected image." />
       <!--SolARPerspectiveControllerOpencv-->
     </component>
+		<component uuid="2db01f59-9793-4cd5-8e13-b25d0ed5735b"> <!-- SolAR3DOverlayBoxOpencv -->
+		<property name="position"  type="Float">
+			<value>0</value>
+			<value>0</value>
+			<value>0</value>
+		</property>
+		<property name="orientation"  type="Float">
+			<value>0.0</value>
+			<value>0.0</value>
+			<value>0.0</value>
+		</property>
+		<property name="size"  type="Float">
+			<value>0.157</value>
+			<value>0.157</value>
+			<value>0.1</value>
+		</property>
+	</component>
+	<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b"> <!-- SolARImageViewerOpencv -->
+		<property name="title" type="string" value="Fiducial Image Marker"/>
+		<property name="exitKey" type="Integer" value="27"/>
+		<property name="width" type="Integer" value="0"/>
+		<property name="height" type="Integer" value="0"/>
+	</component>
   </configuration>
 </xpcf-registry>
