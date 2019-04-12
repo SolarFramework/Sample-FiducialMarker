@@ -165,8 +165,8 @@ CameraParameters PipelineFiducialMarker::getCameraParameters()
         camParam.height = resolution.height;
         camParam.focalX = calib(0,0);
         camParam.focalY = calib(1,1);
-        camParam.centerX = calib(2,0);
-        camParam.centerY = calib(2,1);
+        camParam.centerX = calib(0,2);
+        camParam.centerY = calib(1,2);
     }
     return camParam;
 }
