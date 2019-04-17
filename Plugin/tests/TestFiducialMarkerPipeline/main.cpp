@@ -33,7 +33,6 @@ namespace xpcf  = org::bcom::xpcf;
 #include "SolAR3DOverlayBoxOpencv.h"
 
 using namespace SolAR;
-using namespace SolAR::MODULES::OPENCV;
 using namespace SolAR::api;
 
 int main(){
@@ -86,7 +85,7 @@ int main(){
                     for(int j=0;j<3;j++)
                         s_pose(3,j)=0;
                     s_pose(3,3)=1;
-                    overlay3DComponent->draw(s_pose, camImage);
+                    overlay3DComponent->draw(s_pose, camImage);     
                 }
 
                 if (imageViewerResult->display(camImage) == SolAR::FrameworkReturnCode::_STOP){
