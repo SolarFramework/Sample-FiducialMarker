@@ -1,5 +1,5 @@
 TARGET = TestFiducialMarkerPlugin
-VERSION=0.1.0
+VERSION=0.5.3
 
 CONFIG += c++11
 CONFIG -= qt
