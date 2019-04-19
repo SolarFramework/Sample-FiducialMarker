@@ -21,7 +21,7 @@
 
 // ADD COMPONENTS HEADERS HERE, e.g #include "SolarComponent.h"
 
-#include "PipelineManager.h"
+#include "SolARPluginPipelineManager.h"
 
 using namespace SolAR;
 using namespace SolAR::PIPELINE;
@@ -44,7 +44,7 @@ int main(){
 
     LOG_ADD_LOG_TO_CONSOLE();
 
-    PipelineManager pipeline;
+    SolARPluginPipelineManager pipeline;
     if (pipeline.init("PipelineFiducialMarker.xml", "3898cc3b-3986-4edc-b7c8-f4fba0f6c22a"))
     {
         auto imageViewerResult = xpcf::getComponentManagerInstance()->create<MODULES::OPENCV::SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
@@ -53,7 +53,7 @@ int main(){
         // Set camera parameters
         CamCalibration intrinsic_param = CamCalibration::Identity();
         CamDistortion  distorsion_param = CamDistortion::Zero();
-        PipelineManager::CamParams calib = pipeline.getCameraParameters();
+        SolARPluginPipelineManager::CamParams calib = pipeline.getCameraParameters();
         intrinsic_param(0,0) = calib.focalX;
         intrinsic_param(1,1) = calib.focalY;
         intrinsic_param(0,2) = (float)calib.centerX;
@@ -70,7 +70,7 @@ int main(){
         {
             while (true)
             {
-                PipelineManager::Pose pose;
+                SolARPluginPipelineManager::Pose pose;
 
                 PIPELINEMANAGER_RETURNCODE returnCode = pipeline.udpate(pose);
                 if(returnCode==PIPELINEMANAGER_RETURNCODE::_ERROR)
