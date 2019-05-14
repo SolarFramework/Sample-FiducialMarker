@@ -154,19 +154,20 @@ FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> x
     return FrameworkReturnCode::_SUCCESS;
 }
 
-CameraParameters PipelineFiducialMarker::getCameraParameters()
+CamCalibration PipelineFiducialMarker::getCameraParameters()
 {
-    CameraParameters camParam;
+    CamCalibration camParam;
     if (m_camera)
     {
-        Sizei resolution = m_camera->getResolution();
-        CamCalibration calib = m_camera->getIntrinsicsParameters();
-        camParam.width = resolution.width;
-        camParam.height = resolution.height;
-        camParam.focalX = calib(0,0);
-        camParam.focalY = calib(1,1);
-        camParam.centerX = calib(0,2);
-        camParam.centerY = calib(1,2);
+        //Sizei resolution = m_camera->getResolution();
+        //CamCalibration calib = m_camera->getIntrinsicsParameters();
+        camParam = m_camera->getIntrinsicsParameters();
+        //camParam.width = resolution.width;
+        //camParam.height = resolution.height;
+        //camParam.focalX = calib(0,0);
+        //camParam.focalY = calib(1,1);
+        //camParam.centerX = calib(0,2);
+        //camParam.centerY = calib(1,2);
     }
     return camParam;
 }
