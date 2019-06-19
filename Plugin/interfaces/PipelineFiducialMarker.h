@@ -137,6 +137,8 @@ private:
     int m_minThreshold = 50;
     int m_maxThreshold = 220;
     int m_nbTestedThreshold = 6;
+    std::vector<int64_t> m_longVect;
+        std::vector<std::string> m_strVect;
 
 };
 

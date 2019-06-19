@@ -1,7 +1,7 @@
 TARGET = TestFiducialMarkerPlugin
 VERSION=0.1.0
 
-CONFIG += c++11
+CONFIG += c++1z
 CONFIG -= qt
 CONFIG += console
 
@@ -19,9 +19,9 @@ CONFIG(release,debug|release) {
 win32:CONFIG -= static
 win32:CONFIG += shared
 
-DEPENDENCIESCONFIG = sharedlib
+DEPENDENCIESCONFIG = sharedlib recurse
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
-include ($$(BCOMDEVROOT)/builddefs/qmake/templateappconfig.pri)
+include (../../../../builddefs/qmake/templateappconfig.pri)
 
 HEADERS += \
 
@@ -48,3 +48,11 @@ win32 {
     INCLUDEPATH += $$(WINDOWSSDKDIR)lib/winv6.3/um/x64
 
 }
+
+DISTFILES += \
+    PipelineFiducialMarker.xml
+
+xpcf_xml_files.path = $$(HOME)/.xpcf
+xpcf_xml_files.files=$$files($${PWD}/PipelineFiducialMarker.xml)
+
+INSTALLS += xpcf_xml_files
