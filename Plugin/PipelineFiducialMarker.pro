@@ -36,6 +36,7 @@ INCLUDEPATH += interfaces/
 HEADERS += interfaces/PipelineFiducialMarker.h \
 
 SOURCES += src/PipelineFiducialMarker.cpp \
+    src/component.cpp
 	
 unix {
     QMAKE_CXXFLAGS += -Wignored-qualifiers

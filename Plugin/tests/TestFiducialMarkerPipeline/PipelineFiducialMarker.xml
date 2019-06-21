@@ -84,12 +84,6 @@
       <interface uuid="06e2fc5d-39da-4486-b2a6-1d8bd788fa13" name="ISourceImage" description="An interface allowing to store an image from extern source to make it available to the pipeline" />
     </component>
   </module>
-  <module uuid="6e960df6-9a36-11e8-9eb6-529269fb1459" name="SolARModuleOpenGL" path="$REMAKENROOT/SolARModuleOpenGL/0.5.2/lib/x86_64/shared" description="Module OpenGL">
-    <component uuid="3af7813c-4647-4d70-9cc6-e3cedd8dd77c" name="SinkPoseTextureBuffer" description="A Sink component for a synchronized pose and texture buffer based on OpenGL texture buffer">
-      <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect" />
-      <interface uuid="8b220946-34ab-4fba-9aa7-ea8da807a2cf" name="ISinkPoseTextureBuffer" description="An interface allowing to to make available a pose to a third party application and to update a texture buffer with a new image" />
-    </component>
-  </module>
   <aliases>
           <alias name="SolARCameraOpencv" type="component" uuid="5B7396F4-A804-4F3C-A0EB-FB1D56042BB4"/>
           <alias name="SolARImageConvertorUnity" type="component" uuid="65282fb3-6651-4e73-b532-5a64ade0ead0"/>
