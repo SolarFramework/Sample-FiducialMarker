@@ -87,10 +87,9 @@ namespace SolAR {
     {
         CameraParameters camParam;
         // pipeline without camera should not throw ??
-        if (m_camera)
-        {
-            CameraParameters camParam = m_camera->getParameters();
-
+        // or default resolution ??
+        if (m_camera) {
+            camParam = m_camera->getParameters();
         }
         return camParam;
     }
