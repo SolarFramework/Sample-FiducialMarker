@@ -154,8 +154,8 @@
 	<component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b"> <!-- SolARImageViewerOpencv -->
 		<property name="title" type="string" value="Fiducial Image Marker"/>
 		<property name="exitKey" type="Integer" value="27"/>
-		<property name="width" type="Integer" value="0"/>
-		<property name="height" type="Integer" value="0"/>
+		<property name="width" type="Integer" value="640"/>
+		<property name="height" type="Integer" value="480"/>
 	</component>
   </configuration>
 </xpcf-registry>
