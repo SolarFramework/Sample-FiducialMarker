@@ -1,4 +1,3 @@
-
 #include "xpcf/module/ModuleFactory.h"
 #include "PipelineFiducialMarker.h"
 #include "SolARModuleOpencv_traits.h"
@@ -34,8 +33,6 @@ namespace SolAR {
         declareProperty("minThreshold", m_minThreshold);
         declareProperty("maxThreshold", m_maxThreshold);
         declareProperty("nbTestedThreshold", m_nbTestedThreshold);
-        declarePropertySequence("LongVector",m_longVect);
-        declarePropertySequence("StringVector",m_strVect);
         m_initOK = false;
         m_startedOK = false;
         m_stopFlag = false;
