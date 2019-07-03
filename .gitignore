@@ -48,3 +48,5 @@ Plugin/tests/TestFiducialMarkerPipeline/TestFiducialMarkerPlugin.pro.user.4.9-pr
 Plugin/tests/TestFiducialMarkerPipeline/build/conanbuildinfo.pri
 Plugin/tests/TestFiducialMarkerPipeline/build/conanbuildinfo.txt
 Plugin/tests/TestFiducialMarkerPipeline/build/
+StandAlone/build/
+StandAlone/SolARFiducialMarkerSampleStandAlone.pro.user.4.9-pre1
