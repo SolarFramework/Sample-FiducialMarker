@@ -1,4 +1,4 @@
-TARGET = SolARFiducialMarkerSampleDynamic
+TARGET = SolARFiducialMarkerSampleStandAlone
 VERSION=0.5.2
 
 CONFIG += c++1z
