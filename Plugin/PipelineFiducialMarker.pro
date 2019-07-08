@@ -35,7 +35,7 @@ INCLUDEPATH += interfaces/
 
 HEADERS += interfaces/PipelineFiducialMarker.h \
 
-SOURCES += src/PipelineFiducialMarker.cpp \
+SOURCES += src/PipelineFiducialMarker_main.cpp \
     src/component.cpp
 	
 unix {

@@ -48,6 +48,15 @@ namespace SolAR {
         LOG_DEBUG(" Pipeline destructor")
     }
 
+    org::bcom::xpcf::XPCFErrorCode PipelineFiducialMarker::onConfigured()
+    {
+        m_imageFilterBinaryConfigurable = m_imageFilterBinary->bindTo<xpcf::IConfigurable>();
+        // TODOREFACTOR: Fiducial marker pipeline imageFilterBinary max value is always 255, whatever parameter is set in xml file ???
+        m_imageFilterBinaryConfigurable->getProperty("max")->setIntegerValue(255);
+
+        return org::bcom::xpcf::XPCFErrorCode::_SUCCESS;
+    }
+
     FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> xpcfComponentManager)
     {
         // load marker
@@ -132,8 +141,7 @@ namespace SolAR {
             int threshold = m_minThreshold + (m_maxThreshold - m_minThreshold)*((float)num_threshold/(float)(m_nbTestedThreshold-1));
 
             // Convert Image from grey to black and white
-            m_imageFilterBinary->bindTo<xpcf::IConfigurable>()->getProperty("min")->setIntegerValue(threshold);
-            m_imageFilterBinary->bindTo<xpcf::IConfigurable>()->getProperty("max")->setIntegerValue(255);
+            m_imageFilterBinaryConfigurable->getProperty("min")->setIntegerValue(threshold);
 
             // Convert Image from grey to black and white
             m_imageFilterBinary->filter(greyImage, binaryImage);
