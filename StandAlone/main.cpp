@@ -114,17 +114,17 @@ int main(int argc, char *argv[]){
         SRef<Image> contoursImage;
         SRef<Image> filteredContoursImage;
 
-        std::vector<SRef<Contour2Df>>              contours;
-        std::vector<SRef<Contour2Df>>              filtered_contours;
-        std::vector<SRef<Image>>                   patches;
-        std::vector<SRef<Contour2Df>>              recognizedContours;
-        SRef<DescriptorBuffer>                     recognizedPatternsDescriptors;
-        SRef<DescriptorBuffer>                     markerPatternDescriptor;
-        std::vector<DescriptorMatch>               patternMatches;
-        std::vector<SRef<Point2Df>>                pattern2DPoints;
-        std::vector<SRef<Point2Df>>                img2DPoints;
-        std::vector<SRef<Point3Df>>                pattern3DPoints;
-        Transform3Df                               pose;
+        std::vector<Contour2Df>              contours;
+        std::vector<Contour2Df>              filtered_contours;
+        std::vector<SRef<Image>>             patches;
+        std::vector<Contour2Df>              recognizedContours;
+        SRef<DescriptorBuffer>               recognizedPatternsDescriptors;
+        SRef<DescriptorBuffer>               markerPatternDescriptor;
+        std::vector<DescriptorMatch>         patternMatches;
+        std::vector<Point2Df>                pattern2DPoints;
+        std::vector<Point2Df>                img2DPoints;
+        std::vector<Point3Df>                pattern3DPoints;
+        Transform3Df                         pose;
 
         CamCalibration K;
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]){
         binaryMarker->loadMarker();
         patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
 
-        LOG_DEBUG ("Marker pattern:\n {}", binaryMarker->getPattern()->getPatternMatrix())
+        LOG_DEBUG ("Marker pattern:\n {}", binaryMarker->getPattern().getPatternMatrix())
 
         // Set the size of the box to display according to the marker size in world unit
         overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().width,0);
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]){
         overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().height/2.0f,2);
 
 
-        int patternSize = binaryMarker->getPattern()->getSize();
+        int patternSize = binaryMarker->getPattern().getSize();
 
         patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
         patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
@@ -246,11 +246,11 @@ int main(int argc, char *argv[]){
                    std::cout << recognizedContours.size() <<" Recognized Pattern contour " << std::endl;
                    for (int i = 0; i < recognizedContours.size()/4; i++)
                    {
-                       for (int j = 0; j < recognizedContours[0]->size(); j++)
+                       for (int j = 0; j < recognizedContours[0].size(); j++)
                        {
                            for (int k = 0; k < 4; k++)
                            {
-                               std::cout<<"[" << (*(recognizedContours[i*4+k]))[j]->getX() <<", "<< (*(recognizedContours[i*4+k]))[j]->getY() << "] ";
+                               std::cout<<"[" << (recognizedContours[i*4+k])[j]->getX() <<", "<< (recognizedContours[i*4+k])[j]->getY() << "] ";
                            }
                            std::cout << std::endl;
                        }
@@ -260,7 +260,7 @@ int main(int argc, char *argv[]){
     #endif
 
                     // From extracted squared binary pattern, match the one corresponding to the squared binary marker
-                    if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
+                    if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::IDescriptorMatcher::DESCRIPTORS_MATCHER_OK)
                     {
     #ifndef NDEBUG
                         std::cout << "Matches :" << std::endl;
