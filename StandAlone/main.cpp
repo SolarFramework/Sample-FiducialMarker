@@ -250,7 +250,7 @@ int main(int argc, char *argv[]){
                        {
                            for (int k = 0; k < 4; k++)
                            {
-                               std::cout<<"[" << (recognizedContours[i*4+k])[j]->getX() <<", "<< (recognizedContours[i*4+k])[j]->getY() << "] ";
+                               std::cout<<"[" << (recognizedContours[i*4+k])[j].getX() <<", "<< (recognizedContours[i*4+k])[j].getY() << "] ";
                            }
                            std::cout << std::endl;
                        }
