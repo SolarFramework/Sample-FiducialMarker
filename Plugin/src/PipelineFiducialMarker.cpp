@@ -1,325 +1,252 @@
-/**
- * @copyright Copyright (c) 2015 All Right Reserved, B-com http://www.b-com.com/
- *
- * This file is subject to the B<>Com License.
- * All other rights reserved.
- *
- * THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
- * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
- * PARTICULAR PURPOSE.
- *
- */
-
-
 #include "xpcf/module/ModuleFactory.h"
 #include "PipelineFiducialMarker.h"
 #include "SolARModuleOpencv_traits.h"
 #include "SolARModuleTools_traits.h"
 #include "core/Log.h"
 
-namespace xpcf=org::bcom::xpcf;
-
-// Declaration of the module embedding the fiducial marker pipeline
-XPCF_DECLARE_MODULE("63b4282f-94cf-44d0-8ec0-9e8b0639fff6", "FiducialMarkerModule", "The module embedding a pipeline to estimate the pose based on a squared fiducial marker")
-
-extern "C" XPCF_MODULEHOOKS_API xpcf::XPCFErrorCode XPCF_getComponent(const boost::uuids::uuid& componentUUID,SRef<xpcf::IComponentIntrospect>& interfaceRef)
-{
-    xpcf::XPCFErrorCode errCode = xpcf::XPCFErrorCode::_FAIL;
-    errCode = xpcf::tryCreateComponent<SolAR::PIPELINES::PipelineFiducialMarker>(componentUUID,interfaceRef);
-
-    return errCode;
-}
-
-XPCF_BEGIN_COMPONENTS_DECLARATION
-XPCF_ADD_COMPONENT(SolAR::PIPELINES::PipelineFiducialMarker)
-XPCF_END_COMPONENTS_DECLARATION
-
-// The pipeline component for the fiducial marker
-
-XPCF_DEFINE_FACTORY_CREATE_INSTANCE(SolAR::PIPELINES::PipelineFiducialMarker)
+XPCF_DEFINE_FACTORY_CREATE_INSTANCE(SolAR::PIPELINES::PipelineFiducialMarker);
 
 namespace SolAR {
-using namespace datastructure;
-using namespace api::pipeline;
-namespace PIPELINES {
+    using namespace datastructure;
+    using namespace api::pipeline;
+    namespace PIPELINES {
 
-PipelineFiducialMarker::PipelineFiducialMarker():ConfigurableBase(xpcf::toUUID<PipelineFiducialMarker>())
-{
-   addInterface<api::pipeline::IPipeline>(this);
-   SRef<xpcf::IPropertyMap> params = getPropertyRootNode();
-   params->wrapInteger("minThreshold", m_minThreshold);
-   params->wrapInteger("maxThreshold", m_maxThreshold);
-   params->wrapInteger("nbTestedThreshold", m_nbTestedThreshold);
+    PipelineFiducialMarker::PipelineFiducialMarker():ConfigurableBase(xpcf::toUUID<PipelineFiducialMarker>())
+    {
+        declareInterface<api::pipeline::IPipeline>(this);
+        declareInjectable<input::devices::ICamera>(m_camera);
+        declareInjectable<input::files::IMarker2DSquaredBinary>(m_binaryMarker);
+        declareInjectable<image::IImageFilter>(m_imageFilterBinary);
+        declareInjectable<image::IImageConvertor>(m_imageConvertor);
+        declareInjectable<features::IContoursExtractor>(m_contoursExtractor);
+        declareInjectable<features::IContoursFilter>(m_contoursFilter);
+        declareInjectable<image::IPerspectiveController>(m_perspectiveController);
+        declareInjectable<features::IDescriptorsExtractorSBPattern>(m_patternDescriptorExtractor);
+        declareInjectable<features::IDescriptorMatcher>(m_patternMatcher);
+        declareInjectable<features::ISBPatternReIndexer>(m_patternReIndexer);
+        declareInjectable<geom::IImage2WorldMapper>(m_img2worldMapper);
+        declareInjectable<solver::pose::I3DTransformFinderFrom2D3D>(m_PnP);
+        declareInjectable<sink::ISinkPoseImage>(m_sink);
+        declareInjectable<source::ISourceImage>(m_source);
+        declareInjectable<image::IImageConvertor>(m_imageConvertorUnity,"imageConvertorUnity");
 
-   m_initOK = false;
-   m_startedOK = false;
-   m_stopFlag = false;
-   m_haveToBeFlip = false;
-   m_taskProcess = nullptr;
-   LOG_DEBUG(" Pipeline constructor");
-}
+        declareProperty("minThreshold", m_minThreshold);
+        declareProperty("maxThreshold", m_maxThreshold);
+        declareProperty("nbTestedThreshold", m_nbTestedThreshold);
+        m_initOK = false;
+        m_startedOK = false;
+        m_stopFlag = false;
+        m_haveToBeFlip = false;
+        m_taskProcess = nullptr;
+        LOG_DEBUG(" Pipeline constructor");
+    }
 
-PipelineFiducialMarker::~PipelineFiducialMarker()
-{
-    if(m_taskProcess != nullptr)
-        delete m_taskProcess;
-    LOG_DEBUG(" Pipeline destructor")
-}
+    PipelineFiducialMarker::~PipelineFiducialMarker()
+    {
+        if(m_taskProcess != nullptr)
+            delete m_taskProcess;
+        LOG_DEBUG(" Pipeline destructor")
+    }
 
-FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> xpcfComponentManager)
-{
-    try {
-        LOG_INFO("Start init")
-        m_camera = xpcfComponentManager->create<MODULES::OPENCV::SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+    org::bcom::xpcf::XPCFErrorCode PipelineFiducialMarker::onConfigured()
+    {
+        m_imageFilterBinaryConfigurable = m_imageFilterBinary->bindTo<xpcf::IConfigurable>();
+        // TODOREFACTOR: Fiducial marker pipeline imageFilterBinary max value is always 255, whatever parameter is set in xml file ???
+        m_imageFilterBinaryConfigurable->getProperty("max")->setIntegerValue(255);
+
+        return org::bcom::xpcf::XPCFErrorCode::_SUCCESS;
+    }
+
+    FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> xpcfComponentManager)
+    {
+        // load marker
+        LOG_INFO("LOAD MARKER IMAGE ");
+        if( m_binaryMarker->loadMarker()==FrameworkReturnCode::_ERROR_){
+            return FrameworkReturnCode::_ERROR_;
+        }
+        LOG_INFO("MARKER IMAGE LOADED");
+
+        m_patternDescriptorExtractor->extract(m_binaryMarker->getPattern(), m_markerPatternDescriptor);
+        LOG_INFO ("Marker pattern:\n {}", m_binaryMarker->getPattern()->getPatternMatrix())
+
+                int patternSize = m_binaryMarker->getPattern()->getSize();
+
+        m_patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
+        m_patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
+
+        m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalWidth")->setIntegerValue(patternSize);
+        m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalHeight")->setIntegerValue(patternSize);
+        m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(m_binaryMarker->getSize().width);
+        m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(m_binaryMarker->getSize().height);
+
+        m_PnP->setCameraParameters(m_camera->getIntrinsicsParameters(), m_camera->getDistorsionParameters());
+
+        for(int i=0;i<4;i++)
+            for(int j=0;j<4;j++)
+                m_pose(i,j)=0.f;
+
+        m_initOK = true;
+        return FrameworkReturnCode::_SUCCESS;
+    }
+
+    CameraParameters PipelineFiducialMarker::getCameraParameters()
+    {
+        CameraParameters camParam;
+        // pipeline without camera should not throw ??
         if (m_camera)
-            LOG_INFO("Camera component loaded");
-        m_binaryMarker =xpcfComponentManager->create<MODULES::OPENCV::SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
-        if (m_binaryMarker)
-            LOG_INFO("Binary Marker component loaded");
-        m_imageFilterBinary =xpcfComponentManager->create<MODULES::OPENCV::SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
-        if (m_imageFilterBinary)
-            LOG_INFO("Image Filter component loaded");
-        m_imageConvertor =xpcfComponentManager->create<MODULES::OPENCV::SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
-        if (m_imageConvertor)
-            LOG_INFO("Image Convertor component loaded");
-        m_contoursExtractor =xpcfComponentManager->create<MODULES::OPENCV::SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
-        if (m_contoursExtractor)
-            LOG_INFO("Controus Extracor component loaded");
-        m_contoursFilter =xpcfComponentManager->create<MODULES::OPENCV::SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
-        if (m_contoursFilter)
-            LOG_INFO("Contours Filter component loaded");
-        m_perspectiveController =xpcfComponentManager->create<MODULES::OPENCV::SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
-        if (m_perspectiveController)
-            LOG_INFO("Perspective Controller component loaded");
-        m_patternDescriptorExtractor =xpcfComponentManager->create<MODULES::OPENCV::SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
-        if (m_patternDescriptorExtractor)
-            LOG_INFO("Descriptor Extractor component loaded");
-        m_patternMatcher =xpcfComponentManager->create<MODULES::OPENCV::SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
-        if (m_patternMatcher)
-            LOG_INFO("Pattern Matcher component loaded");
-        m_patternReIndexer = xpcfComponentManager->create<MODULES::TOOLS::SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
-        if (m_patternReIndexer)
-            LOG_INFO("Pattern Reindexer component loaded");
-        m_img2worldMapper = xpcfComponentManager->create<MODULES::TOOLS::SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
-        if (m_img2worldMapper)
-            LOG_INFO("Image To World Mapper component loaded");
-        m_PnP =xpcfComponentManager->create<MODULES::OPENCV::SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
-        if (m_PnP)
-            LOG_INFO("PnP component loaded");
-        m_sink = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSink>()->bindTo<sink::ISinkPoseImage>();
-        if (m_sink)
-            LOG_INFO("Pose Texture Buffer Source component loaded");
-        m_source = xpcfComponentManager->create<MODULES::TOOLS::SolARBasicSource>()->bindTo<source::ISourceImage>();
-        if (m_source)
-            LOG_INFO("Source image component loaded");
-        m_imageConvertorUnity =xpcfComponentManager->create<MODULES::OPENCV::SolARImageConvertorUnity>()->bindTo<image::IImageConvertor>();
-        if (m_imageConvertorUnity)
-            LOG_INFO("Image Convertor Unity component loaded");
-    }
-    catch (xpcf::Exception e)
-    {
-       LOG_WARNING("One or more components cannot be created: {}", e.what());
-       return FrameworkReturnCode::_ERROR_;
-    }
-    LOG_INFO("All components have been created");
-
-    // load marker
-    LOG_INFO("LOAD MARKER IMAGE ");
-    if( m_binaryMarker->loadMarker()==FrameworkReturnCode::_ERROR_){
-       return FrameworkReturnCode::_ERROR_;
-    }
-    LOG_INFO("MARKER IMAGE LOADED");
-
-    m_patternDescriptorExtractor->extract(m_binaryMarker->getPattern(), m_markerPatternDescriptor);
-    LOG_INFO ("Marker pattern:\n {}", m_binaryMarker->getPattern()->getPatternMatrix())
-
-    int patternSize = m_binaryMarker->getPattern()->getSize();
-
-    m_patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
-    m_patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
-
-    m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalWidth")->setIntegerValue(patternSize);
-    m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalHeight")->setIntegerValue(patternSize);
-    m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(m_binaryMarker->getSize().width);
-    m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(m_binaryMarker->getSize().height);
-
-    m_PnP->setCameraParameters(m_camera->getIntrinsicsParameters(), m_camera->getDistorsionParameters());
-
-    for(int i=0;i<4;i++)
-        for(int j=0;j<4;j++)
-            m_pose(i,j)=0.f;
-
-    m_initOK = true;
-    return FrameworkReturnCode::_SUCCESS;
-}
-
-CamCalibration PipelineFiducialMarker::getCameraParameters()
-{
-    CamCalibration camParam;
-    if (m_camera)
-    {
-        //Sizei resolution = m_camera->getResolution();
-        //CamCalibration calib = m_camera->getIntrinsicsParameters();
-        camParam = m_camera->getIntrinsicsParameters();
-        //camParam.width = resolution.width;
-        //camParam.height = resolution.height;
-        //camParam.focalX = calib(0,0);
-        //camParam.focalY = calib(1,1);
-        //camParam.centerX = calib(0,2);
-        //camParam.centerY = calib(1,2);
-    }
-    return camParam;
-}
-
-bool PipelineFiducialMarker::processCamImage()
-{
-    SRef<Image>                     camImage, greyImage, binaryImage;
-    std::vector<SRef<Contour2Df>>   contours;
-    std::vector<SRef<Contour2Df>>   filtered_contours;
-    std::vector<SRef<Image>>        patches;
-    std::vector<SRef<Contour2Df>>   recognizedContours;
-    SRef<DescriptorBuffer>          recognizedPatternsDescriptors;
-    std::vector<DescriptorMatch>    patternMatches;
-    std::vector<SRef<Point2Df>>     pattern2DPoints;
-    std::vector<SRef<Point2Df>>     img2DPoints;
-    std::vector<SRef<Point3Df>>     pattern3DPoints;
-
-    if (m_stopFlag || !m_initOK || !m_startedOK)
-        return false;
-
-    bool poseComputed = false;
-    if(m_haveToBeFlip)
-    {
-        m_source->getNextImage(camImage);
-    }
-    else if (m_camera->getNextImage(camImage) == SolAR::FrameworkReturnCode::_ERROR_LOAD_IMAGE)
-    {
-        LOG_WARNING("The camera cannot load any image");
-        m_stopFlag = true;
-        return false;
-    }
-
-    if(m_haveToBeFlip)
-    {
-        m_imageConvertorUnity->convert(camImage,camImage,Image::ImageLayout::LAYOUT_RGB);
-    }
-    // Convert Image from RGB to grey
-    m_imageConvertor->convert(camImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
-
-    for (int num_threshold = 0; !poseComputed && num_threshold < m_nbTestedThreshold; num_threshold++)
-    {
-         // Compute the current Threshold valu for image binarization
-         int threshold = m_minThreshold + (m_maxThreshold - m_minThreshold)*((float)num_threshold/(float)(m_nbTestedThreshold-1));
-
-         // Convert Image from grey to black and white
-         m_imageFilterBinary->bindTo<xpcf::IConfigurable>()->getProperty("min")->setIntegerValue(threshold);
-         m_imageFilterBinary->bindTo<xpcf::IConfigurable>()->getProperty("max")->setIntegerValue(255);
-
-        // Convert Image from grey to black and white
-        m_imageFilterBinary->filter(greyImage, binaryImage);
-
-        // Extract contours from binary image
-        m_contoursExtractor->extract(binaryImage, contours);
-
-         // Filter 4 edges contours to find those candidate for marker contours
-        m_contoursFilter->filter(contours, filtered_contours);
-
-        // Create one warpped and cropped image by contour
-        m_perspectiveController->correct(binaryImage, filtered_contours, patches);
-
-        // test if this last image is really a squared binary marker, and if it is the case, extract its descriptor
-        if (m_patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
         {
-            // From extracted squared binary pattern, match the one corresponding to the squared binary marker
-            if (m_patternMatcher->match(m_markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
+            camParam = m_camera->getParameters();
+        }
+        return camParam;
+    }
+
+    bool PipelineFiducialMarker::processCamImage()
+    {
+        SRef<Image>                     camImage, greyImage, binaryImage;
+        std::vector<SRef<Contour2Df>>   contours;
+        std::vector<SRef<Contour2Df>>   filtered_contours;
+        std::vector<SRef<Image>>        patches;
+        std::vector<SRef<Contour2Df>>   recognizedContours;
+        SRef<DescriptorBuffer>          recognizedPatternsDescriptors;
+        std::vector<DescriptorMatch>    patternMatches;
+        std::vector<SRef<Point2Df>>     pattern2DPoints;
+        std::vector<SRef<Point2Df>>     img2DPoints;
+        std::vector<SRef<Point3Df>>     pattern3DPoints;
+
+        if (m_stopFlag || !m_initOK || !m_startedOK)
+            return false;
+
+        bool poseComputed = false;
+        if(m_haveToBeFlip)
+        {
+            m_source->getNextImage(camImage);
+        }
+        else if (m_camera->getNextImage(camImage) == SolAR::FrameworkReturnCode::_ERROR_LOAD_IMAGE)
+        {
+            LOG_WARNING("The camera cannot load any image");
+            m_stopFlag = true;
+            return false;
+        }
+
+        if(m_haveToBeFlip)
+        {
+            m_imageConvertorUnity->convert(camImage,camImage,Image::ImageLayout::LAYOUT_RGB);
+        }
+        // Convert Image from RGB to grey
+        m_imageConvertor->convert(camImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
+
+        for (int num_threshold = 0; !poseComputed && num_threshold < m_nbTestedThreshold; num_threshold++)
+        {
+            // Compute the current Threshold valu for image binarization
+            int threshold = m_minThreshold + (m_maxThreshold - m_minThreshold)*((float)num_threshold/(float)(m_nbTestedThreshold-1));
+
+            // Convert Image from grey to black and white
+            m_imageFilterBinaryConfigurable->getProperty("min")->setIntegerValue(threshold);
+
+            // Convert Image from grey to black and white
+            m_imageFilterBinary->filter(greyImage, binaryImage);
+
+            // Extract contours from binary image
+            m_contoursExtractor->extract(binaryImage, contours);
+
+            // Filter 4 edges contours to find those candidate for marker contours
+            m_contoursFilter->filter(contours, filtered_contours);
+
+            // Create one warpped and cropped image by contour
+            m_perspectiveController->correct(binaryImage, filtered_contours, patches);
+
+            // test if this last image is really a squared binary marker, and if it is the case, extract its descriptor
+            if (m_patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
             {
-                // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
-                m_patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
-
-                // Compute the 3D position of each corner of the marker
-                m_img2worldMapper->map(pattern2DPoints, pattern3DPoints);
-
-                // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-                if (m_PnP->estimate(img2DPoints, pattern3DPoints, m_pose) == FrameworkReturnCode::_SUCCESS)
+                // From extracted squared binary pattern, match the one corresponding to the squared binary marker
+                if (m_patternMatcher->match(m_markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
                 {
-                    poseComputed = true;
+                    // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
+                    m_patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
+
+                    // Compute the 3D position of each corner of the marker
+                    m_img2worldMapper->map(pattern2DPoints, pattern3DPoints);
+
+                    // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
+                    if (m_PnP->estimate(img2DPoints, pattern3DPoints, m_pose) == FrameworkReturnCode::_SUCCESS)
+                    {
+                        poseComputed = true;
+                    }
                 }
             }
         }
+
+        if (poseComputed)
+            m_sink->set(m_pose, camImage);
+        else
+            m_sink->set(camImage);
+
+        return true;
     }
 
-    if (poseComputed)
-        m_sink->set(m_pose, camImage);
-    else
-        m_sink->set(camImage);
-
-    return true;
-}
-
-//////////////////////////////// ADD
-SourceReturnCode PipelineFiducialMarker::loadSourceImage(void* sourceTextureHandle, int width, int height)
-{
-   m_haveToBeFlip = true;
-   return m_source->setInputTexture((unsigned char *)sourceTextureHandle, width, height);
-}
-////////////////////////////////////
-
-FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
-{
-    if (m_initOK==false)
+    //////////////////////////////// ADD
+    SourceReturnCode PipelineFiducialMarker::loadSourceImage(void* sourceTextureHandle, int width, int height)
     {
-        LOG_WARNING("Try to start the Fiducial marker pipeline without initializing it");
-        return FrameworkReturnCode::_ERROR_;
+        m_haveToBeFlip = true;
+        return m_source->setInputTexture((unsigned char *)sourceTextureHandle, width, height);
     }
-    m_stopFlag=false;
-    m_sink->setImageBuffer((unsigned char*)imageDataBuffer);
+    ////////////////////////////////////
 
-    if (!m_haveToBeFlip && (m_camera->start() != FrameworkReturnCode::_SUCCESS))
+    FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
     {
-        LOG_ERROR("Camera cannot start")
-        return FrameworkReturnCode::_ERROR_;
+        if (m_initOK==false)
+        {
+            LOG_WARNING("Try to start the Fiducial marker pipeline without initializing it");
+            return FrameworkReturnCode::_ERROR_;
+        }
+        m_stopFlag=false;
+        m_sink->setImageBuffer((unsigned char*)imageDataBuffer);
+
+        if (!m_haveToBeFlip && (m_camera->start() != FrameworkReturnCode::_SUCCESS))
+        {
+            LOG_ERROR("Camera cannot start")
+                    return FrameworkReturnCode::_ERROR_;
+        }
+
+        // create and start a thread to process the images
+        auto processCamImageThread = [this](){;processCamImage();};
+
+        m_taskProcess = new xpcf::DelegateTask(processCamImageThread);
+        m_taskProcess->start();
+        LOG_INFO("Fiducial marker pipeline has started");
+        m_startedOK = true;
+        return FrameworkReturnCode::_SUCCESS;
     }
 
-    // create and start a thread to process the images
-    auto processCamImageThread = [this](){;processCamImage();};
-
-    m_taskProcess = new xpcf::DelegateTask(processCamImageThread);
-    m_taskProcess->start();
-    LOG_INFO("Fiducial marker pipeline has started");
-    m_startedOK = true;
-    return FrameworkReturnCode::_SUCCESS;
-}
-
-FrameworkReturnCode PipelineFiducialMarker::stop()
-{
-    m_stopFlag=true;
-
-    if( !m_haveToBeFlip)
-        m_camera->stop();
-    if (m_taskProcess != nullptr)
-        m_taskProcess->stop();
-
-    if(!m_initOK)
+    FrameworkReturnCode PipelineFiducialMarker::stop()
     {
-        LOG_WARNING("Try to stop a pipeline that has not been initialized");
-        return FrameworkReturnCode::_ERROR_;
+        m_stopFlag=true;
+
+        if( !m_haveToBeFlip)
+            m_camera->stop();
+        if (m_taskProcess != nullptr)
+            m_taskProcess->stop();
+
+        if(!m_initOK)
+        {
+            LOG_WARNING("Try to stop a pipeline that has not been initialized");
+            return FrameworkReturnCode::_ERROR_;
+        }
+        if (!m_startedOK)
+        {
+            LOG_WARNING("Try to stop a pipeline that has not been started");
+            return FrameworkReturnCode::_ERROR_;
+        }
+
+        LOG_INFO("Pipeline has stopped: \n");
+
+        return FrameworkReturnCode::_SUCCESS;
     }
-    if (!m_startedOK)
+
+    SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
     {
-        LOG_WARNING("Try to stop a pipeline that has not been started");
-        return FrameworkReturnCode::_ERROR_;
+        return m_sink->tryGet(pose);
     }
 
-    LOG_INFO("Pipeline has stopped: \n");
-
-    return FrameworkReturnCode::_SUCCESS;
-}
-
-SinkReturnCode PipelineFiducialMarker::update(Transform3Df& pose)
-{
-    return m_sink->tryGet(pose);
-}
-
-}
+    }
 }

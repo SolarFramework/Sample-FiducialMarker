@@ -101,7 +101,7 @@ public:
 
     /// @brief load the source image
     SourceReturnCode loadSourceImage(void* sourceTextureHandle, int width, int height) override;
-
+    org::bcom::xpcf::XPCFErrorCode onConfigured() override;
     void unloadComponent () override final;
 
 private:
@@ -112,6 +112,7 @@ private:
     SRef<input::devices::ICamera> m_camera;
     SRef<input::files::IMarker2DSquaredBinary> m_binaryMarker;
     SRef<image::IImageFilter> m_imageFilterBinary;
+    SRef<xpcf::IConfigurable> m_imageFilterBinaryConfigurable;
     SRef<image::IImageConvertor> m_imageConvertor;
     SRef<features::IContoursExtractor> m_contoursExtractor ;
     SRef<features::IContoursFilter> m_contoursFilter;
