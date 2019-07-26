@@ -19,19 +19,7 @@
 #include "xpcf/xpcf.h"
 
 
-<<<<<<< HEAD
-// ADD COMPONENTS HEADERS HERE, e.g #include "SolarComponent.h"
-
-#include "SolARPluginPipelineManager.h"
-
-using namespace SolAR;
-using namespace SolAR::PIPELINE;
-
-namespace xpcf  = org::bcom::xpcf;
-=======
 #include "api/pipeline/IPipeline.h"
->>>>>>> feature/xpcf_2.2
-
 #include "SolARModuleOpencv_traits.h"
 #include "SolARImageViewerOpencv.h"
 #include "SolAR3DOverlayBoxOpencv.h"
