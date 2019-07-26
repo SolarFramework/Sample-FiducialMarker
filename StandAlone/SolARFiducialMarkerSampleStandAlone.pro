@@ -1,7 +1,7 @@
-TARGET = SolARFiducialMarkerSampleDynamic
-VERSION=1.0.0
+TARGET = SolARFiducialMarkerSampleStandAlone
+VERSION=0.5.2
 
-CONFIG += c++11
+CONFIG += c++1z
 CONFIG -= qt
 CONFIG += console
 
@@ -19,9 +19,9 @@ CONFIG(release,debug|release) {
 win32:CONFIG -= static
 win32:CONFIG += shared
 
-DEPENDENCIESCONFIG = sharedlib
+DEPENDENCIESCONFIG = sharedlib recurse
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
-include ($$(BCOMDEVROOT)/builddefs/qmake/templateappconfig.pri)
+include (../../builddefs/qmake/templateappconfig.pri)
 
 
 #DEFINES += BOOST_ALL_NO_LIB
@@ -54,3 +54,6 @@ win32 {
     LIBS += -L$$(WINDOWSSDKDIR)lib/winv6.3/um/x64 -lshell32 -lgdi32 -lComdlg32
     INCLUDEPATH += $$(WINDOWSSDKDIR)lib/winv6.3/um/x64
 }
+
+DISTFILES += \
+    conf_FiducialMarker.xml

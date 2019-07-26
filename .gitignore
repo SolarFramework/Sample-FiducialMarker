@@ -39,3 +39,14 @@ build-SolARFiducialMarkerSampleStatic/fiducialMarker.yml
 build-SolARFiducialMarkerSampleStatic/SolARFiducialMarkerSampleStatic_resource.res
 build-SolARFiducialMarkerSampleStatic/Makefile
 build-SolARFiducialMarkerSampleStatic/SolARFiducialMarkerSampleStatic.exp
+build-PipelineFiducialMarker-D/
+build-PipelineFiducialMarker-R/
+Plugin/PipelineFiducialMarker.pro.user.9582bec
+Plugin/build/
+Plugin/PipelineFiducialMarker.pro.user.4.9-pre1
+Plugin/tests/TestFiducialMarkerPipeline/TestFiducialMarkerPlugin.pro.user.4.9-pre1
+Plugin/tests/TestFiducialMarkerPipeline/build/conanbuildinfo.pri
+Plugin/tests/TestFiducialMarkerPipeline/build/conanbuildinfo.txt
+Plugin/tests/TestFiducialMarkerPipeline/build/
+StandAlone/build/
+StandAlone/SolARFiducialMarkerSampleStandAlone.pro.user.4.9-pre1
