@@ -5,6 +5,7 @@ set (VERSION_NUMBER "0.1.0")
 project("PipelineFiducialMarker")
 set (SOURCES 
     src/PipelineFiducialMarker.cpp
+	src/PipelineFiducialMarker_main.cpp
 )
 
 set (HEADERS
