@@ -20,7 +20,6 @@
 
 
 #include "api/pipeline/IPipeline.h"
-
 #include "SolARModuleOpencv_traits.h"
 #include "SolARImageViewerOpencv.h"
 #include "SolAR3DOverlayBoxOpencv.h"
