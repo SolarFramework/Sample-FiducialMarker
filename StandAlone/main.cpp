@@ -81,31 +81,31 @@ int main(int argc, char *argv[]){
     #ifdef VIDEO_INPUT
         auto camera =xpcfComponentManager->create<SolARVideoAsCameraOpencv>()->bindTo<input::devices::ICamera>();
     #else
-        auto camera =xpcfComponentManager->create<SolARCameraOpencv>()->bindTo<input::devices::ICamera>();
+        auto camera =xpcfComponentManager->resolve<input::devices::ICamera>();
     #endif
-        auto binaryMarker =xpcfComponentManager->create<SolARMarker2DSquaredBinaryOpencv>()->bindTo<input::files::IMarker2DSquaredBinary>();
+        auto binaryMarker =xpcfComponentManager->resolve<input::files::IMarker2DSquaredBinary>();
 
-        auto imageViewer =xpcfComponentManager->create<SolARImageViewerOpencv>()->bindTo<display::IImageViewer>();
-        auto imageViewerGrey =xpcfComponentManager->create<SolARImageViewerOpencv>("grey")->bindTo<display::IImageViewer>();
-        auto imageViewerBinary =xpcfComponentManager->create<SolARImageViewerOpencv>("binary")->bindTo<display::IImageViewer>();
-        auto imageViewerContours =xpcfComponentManager->create<SolARImageViewerOpencv>("contours")->bindTo<display::IImageViewer>();
-        auto imageViewerFilteredContours =xpcfComponentManager->create<SolARImageViewerOpencv>("filteredContours")->bindTo<display::IImageViewer>();
+        auto imageViewer =xpcfComponentManager->resolve<display::IImageViewer>();
+        auto imageViewerGrey =xpcfComponentManager->resolve<display::IImageViewer>();
+        auto imageViewerBinary =xpcfComponentManager->resolve<display::IImageViewer>();
+        auto imageViewerContours =xpcfComponentManager->resolve<display::IImageViewer>("contours");
+        auto imageViewerFilteredContours =xpcfComponentManager->resolve<display::IImageViewer>("filteredContours");
 
-        auto imageFilterBinary =xpcfComponentManager->create<SolARImageFilterBinaryOpencv>()->bindTo<image::IImageFilter>();
-        auto imageConvertor =xpcfComponentManager->create<SolARImageConvertorOpencv>()->bindTo<image::IImageConvertor>();
-        auto contoursExtractor =xpcfComponentManager->create<SolARContoursExtractorOpencv>()->bindTo<features::IContoursExtractor>();
-        auto contoursFilter =xpcfComponentManager->create<SolARContoursFilterBinaryMarkerOpencv>()->bindTo<features::IContoursFilter>();
-        auto perspectiveController =xpcfComponentManager->create<SolARPerspectiveControllerOpencv>()->bindTo<image::IPerspectiveController>();
-        auto patternDescriptorExtractor =xpcfComponentManager->create<SolARDescriptorsExtractorSBPatternOpencv>()->bindTo<features::IDescriptorsExtractorSBPattern>();
+        auto imageFilterBinary =xpcfComponentManager->resolve<image::IImageFilter>();
+        auto imageConvertor =xpcfComponentManager->resolve<image::IImageConvertor>();
+        auto contoursExtractor =xpcfComponentManager->resolve<features::IContoursExtractor>();
+        auto contoursFilter =xpcfComponentManager->resolve<features::IContoursFilter>();
+        auto perspectiveController =xpcfComponentManager->resolve<image::IPerspectiveController>();
+        auto patternDescriptorExtractor =xpcfComponentManager->resolve<features::IDescriptorsExtractorSBPattern>();
 
-        auto patternMatcher =xpcfComponentManager->create<SolARDescriptorMatcherRadiusOpencv>()->bindTo<features::IDescriptorMatcher>();
-        auto patternReIndexer = xpcfComponentManager->create<SolARSBPatternReIndexer>()->bindTo<features::ISBPatternReIndexer>();
+        auto patternMatcher =xpcfComponentManager->resolve<features::IDescriptorMatcher>();
+        auto patternReIndexer = xpcfComponentManager->resolve<features::ISBPatternReIndexer>();
 
-        auto img2worldMapper = xpcfComponentManager->create<SolARImage2WorldMapper4Marker2D>()->bindTo<geom::IImage2WorldMapper>();
-        auto PnP =xpcfComponentManager->create<SolARPoseEstimationPnpOpencv>()->bindTo<solver::pose::I3DTransformFinderFrom2D3D>();
-        auto overlay3D =xpcfComponentManager->create<SolAR3DOverlayBoxOpencv>()->bindTo<display::I3DOverlay>();
-        auto overlay2DContours =xpcfComponentManager->create<SolAR2DOverlayOpencv>("contours")->bindTo<display::I2DOverlay>();
-        auto overlay2DCircles =xpcfComponentManager->create<SolAR2DOverlayOpencv>("circles")->bindTo<display::I2DOverlay>();
+        auto img2worldMapper = xpcfComponentManager->resolve<geom::IImage2WorldMapper>();
+        auto PnP =xpcfComponentManager->resolve<solver::pose::I3DTransformFinderFrom2D3D>();
+        auto overlay3D =xpcfComponentManager->resolve<display::I3DOverlay>();
+        auto overlay2DContours =xpcfComponentManager->resolve<display::I2DOverlay>("contours");
+        auto overlay2DCircles =xpcfComponentManager->resolve<display::I2DOverlay>("circles");
 
 
         SRef<Image> inputImage;
@@ -114,16 +114,16 @@ int main(int argc, char *argv[]){
         SRef<Image> contoursImage;
         SRef<Image> filteredContoursImage;
 
-        std::vector<SRef<Contour2Df>>              contours;
-        std::vector<SRef<Contour2Df>>              filtered_contours;
+        std::vector<Contour2Df>                    contours;
+        std::vector<Contour2Df>                    filtered_contours;
         std::vector<SRef<Image>>                   patches;
-        std::vector<SRef<Contour2Df>>              recognizedContours;
+        std::vector<Contour2Df>                    recognizedContours;
         SRef<DescriptorBuffer>                     recognizedPatternsDescriptors;
         SRef<DescriptorBuffer>                     markerPatternDescriptor;
         std::vector<DescriptorMatch>               patternMatches;
-        std::vector<SRef<Point2Df>>                pattern2DPoints;
-        std::vector<SRef<Point2Df>>                img2DPoints;
-        std::vector<SRef<Point3Df>>                pattern3DPoints;
+        std::vector<Point2Df>                      pattern2DPoints;
+        std::vector<Point2Df>                      img2DPoints;
+        std::vector<Point3Df>                      pattern3DPoints;
         Transform3Df                               pose;
 
         CamCalibration K;
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]){
         binaryMarker->loadMarker();
         patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
 
-        LOG_DEBUG ("Marker pattern:\n {}", binaryMarker->getPattern()->getPatternMatrix())
+        LOG_DEBUG ("Marker pattern:\n {}", binaryMarker->getPattern().getPatternMatrix())
 
         // Set the size of the box to display according to the marker size in world unit
         overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().width,0);
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]){
         overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().height/2.0f,2);
 
 
-        int patternSize = binaryMarker->getPattern()->getSize();
+        int patternSize = binaryMarker->getPattern().getSize();
 
         patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
         patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
@@ -260,7 +260,7 @@ int main(int argc, char *argv[]){
     #endif
 
                     // From extracted squared binary pattern, match the one corresponding to the squared binary marker
-                    if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
+                    if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::IDescriptorMatcher::DESCRIPTORS_MATCHER_OK)
                     {
     #ifndef NDEBUG
                         std::cout << "Matches :" << std::endl;
