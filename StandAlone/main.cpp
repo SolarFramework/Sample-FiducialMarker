@@ -22,10 +22,6 @@
 
 // ADD COMPONENTS HEADERS HERE, e.g #include "SolarComponent.h"
 
-#include "SolARModuleOpencv_traits.h"
-
-#include "SolARModuleTools_traits.h"
-
 #include "xpcf/xpcf.h"
 #include "core/Log.h"
 #include "api/input/devices/ICamera.h"
@@ -51,8 +47,6 @@
 
 using namespace std;
 using namespace SolAR;
-using namespace SolAR::MODULES::OPENCV;
-using namespace SolAR::MODULES::TOOLS;
 using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
@@ -246,11 +240,11 @@ int main(int argc, char *argv[]){
                    std::cout << recognizedContours.size() <<" Recognized Pattern contour " << std::endl;
                    for (int i = 0; i < recognizedContours.size()/4; i++)
                    {
-                       for (int j = 0; j < recognizedContours[0]->size(); j++)
+                       for (int j = 0; j < recognizedContours[0].size(); j++)
                        {
                            for (int k = 0; k < 4; k++)
                            {
-                               std::cout<<"[" << (*(recognizedContours[i*4+k]))[j]->getX() <<", "<< (*(recognizedContours[i*4+k]))[j]->getY() << "] ";
+                               std::cout<<"[" << ((recognizedContours[i*4+k]))[j].getX() <<", "<< ((recognizedContours[i*4+k]))[j].getY() << "] ";
                            }
                            std::cout << std::endl;
                        }
