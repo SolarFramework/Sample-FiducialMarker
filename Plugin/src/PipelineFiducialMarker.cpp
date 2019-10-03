@@ -67,9 +67,9 @@ namespace SolAR {
         LOG_INFO("MARKER IMAGE LOADED");
 
         m_patternDescriptorExtractor->extract(m_binaryMarker->getPattern(), m_markerPatternDescriptor);
-        LOG_INFO ("Marker pattern:\n {}", m_binaryMarker->getPattern()->getPatternMatrix())
+        LOG_INFO ("Marker pattern:\n {}", m_binaryMarker->getPattern().getPatternMatrix())
 
-                int patternSize = m_binaryMarker->getPattern()->getSize();
+                int patternSize = m_binaryMarker->getPattern().getSize();
 
         m_patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
         m_patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
@@ -103,15 +103,15 @@ namespace SolAR {
     bool PipelineFiducialMarker::processCamImage()
     {
         SRef<Image>                     camImage, greyImage, binaryImage;
-        std::vector<SRef<Contour2Df>>   contours;
-        std::vector<SRef<Contour2Df>>   filtered_contours;
+        std::vector<Contour2Df>   contours;
+        std::vector<Contour2Df>   filtered_contours;
         std::vector<SRef<Image>>        patches;
-        std::vector<SRef<Contour2Df>>   recognizedContours;
+        std::vector<Contour2Df>   recognizedContours;
         SRef<DescriptorBuffer>          recognizedPatternsDescriptors;
         std::vector<DescriptorMatch>    patternMatches;
-        std::vector<SRef<Point2Df>>     pattern2DPoints;
-        std::vector<SRef<Point2Df>>     img2DPoints;
-        std::vector<SRef<Point3Df>>     pattern3DPoints;
+        std::vector<Point2Df>     pattern2DPoints;
+        std::vector<Point2Df>     img2DPoints;
+        std::vector<Point3Df>     pattern3DPoints;
 
         if (m_stopFlag || !m_initOK || !m_startedOK)
             return false;
@@ -159,7 +159,7 @@ namespace SolAR {
             if (m_patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
             {
                 // From extracted squared binary pattern, match the one corresponding to the squared binary marker
-                if (m_patternMatcher->match(m_markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::DescriptorMatcher::DESCRIPTORS_MATCHER_OK)
+                if (m_patternMatcher->match(m_markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::IDescriptorMatcher::DESCRIPTORS_MATCHER_OK)
                 {
                     // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
                     m_patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
