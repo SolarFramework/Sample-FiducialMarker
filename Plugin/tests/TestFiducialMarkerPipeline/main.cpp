@@ -53,7 +53,7 @@ int main(){
         SRef<Image> camImage = xpcf::utils::make_shared<Image>(r_imageData,camParam.resolution.width,camParam.resolution.height,SolAR::Image::LAYOUT_BGR,SolAR::Image::INTERLEAVED,SolAR::Image::TYPE_8U);
 
         Transform3Df s_pose;
-
+		int count(0);
         if (pipeline->start(camImage->data()) == FrameworkReturnCode::_SUCCESS)
         {
             while (true)
@@ -61,10 +61,11 @@ int main(){
                 Transform3Df pose;
 
                 sink::SinkReturnCode returnCode = pipeline->update(pose);
-                if(returnCode == sink::SinkReturnCode::_ERROR)
-                    break;
+				
+				if (returnCode == sink::SinkReturnCode::_NOTHING)
+					continue;
 
-                if (returnCode == sink::SinkReturnCode::_NEW_POSE)
+                if ((returnCode == sink::SinkReturnCode::_NEW_POSE) || (returnCode == sink::SinkReturnCode::_NEW_POSE_AND_IMAGE))
                 {
                     for(int i=0;i<3;i++)
                          for(int j=0;j<3;j++)
@@ -74,13 +75,13 @@ int main(){
                     for(int j=0;j<3;j++)
                         s_pose(3,j)=0;
                     s_pose(3,3)=1;
-                    overlay3DComponent->draw(s_pose, camImage);     
+                    overlay3DComponent->draw(s_pose, camImage);					
                 }
 
                 if (imageViewerResult->display(camImage) == SolAR::FrameworkReturnCode::_STOP){
                     pipeline->stop();
                     break;
-                }
+                }				
              }
         }
         delete[] r_imageData;

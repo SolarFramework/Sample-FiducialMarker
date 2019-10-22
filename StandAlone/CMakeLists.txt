@@ -6,7 +6,7 @@ set (SOURCES main.cpp)
 ##################################################
 
 # various macros
-include("$ENV{BCOMDEVROOT}/bcomBuild/SolARFramework/solarmacros.cmake")
+include("$ENV{BCOMDEVROOT}/SolARFramework/solarmacros.cmake")
 # config setup
 setup()
 # process packagedependencies.txt
@@ -29,9 +29,9 @@ set(FILES_TO_COPY
 	$ENV{BCOMDEVROOT}/thirdParties/boost/${BOOST_VERSION}/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}boost_thread.${LIBEXTENSION}*
 	$ENV{BCOMDEVROOT}/thirdParties/boost/${BOOST_VERSION}/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}boost_date_time.${LIBEXTENSION}*
 
-	$ENV{BCOMDEVROOT}/bcomBuild/SolARFramework/${SOLARFRAMEWORK_VERSION}/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}SolARFramework.${LIBEXTENSION}
+	$ENV{BCOMDEVROOT}/SolARFramework/${SOLARFRAMEWORK_VERSION}/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}SolARFramework.${LIBEXTENSION}
 
-	$ENV{BCOMDEVROOT}/thirdParties/xpcf/${XPCF_VERSION}/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}xpcf.${LIBEXTENSION}	
+	$ENV{BCOMDEVROOT}/xpcf/${XPCF_VERSION}/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}xpcf.${LIBEXTENSION}	
 
 	${CMAKE_CURRENT_SOURCE_DIR}/camera_calibration.yml
 	${CMAKE_CURRENT_SOURCE_DIR}/conf_FiducialMarker.xml

@@ -16,7 +16,7 @@ set (HEADERS
 ##################################################
 
 # various macros
-include("$ENV{BCOMDEVROOT}/bcomBuild/SolARFramework/solarmacros.cmake")
+include("$ENV{BCOMDEVROOT}/SolARFramework/solarmacros.cmake")
 # config setup
 setup()
 # process packagedependencies.txt
