@@ -20,9 +20,9 @@
 
 
 #include "api/pipeline/IPipeline.h"
-#include "SolARModuleOpencv_traits.h"
-#include "SolARImageViewerOpencv.h"
-#include "SolAR3DOverlayBoxOpencv.h"
+#include "api/display/IImageViewer.h"
+#include "api/display/I3DOverlay.h"
+#include "datastructure/CameraParameters.h"
 
 namespace xpcf  = org::bcom::xpcf;
 
