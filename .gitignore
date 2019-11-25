@@ -51,3 +51,4 @@ Plugin/tests/TestFiducialMarkerPipeline/build/
 StandAlone/build/
 StandAlone/SolARFiducialMarkerSampleStandAlone.pro.user.4.9-pre1
 build-release-SA/
+build-PipelineFiducialMarker-Android/

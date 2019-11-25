@@ -1,4 +1,4 @@
-SolARFramework|0.6.0|SolARFramework|bcomBuild|https://github.com/SolarFramework/SolarFramework/releases/download
+SolARFramework|0.7.0|SolARFramework|bcomBuild|https://github.com/SolarFramework/SolarFramework/releases/download
 SolARModuleOpenCV|0.6.0|SolARModuleOpenCV|bcomBuild|https://github.com/SolarFramework/SolARModuleOpenCV/releases/download
 SolARModuleOpenGL|0.6.0|SolARModuleOpenGL|bcomBuild|https://github.com/SolarFramework/SolARModuleOpenGL/releases/download
 SolARPipelineManager|0.6.0|SolARPipelineManager|bcomBuild|https://github.com/SolarFramework/SolARPipelineManager/releases/download
