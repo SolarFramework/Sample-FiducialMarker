@@ -108,17 +108,17 @@ int main(int argc, char *argv[]){
         SRef<Image> contoursImage;
         SRef<Image> filteredContoursImage;
 
-        std::vector<Contour2Df>                    contours;
-        std::vector<Contour2Df>                    filtered_contours;
-        std::vector<SRef<Image>>                   patches;
-        std::vector<Contour2Df>                    recognizedContours;
-        SRef<DescriptorBuffer>                     recognizedPatternsDescriptors;
-        SRef<DescriptorBuffer>                     markerPatternDescriptor;
-        std::vector<DescriptorMatch>               patternMatches;
-        std::vector<Point2Df>                      pattern2DPoints;
-        std::vector<Point2Df>                      img2DPoints;
-        std::vector<Point3Df>                      pattern3DPoints;
-        Transform3Df                               pose;
+        std::vector<Contour2Df>              contours;
+        std::vector<Contour2Df>              filtered_contours;
+        std::vector<SRef<Image>>             patches;
+        std::vector<Contour2Df>              recognizedContours;
+        SRef<DescriptorBuffer>               recognizedPatternsDescriptors;
+        SRef<DescriptorBuffer>               markerPatternDescriptor;
+        std::vector<DescriptorMatch>         patternMatches;
+        std::vector<Point2Df>                pattern2DPoints;
+        std::vector<Point2Df>                img2DPoints;
+        std::vector<Point3Df>                pattern3DPoints;
+        Transform3Df                         pose;
 
         CamCalibration K;
 
@@ -244,7 +244,7 @@ int main(int argc, char *argv[]){
                        {
                            for (int k = 0; k < 4; k++)
                            {
-                               std::cout<<"[" << ((recognizedContours[i*4+k]))[j].getX() <<", "<< ((recognizedContours[i*4+k]))[j].getY() << "] ";
+                               std::cout<<"[" << (recognizedContours[i*4+k])[j].getX() <<", "<< (recognizedContours[i*4+k])[j].getY() << "] ";
                            }
                            std::cout << std::endl;
                        }
