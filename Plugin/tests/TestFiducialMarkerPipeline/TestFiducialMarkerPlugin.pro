@@ -4,7 +4,7 @@ CONFIG -= qt
 ## global defintions : target lib name, version
 TARGET = TestFiducialMarkerPlugin
 FRAMEWORK = $$TARGET
-VERSION=0.6.0
+VERSION=0.7.0
 
 DEFINES += MYVERSION=$${VERSION}
 DEFINES += TEMPLATE_LIBRARY
