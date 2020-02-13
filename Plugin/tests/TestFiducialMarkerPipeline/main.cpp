@@ -22,7 +22,7 @@
 #include "api/pipeline/IPipeline.h"
 #include "api/display/IImageViewer.h"
 #include "api/display/I3DOverlay.h"
-#include "datastructure/CameraParameters.h"
+#include "datastructure/CameraDefinitions.h"
 
 namespace xpcf  = org::bcom::xpcf;
 
