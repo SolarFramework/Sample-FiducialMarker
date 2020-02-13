@@ -1,10 +1,10 @@
-libname=PipelineFiducialMarker
+libname=SolARFiducialMarkerSampleStandAlone
 prefix=/usr/local
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/interfaces
-Name: PipelineFiducialMarker
-Description:
+Name: SolARFiducialMarkerSampleStandAlone
+Description: 
 Version: 0.7.0
 Requires:
 Libs: -L${libdir} -l${libname}
