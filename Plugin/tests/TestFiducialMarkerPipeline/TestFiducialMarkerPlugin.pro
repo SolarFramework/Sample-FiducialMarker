@@ -57,8 +57,10 @@ win32 {
 DISTFILES += \
     PipelineFiducialMarker.xml
 
-xpcf_xml_files.path = $$(HOME)/.xpcf
-xpcf_xml_files.files=$$files($${PWD}/PipelineFiducialMarker.xml)
-
-INSTALLS += xpcf_xml_files
+config_files.path = $${TARGETDEPLOYDIR}
+config_files.files=$$files($${PWD}/PipelineFiducialMarker.xml)\
+					$$files($${PWD}/camera_calibration.yml)\
+					$$files($${PWD}/fiducialMarker.yml)\
+					$$files($${PWD}/FiducialMarker.gif)
+INSTALLS += config_files
 include ($$(REMAKEN_RULES_ROOT)/qmake/remaken_install_target.pri))
