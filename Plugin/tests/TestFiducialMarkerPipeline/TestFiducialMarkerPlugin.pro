@@ -61,6 +61,6 @@ config_files.path = $${TARGETDEPLOYDIR}
 config_files.files=$$files($${PWD}/PipelineFiducialMarker.xml)\
 					$$files($${PWD}/camera_calibration.yml)\
 					$$files($${PWD}/fiducialMarker.yml)\
-					$$files($${PWD}/FiducialMarker.gif)
+                                        $$files($${PWD}/FiducialMarker.gif)
 INSTALLS += config_files
 include ($$(REMAKEN_RULES_ROOT)/qmake/remaken_install_target.pri))

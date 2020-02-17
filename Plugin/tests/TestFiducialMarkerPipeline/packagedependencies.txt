@@ -1,3 +1,5 @@
 SolARFramework|0.7.0|SolARFramework|SolARBuild@github|https://github.com/SolarFramework/SolarFramework/releases/download
 SolARModuleTools|0.7.0|SolARModuleTools|SolARBuild@github|https://github.com/SolarFramework/SolARModuleTools/releases/download
 SolARModuleOpenCV|0.7.0|SolARModuleOpenCV|SolARBuild@github|https://github.com/SolarFramework/SolARModuleOpenCV/releases/download
+SolARPipelineManager|0.7.0|SolARPipelineManager|SolARBuild@github|https://github.com/SolarFramework/SolARPipelineManager/releases/download
+SolARWrapper|0.7.0|SolARWrapper|SolARBuild@github|https://github.com/SolarFramework/SolARWrapper/releases/download
