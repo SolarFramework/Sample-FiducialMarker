@@ -59,42 +59,7 @@ pipeline {
                      sh "make install"
                  }
              }
-        }       
-
-
-        stage("Get Third Parties Multithread") {
-             when {
-                expression { params.RELEASE == false }
-             }               
-             steps {
-                 dir("Plugin") {
-                    getThirdParties('1.0.0')
-                 }
-             }
-        }
-
-        stage("Build Multithread") {
-             steps {
-                 withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
-                     sh "qmake Plugin/PipelineFiducialMarker.pro"
-                     sh "make"
-                     sh "make install"
-                 }
-             }
-        }
-
-        stage("Build Debug Multithread") {
-            when {
-                expression { params.RELEASE == true }
-            }            
-             steps {
-                 withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
-                     sh "qmake Plugin/PipelineFiducialMarker.pro CONFIG+=debug"
-                     sh "make"
-                     sh "make install"
-                 }
-             }
-        }              
+        }        
 
         // Trigger only if not a RELEASE
         stage("Share Binaries") {
