@@ -60,46 +60,9 @@ pipeline {
                  }
              }
         }       
-
-
-        stage("Get Third Parties Multithread") {
-             when {
-                expression { params.RELEASE == false }
-             }               
-             steps {
-                 dir("Plugin") {
-                    getThirdParties('1.0.0')
-                 }
-             }
-        }
-
-        stage("Build Multithread") {
-             steps {
-                 withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
-                     sh "qmake Plugin/PipelineFiducialMarker.pro"
-                     sh "make"
-                     sh "make install"
-                 }
-             }
-        }
-
-        stage("Build Debug Multithread") {
-            when {
-                expression { params.RELEASE == true }
-            }            
-             steps {
-                 withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
-                     sh "qmake Plugin/PipelineFiducialMarker.pro CONFIG+=debug"
-                     sh "make"
-                     sh "make install"
-                 }
-             }
-        }              
-
+             
         // Trigger only if not a RELEASE
-        stage("Share Binaries") {
-            when {
-                expression { params.RELEASE == false }
+        stage("Share Binaries") { SolARNaturalImageMarkerSampleMultiThreadfalse }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'bc6e150e-ede8-4e35-8af4-0f037edee8ac', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
