@@ -74,8 +74,12 @@ header_files.files = $$files($${PWD}/interfaces/*.h*)
 xpcf_xml_files.path = $${USERHOMEFOLDER}/.xpcf/SolAR
 xpcf_xml_files.files=$$files($${PWD}/xpcf*.xml)
 
+configuration_files.path = $${PROJECTDEPLOYDIR}/configuration
+configuration_files.files = $$files($${PWD}/tests/TestFiducialMarkerPipeline/PipelineFiducialMarker.xml)
+
 INSTALLS += header_files
 INSTALLS += xpcf_xml_files
+INSTALLS += configuration_files
 
 OTHER_FILES += \
     packagedependencies.txt
