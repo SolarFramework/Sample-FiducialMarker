@@ -43,7 +43,6 @@
 #define MIN_THRESHOLD -1
 #define MAX_THRESHOLD 220
 #define NB_THRESHOLD 8
-//#define VIDEO_INPUT
 
 using namespace std;
 using namespace SolAR;
@@ -72,11 +71,7 @@ int main(int argc, char *argv[]){
         // declare and create components
         LOG_INFO("Start creating components");
 
-    #ifdef VIDEO_INPUT
-        auto camera =xpcfComponentManager->create<SolARVideoAsCameraOpencv>()->bindTo<input::devices::ICamera>();
-    #else
         auto camera =xpcfComponentManager->resolve<input::devices::ICamera>();
-    #endif
         auto binaryMarker =xpcfComponentManager->resolve<input::files::IMarker2DSquaredBinary>();
 
         auto imageViewer =xpcfComponentManager->resolve<display::IImageViewer>();
