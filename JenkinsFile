@@ -59,10 +59,12 @@ pipeline {
                      sh "make install"
                  }
              }
-        }       
-             
+        }        
+
         // Trigger only if not a RELEASE
-        stage("Share Binaries") { SolARNaturalImageMarkerSampleMultiThreadfalse }
+        stage("Share Binaries") {
+            when {
+                expression { params.RELEASE == false }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'bc6e150e-ede8-4e35-8af4-0f037edee8ac', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
