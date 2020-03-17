@@ -88,7 +88,7 @@ pipeline {
                 }                
                 prepareRelease("SolARBuild","linux-gcc","PipelineFiducialMarker")                
                 withCredentials([string(credentialsId: 'github-token', variable: 'token')]) {
-                    release("FiducialMarker","PipelineFiducialMarker/${version}/unix","",token);
+                    release("FiducialMarker","PipelineFiducialMarker/${version}/linux","PipelineFiducialMarker Version ${version} for Linux","${WORKSPACE}/artifactory/x86_64_shared_release/PipelineFiducialMarker_${version}_x86_64_shared_release.zip ${WORKSPACE}/artifactory/x86_64_shared_debug/PipelineFiducialMarker_${version}_x86_64_shared_debug.zip",token);
                 }
             }   
         }
