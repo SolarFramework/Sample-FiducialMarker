@@ -14,8 +14,6 @@
 
 #include "xpcf/module/ModuleFactory.h"
 #include "PipelineFiducialMarker.h"
-#include "SolARModuleOpencv_traits.h"
-#include "SolARModuleTools_traits.h"
 #include "core/Log.h"
 
 namespace xpcf=org::bcom::xpcf;

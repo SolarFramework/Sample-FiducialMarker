@@ -1,34 +1,35 @@
+## remove Qt dependencies
 QT       -= core gui
 CONFIG -= qt
 
 ## global defintions : target lib name, version
 TARGET = TestFiducialMarkerPlugin
-FRAMEWORK = $$TARGET
-VERSION=0.7.0
+VERSION= 0.7.0
 
 DEFINES += MYVERSION=$${VERSION}
-DEFINES += TEMPLATE_LIBRARY
-
-
 CONFIG += c++1z
 CONFIG += console
 
+include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
+    TARGETDEPLOYDIR = $${PWD}../../../../bin/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
 }
 
 CONFIG(release,debug|release) {
+    TARGETDEPLOYDIR = $${PWD}../../../../bin/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
 }
+
 DEPENDENCIESCONFIG = sharedlib install_recurse
 
 PROJECTCONFIG = QTVS
 
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib, QMAKE_TARGET.arch and PROJECTDEPLOYDIR MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
-include ($$(REMAKEN_RULES_ROOT)/qmake/templateappconfig.pri)
+include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/templateappconfig.pri)))  # Shell_quote & shell_path required for visual on windows
 
 HEADERS += \
 
@@ -58,9 +59,11 @@ DISTFILES += \
     PipelineFiducialMarker.xml
 
 config_files.path = $${TARGETDEPLOYDIR}
-config_files.files=$$files($${PWD}/PipelineFiducialMarker.xml)\
-					$$files($${PWD}/camera_calibration.yml)\
-					$$files($${PWD}/fiducialMarker.yml)\
-                                        $$files($${PWD}/FiducialMarker.gif)
+config_files.files= $$files($${PWD}/PipelineFiducialMarker.xml)\
+                    $$files($${PWD}/camera_calibration.yml)\
+                    $$files($${PWD}/fiducialMarker.yml)\
+                    $$files($${PWD}/FiducialMarker.gif)
 INSTALLS += config_files
-include ($$(REMAKEN_RULES_ROOT)/qmake/remaken_install_target.pri))
+
+#NOTE : Must be placed at the end of the .pro
+include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/remaken_install_target.pri)))) # Shell_quote & shell_path required for visual on windows
