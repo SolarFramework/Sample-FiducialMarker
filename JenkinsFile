@@ -18,7 +18,7 @@ pipeline {
                  script {
                      BRANCH = BRANCH_NAME.replace('/','_')
                      version = sh (
-                        script: "cat *.pro  | grep VERSION | head -1 | cut -d '=' -f 2",
+                        script: "cat StandAlone/[*.pro  | grep VERSION | head -1 | cut -d '=' -f 2",
                         returnStdout: true
                      )
                      version = version.replaceAll("[\r|\n]","")
