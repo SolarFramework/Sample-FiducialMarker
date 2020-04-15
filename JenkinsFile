@@ -24,7 +24,9 @@ pipeline {
                      version = version.replaceAll("[\r|\n]","")
                  }
                  withCredentials([string(credentialsId: 'artifactoryApiKey', variable: 'apiKey')]) {
-                    installRemaken(params.RELEASE,BRANCH,apiKey)
+                    dir("StandAlone"){
+                        installRemaken(params.RELEASE,BRANCH,apiKey)
+                    }
                  }
              }
         }       
