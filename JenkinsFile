@@ -13,15 +13,13 @@ pipeline {
     triggers { pollSCM('* * * * *') }    
     stages {
 
-        stage("Get Third Parties") {
+        stage("Get Third Parties StandAlone") {
              steps {
                  script {
                      BRANCH = BRANCH_NAME.replace('/','_')
-                     version = sh (
-                        script: "cat StandAlone/*.pro  | grep VERSION | head -1 | cut -d '=' -f 2",
-                        returnStdout: true
-                     )
-                     version = version.replaceAll("[\r|\n]","")
+                     dir("StandAlone") {
+                        version = getVersion()
+                     }      
                  }
                  withCredentials([string(credentialsId: 'artifactoryApiKey', variable: 'apiKey')]) {
                     dir("StandAlone"){
@@ -33,10 +31,8 @@ pipeline {
     
         stage("Build StandAlone") {
              steps {
-                 withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
-                     sh "qmake StandAlone/SolARFiducialMarkerSampleStandAlone.pro"
-                     sh "make"
-                     sh "make install"
+                 dir("StandAlone") {
+                     build("")
                  }
              }
         }
@@ -46,14 +42,46 @@ pipeline {
                 expression { params.RELEASE == true }
             }            
              steps {
-                 withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
-                     sh "qmake StandAlone/SolARFiducialMarkerSampleStandAlone.pro CONFIG+=debug"
-                     sh "make"
-                     sh "make install"
+                 dir("StandAlone") {
+                     build("debug")
                  }
              }
         }   
         
+        stage("Get Third Parties Plugin") {
+             steps {
+                 script {
+                     BRANCH = BRANCH_NAME.replace('/','_')
+                     dir("Plugin") {
+                        version = getVersion()
+                     }
+                 }
+                 withCredentials([string(credentialsId: 'artifactoryApiKey', variable: 'apiKey')]) {
+                    dir("Plugin"){
+                        installRemaken(params.RELEASE,BRANCH,apiKey)
+                    }
+                 }
+             }
+        }       
+    
+        stage("Build Plugin") {
+             steps {
+                 dir("Plugin") {
+                     build("")
+                 }
+             }
+        }
+
+        stage("Build Plugin Debug") {
+            when {
+                expression { params.RELEASE == true }
+            }            
+             steps {
+                 dir("Plugin") {
+                     build("debug")
+                 }
+             }
+        }         
              
 
         stage("Generate artifacts") {
