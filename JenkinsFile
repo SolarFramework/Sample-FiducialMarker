@@ -32,7 +32,7 @@ pipeline {
         stage("Build StandAlone") {
              steps {
                  dir("StandAlone") {
-                     build("")
+                     buildModule("")
                  }
              }
         }
@@ -43,7 +43,7 @@ pipeline {
             }            
              steps {
                  dir("StandAlone") {
-                     build("debug")
+                     buildModule("debug")
                  }
              }
         }   
@@ -67,7 +67,7 @@ pipeline {
         stage("Build Plugin") {
              steps {
                  dir("Plugin") {
-                     build("")
+                     buildModule("")
                  }
              }
         }
@@ -78,7 +78,7 @@ pipeline {
             }            
              steps {
                  dir("Plugin") {
-                     build("debug")
+                     buildModule("debug")
                  }
              }
         }         
