@@ -77,7 +77,7 @@ namespace SolAR {
         m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(m_binaryMarker->getSize().width);
         m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(m_binaryMarker->getSize().height);
 
-        m_PnP->setCameraParameters(m_camera->getIntrinsicsParameters(), m_camera->getDistorsionParameters());
+        m_PnP->setCameraParameters(m_camera->getIntrinsicsParameters(), m_camera->getDistortionParameters());
 
         for(int i=0;i<4;i++)
             for(int j=0;j<4;j++)

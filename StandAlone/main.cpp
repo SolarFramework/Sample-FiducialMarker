@@ -140,8 +140,8 @@ int main(int argc, char *argv[]){
         img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(binaryMarker->getSize().width);
         img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(binaryMarker->getSize().height);
 
-        PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
-        overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistorsionParameters());
+        PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
+        overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
 
         if (camera->start() != FrameworkReturnCode::_SUCCESS) // Camera
         {
