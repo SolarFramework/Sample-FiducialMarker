@@ -44,7 +44,7 @@ HEADERS += interfaces/PipelineFiducialMarker.h \
 SOURCES += src/PipelineFiducialMarker_main.cpp \
     src/PipelineFiducialMarker.cpp
 	
-unix {
+unix:!android {
     QMAKE_CXXFLAGS += -Wignored-qualifiers
 }
 
@@ -66,6 +66,7 @@ win32 {
 
 android {
     QMAKE_LFLAGS += -nostdlib++
+    ANDROID_ABIS="arm64-v8a"
 }
 
 header_files.path = $${PROJECTDEPLOYDIR}/interfaces
