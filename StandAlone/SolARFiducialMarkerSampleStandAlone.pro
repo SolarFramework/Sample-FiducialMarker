@@ -27,7 +27,7 @@ CONFIG(release,debug|release) {
 win32:CONFIG -= static
 win32:CONFIG += shared
 
-DEPENDENCIESCONFIG = sharedlib recursive install_recurse
+DEPENDENCIESCONFIG = sharedlib install_recurse
 
 PROJECTCONFIG = QTVS
 
