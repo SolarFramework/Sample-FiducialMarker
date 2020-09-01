@@ -57,15 +57,15 @@ win32 {
     QMAKE_CXXFLAGS += -wd4250 -wd4251 -wd4244 -wd4275
 }
 
-DISTFILES += \
-    PipelineFiducialMarker.xml
-
 config_files.path = $${TARGETDEPLOYDIR}
 config_files.files= $$files($${PWD}/PipelineFiducialMarker.xml)\
                     $$files($${PWD}/camera_calibration.yml)\
                     $$files($${PWD}/fiducialMarker.yml)\
                     $$files($${PWD}/FiducialMarker.gif)
 INSTALLS += config_files
+
+OTHER_FILES += \
+    packagedependencies.txt
 
 #NOTE : Must be placed at the end of the .pro
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/remaken_install_target.pri)))) # Shell_quote & shell_path required for visual on windows
