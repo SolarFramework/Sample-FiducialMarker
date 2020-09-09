@@ -1,133 +1,17 @@
-pipeline {
-    agent {
-        label "jenkins-slave-argo-qmake"
+node("master") {
+
+    SolArModulePipeline {
+        moduleName="PipelineFiducialMarker"
+        dirName="SolARBuild"
+        buildDir="StandAlone"
+        android=false
     }
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
+
+    SolArModulePipeline {
+        moduleName="PipelineFiducialMarker"
+        dirName="SolARBuild"
+        buildDir="Plugin"
+        android=true
     }
-    parameters {
-        booleanParam(name: 'RELEASE',
-            defaultValue: false,
-            description: 'Create a Release')
-        booleanParam(name: 'PRE_RELEASE',
-            defaultValue: false,
-            description: 'Create a Pre Release' )             
-    }
-    triggers { pollSCM('* * * * *') }    
-    stages {
 
-        stage("Get Third Parties StandAlone") {
-             steps {
-                 script {
-                     BRANCH = BRANCH_NAME.replace('/','_')
-                     dir("StandAlone") {
-                        version = getVersion()
-                     }      
-                 }
-                 withCredentials([string(credentialsId: 'artifactoryApiKey', variable: 'apiKey')]) {
-                    dir("StandAlone"){
-                        installRemaken(params.RELEASE,BRANCH,apiKey)
-                    }
-                 }
-             }
-        }       
-    
-        stage("Build StandAlone") {
-             steps {
-                 dir("StandAlone") {
-                     buildModule("")
-                 }
-             }
-        }
-
-        stage("Build Debug StandAlone") {
-            when {
-                expression { params.RELEASE == true || params.PRE_RELEASE == true }
-            }            
-             steps {
-                 dir("StandAlone") {
-                     buildModule("debug")
-                 }
-             }
-        }   
-        
-        stage("Get Third Parties Plugin") {
-             steps {
-                 script {
-                     BRANCH = BRANCH_NAME.replace('/','_')
-                     dir("Plugin") {
-                        version = getVersion()
-                     }
-                 }
-                 withCredentials([string(credentialsId: 'artifactoryApiKey', variable: 'apiKey')]) {
-                    dir("Plugin"){
-                        installRemaken(params.RELEASE,BRANCH,apiKey)
-                    }
-                 }
-             }
-        }       
-    
-        stage("Build Plugin") {
-             steps {
-                 dir("Plugin") {
-                     buildModule("")
-                 }
-             }
-        }
-
-        stage("Build Plugin Debug") {
-            when {
-                expression { params.RELEASE == true || params.PRE_RELEASE == true }
-            }            
-             steps {
-                 dir("Plugin") {
-                     buildModule("debug")
-                 }
-             }
-        }         
-             
-
-        stage("Generate artifacts") {
-            steps {
-                script {
-                    prepareRelease("SolARBuild","linux-gcc","PipelineFiducialMarker")                
-                }
-            }
-        }  
-
-        // Trigger only if not a RELEASE
-        stage("Upload to Artifactory") {
-            when {
-                expression { params.RELEASE == false & params.PRE_RELEASE == false }
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'bc6e150e-ede8-4e35-8af4-0f037edee8ac', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                    uploadArchive(BRANCH,"PipelineFiducialMarker/${version}/linux","${WORKSPACE}/artifactory/x86_64_shared_release/PipelineFiducialMarker_${version}_x86_64_shared_release.zip",USERNAME,PASSWORD)
-                }
-            }
-        }
-
-        stage("Pre-Release") {
-            when {
-                expression { params.PRE_RELEASE == true }
-            }
-            steps {                
-                withCredentials([string(credentialsId: 'github-token', variable: 'token')]) {
-                    preRelease("FiducialMarker","PipelineFiducialMarker/${version}/linux","PipelineFiducialMarker Version ${version} for Linux","${WORKSPACE}/artifactory/x86_64_shared_release/PipelineFiducialMarker_${version}_x86_64_shared_release.zip ${WORKSPACE}/artifactory/x86_64_shared_debug/PipelineFiducialMarker_${version}_x86_64_shared_debug.zip",token);
-                }
-            }   
-        }           
-        
-
-        stage("Release") {
-            when {
-                expression { params.RELEASE == true }
-            }
-            steps {            
-                withCredentials([string(credentialsId: 'github-token', variable: 'token')]) {
-                    release("FiducialMarker","PipelineFiducialMarker/${version}/linux","PipelineFiducialMarker Version ${version} for Linux","${WORKSPACE}/artifactory/x86_64_shared_release/PipelineFiducialMarker_${version}_x86_64_shared_release.zip ${WORKSPACE}/artifactory/x86_64_shared_debug/PipelineFiducialMarker_${version}_x86_64_shared_debug.zip",token);
-                }
-            }   
-        }
-}
 }
