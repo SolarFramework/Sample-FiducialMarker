@@ -2,9 +2,10 @@
 
 [![License](https://img.shields.io/github/license/SolARFramework/FiducialMarker?style=flat-square&label=License)](https://www.apache.org/licenses/LICENSE-2.0)
 
-The SolAR **Fiducial Image Marker sample** shows a SolAR pipeline for augmented reality based on a fiducials markers image. This pipeline loads a reference image marker, then tries to detect it on real time camera images and to estimate the pose of the camera in relation to the coordinate system of the image marker. If the marker is detected, the pipeline draws a 3D cube on its position, renders the 3D cube from a virtual camera which pose corresponds to the one estimated by the pipeline, and displays the rendered 3D cube over the current camera image.
+The SolAR **Fiducial Image Marker sample** shows a SolAR pipeline for augmented reality based on a fiducials markers image. This pipeline loads a reference image marker, then tries to detect it on real time camera images and to estimate the pose of the camera in relation to the coordinate system of the image marker. If the marker is detected, the pipeline over the current camera image renders a 3D cube from a virtual camera which pose corresponds to the one estimated by the pipeline.
 
-Here is a screenshot example of the Fiducial Image Marker pipeline:
+
+Here are screenshots from the Fiducial Image Marker pipeline:
 
 
 | ![](./StandAlone/standalone.jpg) | ![](./Plugin/plugin.jpg) |
