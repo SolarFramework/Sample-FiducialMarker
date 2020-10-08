@@ -70,7 +70,12 @@
 	<factory>
 		<bindings>
 			<bind interface="ICamera" to="SolARCameraOpencv" />
-		</bindings>
+      <bind interface="IImageViewer" to="SolARImageViewerOpencv" name="original" properties="original" />
+      <bind interface="IImageViewer" to="SolARImageViewerOpencv" name="grey" properties="grey" />
+      <bind interface="IImageViewer" to="SolARImageViewerOpencv" name="binary" properties="binary" />
+      <bind interface="IImageViewer" to="SolARImageViewerOpencv" name="contours" properties="contours" />
+      <bind interface="IImageViewer" to="SolARImageViewerOpencv" name="filteredContours" properties="filteredContours" />
+    </bindings>
 	</factory>
 	<properties>
 		<configure component="SolARCameraOpencv">
@@ -126,7 +131,7 @@
 				<value>0.157</value>
 			</property>
 		</configure>
-		<configure component="SolARImageViewerOpencv">
+		<configure component="SolARImageViewerOpencv" name="original">
 			<property name="title" type="string" value="Original Image"/>
 			<property name="exitKey" type="Integer" value="27"/>
 			<property name="width" type="Integer" value="0"/>

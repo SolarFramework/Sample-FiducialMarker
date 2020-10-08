@@ -74,9 +74,9 @@ int main(int argc, char *argv[]){
         auto camera =xpcfComponentManager->resolve<input::devices::ICamera>();
         auto binaryMarker =xpcfComponentManager->resolve<input::files::IMarker2DSquaredBinary>();
 
-        auto imageViewer =xpcfComponentManager->resolve<display::IImageViewer>();
-        auto imageViewerGrey =xpcfComponentManager->resolve<display::IImageViewer>();
-        auto imageViewerBinary =xpcfComponentManager->resolve<display::IImageViewer>();
+        auto imageViewer =xpcfComponentManager->resolve<display::IImageViewer>("original");
+        auto imageViewerGrey =xpcfComponentManager->resolve<display::IImageViewer>("grey");
+        auto imageViewerBinary =xpcfComponentManager->resolve<display::IImageViewer>("binary");
         auto imageViewerContours =xpcfComponentManager->resolve<display::IImageViewer>("contours");
         auto imageViewerFilteredContours =xpcfComponentManager->resolve<display::IImageViewer>("filteredContours");
 
@@ -311,7 +311,6 @@ int main(int argc, char *argv[]){
     return 0;
 
 }
-
 
 
 
