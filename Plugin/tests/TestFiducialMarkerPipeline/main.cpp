@@ -19,7 +19,7 @@
 #include "xpcf/xpcf.h"
 
 
-#include "api/pipeline/IPipeline.h"
+#include "api/pipeline/IPoseEstimationPipeline.h"
 #include "api/display/IImageViewer.h"
 #include "api/display/I3DOverlay.h"
 #include "datastructure/CameraDefinitions.h"
@@ -38,7 +38,7 @@ int main(){
     LOG_ADD_LOG_TO_CONSOLE();
     SRef<xpcf::IComponentManager> componentMgr = xpcf::getComponentManagerInstance();
     componentMgr->load("PipelineFiducialMarker.xml");
-    auto pipeline = componentMgr->resolve<pipeline::IPipeline>();
+    auto pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
 
     if (pipeline->init(componentMgr) == FrameworkReturnCode::_SUCCESS)
     {

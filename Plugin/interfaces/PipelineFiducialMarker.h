@@ -29,7 +29,7 @@
 
 #include "xpcf/core/traits.h"
 #include "xpcf/component/ConfigurableBase.h"
-#include "api/pipeline/IPipeline.h"
+#include "api/pipeline/IPoseEstimationPipeline.h"
 
 // Add the headers to datastructures and component interfaces used by the pipeline
 #include "api/input/devices/ICamera.h"
@@ -73,7 +73,7 @@ namespace PIPELINES {
  */
 
 class SOLARPIPELINEFIDUCIALMARKER_EXPORT_API PipelineFiducialMarker : public org::bcom::xpcf::ConfigurableBase,
-    public api::pipeline::IPipeline
+    public api::pipeline::IPoseEstimationPipeline
 {
 public:
     PipelineFiducialMarker();

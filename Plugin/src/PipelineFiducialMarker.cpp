@@ -11,7 +11,7 @@ namespace SolAR {
 
     PipelineFiducialMarker::PipelineFiducialMarker():ConfigurableBase(xpcf::toUUID<PipelineFiducialMarker>())
     {
-        declareInterface<api::pipeline::IPipeline>(this);
+        declareInterface<api::pipeline::IPoseEstimationPipeline>(this);
         declareInjectable<input::devices::ICamera>(m_camera);
         declareInjectable<input::files::IMarker2DSquaredBinary>(m_binaryMarker);
         declareInjectable<image::IImageFilter>(m_imageFilterBinary);
