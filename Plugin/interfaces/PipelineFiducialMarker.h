@@ -88,6 +88,10 @@ public:
     /// @return the camera parameters (its resolution and its focal)
     CameraParameters getCameraParameters() override;
 
+    /// @brief Start the pipeline
+    /// @return FrameworkReturnCode::_SUCCESS if the stard succeed, else FrameworkReturnCode::_ERROR_
+    FrameworkReturnCode start() override { return FrameworkReturnCode::_SUCCESS; }
+
     /// @brief Starts the pipeline and provides a texture buffer which will be updated when required.
     /// @param[in] textureHandle a pointer to the texture buffer which will be updated at each call of the update method.
     FrameworkReturnCode start(void* imageDataBuffer) override;
