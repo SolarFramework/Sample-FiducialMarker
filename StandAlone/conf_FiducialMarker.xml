@@ -80,52 +80,52 @@
 	<properties>
 		<configure component="SolARCameraOpencv">
 			<property name="calibrationFile" type="string" value="camera_calibration.yml" description="path of the .yml file describing the calibration parameter of the camera."/>
-			<property name="deviceID" type="UnsignedInteger" value="0" description="ID of the camera (default = 0)"/>
+            <property name="deviceID" type="uint" value="0" description="ID of the camera (default = 0)"/>
 		</configure>
 		<configure component="SolARMarker2DSquaredBinaryOpencv">
 			<property name="filePath" type="string" value="fiducialMarker.yml" description="Path of the .yml file describing the fiducial marker."/>
 		</configure>
 		<configure component="SolARImageFilterBinaryOpencv">
-			<property name="min" type="Integer" value="-1" description="minimum threshold (-1 to automatically compute it on the global image)"/>
-			<property name="max" type="Integer" value="255" description="maximum threshold"/>
+            <property name="min" type="int" value="-1" description="minimum threshold (-1 to automatically compute it on the global image)"/>
+            <property name="max" type="int" value="255" description="maximum threshold"/>
 		</configure>
 		<configure component="SolARContoursExtractorOpencv">
-			<property name="minContourEdges" type="Integer" value="4" description="Minimum number of edge to validate a contour (default = 4)" />
+            <property name="minContourEdges" type="int" value="4" description="Minimum number of edge to validate a contour (default = 4)" />
 		</configure>
 		<configure component="SolARContoursFilterBinaryMarkerOpencv">
-			<property name="epsilon" type="Float" value="0.05" description="The maximum distance between the original curve and its approximation (default = 0.05)"/>
-			<property name="minContourLength" type="Float" value="20.0" description="The minimum length of an edge of the contour in pixels to be considered as valid (default = 20)."/>
-			<property name="minDistanceBetweenContourCorners" type="Float" value="10.0" description="The minimum average distance in pixels between corners of a contour and the same corners of another contour to consider the contour as valid (default = 10)"/>
+            <property name="epsilon" type="float" value="0.05" description="The maximum distance between the original curve and its approximation (default = 0.05)"/>
+            <property name="minContourLength" type="float" value="20.0" description="The minimum length of an edge of the contour in pixels to be considered as valid (default = 20)."/>
+            <property name="minDistanceBetweenContourCorners" type="float" value="10.0" description="The minimum average distance in pixels between corners of a contour and the same corners of another contour to consider the contour as valid (default = 10)"/>
 		</configure>
 		<configure component="SolARPerspectiveControllerOpencv">
-			<property name="outputImageWidth" type="Integer" value="640" description="The width in pixels of the corrected image."/>
-			<property name="outputImageHeight" type="Integer" value="480" description="The width in pixels of the corrected image."/>
+            <property name="outputImageWidth" type="int" value="640" description="The width in pixels of the corrected image."/>
+            <property name="outputImageHeight" type="int" value="480" description="The width in pixels of the corrected image."/>
 		</configure>
 		<configure component="SolAR2DOverlayOpencv">
-			<property name="color" type="UnsignedInteger">
+            <property name="color" type="uint">
 				<value>128</value>
 				<value>128</value>
 				<value>128</value>
 			</property>
-			<property name="thickness" type="UnsignedInteger" value="3"/> 
+            <property name="thickness" type="uint" value="3"/>
 		</configure>
 		<configure component="SolAR2DOverlayOpencv" name="circles">
-			<property name="thickness" type="UnsignedInteger" value="3"/>
-			<property name="radius" type="UnsignedInteger" value="6"/>
-			<property name="randomColor" type="UnsignedInteger" value="1"/>
+            <property name="thickness" type="uint" value="3"/>
+            <property name="radius" type="uint" value="6"/>
+            <property name="randomColor" type="uint" value="1"/>
 		</configure>
 		<configure component="SolAR3DOverlayBoxOpencv">
-			<property name="position"  type="Float">
+            <property name="position"  type="float">
 				<value>0</value>
 				<value>0</value>
 				<value>0</value>
 			</property>
-			<property name="orientation"  type="Float">
+            <property name="orientation"  type="float">
 				<value>0.0</value>
 				<value>0.0</value>
 				<value>0.0</value>
 			</property>
-			<property name="size"  type="Float">
+            <property name="size"  type="float">
 				<value>0.157</value>
 				<value>0.157</value>
 				<value>0.157</value>
@@ -133,33 +133,33 @@
 		</configure>
 		<configure component="SolARImageViewerOpencv" name="original">
 			<property name="title" type="string" value="Original Image"/>
-			<property name="exitKey" type="Integer" value="27"/>
-			<property name="width" type="Integer" value="0"/>
-			<property name="height" type="Integer" value="0"/>
+            <property name="exitKey" type="int" value="27"/>
+            <property name="width" type="int" value="0"/>
+            <property name="height" type="int" value="0"/>
 		</configure>
 		<configure component="SolARImageViewerOpencv" name="grey">
 			<property name="title" type="string" value="Grey Image"/>
-			<property name="exitKey" type="Integer" value="27"/>
-			<property name="width" type="Integer" value="0"/>
-			<property name="height" type="Integer" value="0"/>
+            <property name="exitKey" type="int" value="27"/>
+            <property name="width" type="int" value="0"/>
+            <property name="height" type="int" value="0"/>
 		</configure>
 		<configure component="SolARImageViewerOpencv" name="binary">
 			<property name="title" type="string" value="Binary Image"/>
-			<property name="exitKey" type="Integer" value="27"/>
-			<property name="width" type="Integer" value="0"/>
-			<property name="height" type="Integer" value="0"/>
+            <property name="exitKey" type="int" value="27"/>
+            <property name="width" type="int" value="0"/>
+            <property name="height" type="int" value="0"/>
 		</configure>
 		<configure component="SolARImageViewerOpencv" name="contours">
 			<property name="title" type="string" value="Contours Image"/>
-			<property name="exitKey" type="Integer" value="27"/>
-			<property name="width" type="Integer" value="0"/>
-			<property name="height" type="Integer" value="0"/>
+            <property name="exitKey" type="int" value="27"/>
+            <property name="width" type="int" value="0"/>
+            <property name="height" type="int" value="0"/>
 		</configure>
 		<configure component="SolARImageViewerOpencv" name="filteredContours">
 			<property name="title" type="string" value="Filtered Contours Image"/>
-			<property name="exitKey" type="Integer" value="27"/>
-			<property name="width" type="Integer" value="0"/>
-			<property name="height" type="Integer" value="0"/>
+            <property name="exitKey" type="int" value="27"/>
+            <property name="width" type="int" value="0"/>
+            <property name="height" type="int" value="0"/>
 		</configure>
 	</properties>
 </xpcf-registry>
