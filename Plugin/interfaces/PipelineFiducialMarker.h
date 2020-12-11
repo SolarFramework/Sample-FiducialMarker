@@ -60,11 +60,6 @@
 #include "xpcf/threading/BaseTask.h"
 
 namespace SolAR {
-using namespace datastructure;
-using namespace api;
-using namespace api::sink;
-using namespace api::source;
-using namespace api::pipeline;
 namespace PIPELINES {
 
 /**
@@ -86,7 +81,7 @@ public:
 
     /// @brief Provide the camera parameters
     /// @return the camera parameters (its resolution and its focal)
-    CameraParameters getCameraParameters() override;
+    datastructure::CameraParameters getCameraParameters() override;
 
     /// @brief Start the pipeline
     /// @return FrameworkReturnCode::_SUCCESS if the stard succeed, else FrameworkReturnCode::_ERROR_
@@ -101,34 +96,34 @@ public:
 
     /// @brief update the pipeline
     /// Get the new pose and update the texture buffer with the image that has to be displayed
-    SinkReturnCode update(Transform3Df& pose) override;
+    api::sink::SinkReturnCode update(datastructure::Transform3Df& pose) override;
 
     /// @brief load the source image
-    SourceReturnCode loadSourceImage(void* sourceTextureHandle, int width, int height) override;
+    api::source::SourceReturnCode loadSourceImage(void* sourceTextureHandle, int width, int height) override;
     org::bcom::xpcf::XPCFErrorCode onConfigured() override;
     void unloadComponent () override final;
 
 private:
     // Decalaration of data structures shared between initialization and process thread
-    SRef<DescriptorBuffer> m_markerPatternDescriptor;
+    SRef<datastructure::DescriptorBuffer> m_markerPatternDescriptor;
 
     // Declaration of the components used by the pipeline
-    SRef<input::devices::ICamera> m_camera;
-    SRef<input::files::IMarker2DSquaredBinary> m_binaryMarker;
-    SRef<image::IImageFilter> m_imageFilterBinary;
+    SRef<api::input::devices::ICamera> m_camera;
+    SRef<api::input::files::IMarker2DSquaredBinary> m_binaryMarker;
+    SRef<api::image::IImageFilter> m_imageFilterBinary;
     SRef<xpcf::IConfigurable> m_imageFilterBinaryConfigurable;
-    SRef<image::IImageConvertor> m_imageConvertor;
-    SRef<features::IContoursExtractor> m_contoursExtractor ;
-    SRef<features::IContoursFilter> m_contoursFilter;
-    SRef<image::IPerspectiveController> m_perspectiveController;
-    SRef<features::IDescriptorsExtractorSBPattern> m_patternDescriptorExtractor;
-    SRef<features::IDescriptorMatcher> m_patternMatcher;
-    SRef<features::ISBPatternReIndexer> m_patternReIndexer;
-    SRef<geom::IImage2WorldMapper> m_img2worldMapper;
-    SRef<solver::pose::I3DTransformFinderFrom2D3D> m_PnP;
-    SRef<sink::ISinkPoseImage> m_sink;
-    SRef<source::ISourceImage> m_source;
-    SRef<image::IImageConvertor> m_imageConvertorUnity;
+    SRef<api::image::IImageConvertor> m_imageConvertor;
+    SRef<api::features::IContoursExtractor> m_contoursExtractor ;
+    SRef<api::features::IContoursFilter> m_contoursFilter;
+    SRef<api::image::IPerspectiveController> m_perspectiveController;
+    SRef<api::features::IDescriptorsExtractorSBPattern> m_patternDescriptorExtractor;
+    SRef<api::features::IDescriptorMatcher> m_patternMatcher;
+    SRef<api::features::ISBPatternReIndexer> m_patternReIndexer;
+    SRef<api::geom::IImage2WorldMapper> m_img2worldMapper;
+    SRef<api::solver::pose::I3DTransformFinderFrom2D3D> m_PnP;
+    SRef<api::sink::ISinkPoseImage> m_sink;
+    SRef<api::source::ISourceImage> m_source;
+    SRef<api::image::IImageConvertor> m_imageConvertorUnity;
 
     // State flag of the pipeline
     bool m_stopFlag, m_initOK, m_startedOK, m_haveToBeFlip;
@@ -137,7 +132,7 @@ private:
     bool processCamImage();
     xpcf::DelegateTask* m_taskProcess;
 
-    Transform3Df m_pose;
+    datastructure::Transform3Df m_pose;
 
     int m_minThreshold = 50;
     int m_maxThreshold = 220;

@@ -7,6 +7,9 @@ XPCF_DEFINE_FACTORY_CREATE_INSTANCE(SolAR::PIPELINES::PipelineFiducialMarker);
 namespace SolAR {
     using namespace datastructure;
     using namespace api::pipeline;
+    using namespace api;
+    using namespace api::sink;
+    using namespace api::source;
     namespace PIPELINES {
 
     PipelineFiducialMarker::PipelineFiducialMarker():ConfigurableBase(xpcf::toUUID<PipelineFiducialMarker>())
