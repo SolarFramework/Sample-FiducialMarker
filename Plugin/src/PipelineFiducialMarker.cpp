@@ -90,7 +90,7 @@ namespace SolAR {
         return FrameworkReturnCode::_SUCCESS;
     }
 
-    CameraParameters PipelineFiducialMarker::getCameraParameters()
+    CameraParameters PipelineFiducialMarker::getCameraParameters() const
     {
         CameraParameters camParam;
         // pipeline without camera should not throw ??
