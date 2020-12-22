@@ -3,49 +3,42 @@ QT       -= core gui
 CONFIG -= qt
 
 ## global defintions : target lib name, version
-INSTALLSUBDIR = SolARBuild
-TARGET = PipelineFiducialMarker
-FRAMEWORK = $$TARGET
+TARGET = SolARPipelineTest_FiducialMarker
 VERSION=0.9.0
 
 DEFINES += MYVERSION=$${VERSION}
-DEFINES += TEMPLATE_LIBRARY
 CONFIG += c++1z
+CONFIG += console
 
 include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
+    TARGETDEPLOYDIR = $${PWD}/../../../bin/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
 }
 
 CONFIG(release,debug|release) {
+    TARGETDEPLOYDIR = $${PWD}/../../../bin/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
 }
 
-DEPENDENCIESCONFIG = sharedlib recurse install
+DEPENDENCIESCONFIG = sharedlib install_recurse
 
-## Configuration for Visual Studio to install binaries and dependencies. Work also for QT Creator by replacing QMAKE_INSTALL
 PROJECTCONFIG = QTVS
 
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib, QMAKE_TARGET.arch and PROJECTDEPLOYDIR MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
-include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/templatelibconfig.pri)))  # Shell_quote & shell_path required for visual on windows
+include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/templateappconfig.pri)))  # Shell_quote & shell_path required for visual on windows
 
-## DEFINES FOR MSVC/INTEL C++ compilers
-msvc {
-DEFINES += "_BCOM_SHARED=__declspec(dllexport)"
-}
+HEADERS += \
 
-INCLUDEPATH += interfaces/
+SOURCES += \
+    main.cpp
 
-HEADERS += interfaces/PipelineFiducialMarker.h \
-
-SOURCES += src/PipelineFiducialMarker_main.cpp \
-    src/PipelineFiducialMarker.cpp
-	
-unix:!android {
-    QMAKE_CXXFLAGS += -Wignored-qualifiers
+unix {
+    LIBS += -ldl
+    QMAKE_CXXFLAGS += -DBOOST_LOG_DYN_LINK
 }
 
 macx {
@@ -64,22 +57,12 @@ win32 {
     QMAKE_CXXFLAGS += -wd4250 -wd4251 -wd4244 -wd4275
 }
 
-android {
-    ANDROID_ABIS="arm64-v8a"
-}
-
-header_files.path = $${PROJECTDEPLOYDIR}/interfaces
-header_files.files = $$files($${PWD}/interfaces/*.h*)
-
-xpcf_xml_files.path = $${USERHOMEFOLDER}/.xpcf/SolAR
-xpcf_xml_files.files=$$files($${PWD}/xpcf*.xml)
-
-configuration_files.path = $${PROJECTDEPLOYDIR}/configuration
-configuration_files.files = $$files($${PWD}/tests/TestFiducialMarkerPipeline/PipelineFiducialMarker.xml)
-
-INSTALLS += header_files
-INSTALLS += xpcf_xml_files
-INSTALLS += configuration_files
+config_files.path = $${TARGETDEPLOYDIR}
+config_files.files= $$files($${PWD}/PipelineFiducialMarker.xml)\
+                    $$files($${PWD}/camera_calibration.yml)\
+                    $$files($${PWD}/fiducialMarker.yml)\
+                    $$files($${PWD}/FiducialMarker.gif)
+INSTALLS += config_files
 
 OTHER_FILES += \
     packagedependencies.txt
