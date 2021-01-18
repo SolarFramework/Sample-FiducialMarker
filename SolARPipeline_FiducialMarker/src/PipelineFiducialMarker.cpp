@@ -58,7 +58,7 @@ namespace SolAR {
         return org::bcom::xpcf::XPCFErrorCode::_SUCCESS;
     }
 
-    FrameworkReturnCode PipelineFiducialMarker::init(SRef<xpcf::IComponentManager> xpcfComponentManager)
+    FrameworkReturnCode PipelineFiducialMarker::init()
     {
         // load marker
         LOG_INFO("LOAD MARKER IMAGE ");
