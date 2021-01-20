@@ -63,8 +63,40 @@ namespace SolAR {
 namespace PIPELINES {
 
 /**
- * @class FiducialMarker
+ * @class PipelineFiducialMarker
  * @brief A pipeline to estimate the pose based on a squared fiducial marker.
+ *
+ * @SolARComponentInjectablesBegin
+ * @SolARComponentInjectable{SolAR::api::input::devices::ICamera}
+ * @SolARComponentInjectable{SolAR::api::input::files::IMarker2DSquaredBinary}
+ * @SolARComponentInjectable{SolAR::api::image::IImageFilter}
+ * @SolARComponentInjectable{SolAR::xpcf::IConfigurable}
+ * @SolARComponentInjectable{SolAR::api::image::IImageConvertor}
+ * @SolARComponentInjectable{SolAR::api::features::IContoursExtractor}
+ * @SolARComponentInjectable{SolAR::api::features::IContoursFilter}
+ * @SolARComponentInjectable{SolAR::api::image::IPerspectiveController}
+ * @SolARComponentInjectable{SolAR::api::features::IDescriptorsExtractorSBPattern}
+ * @SolARComponentInjectable{SolAR::api::features::IDescriptorMatcher}
+ * @SolARComponentInjectable{SolAR::api::features::ISBPatternReIndexer}
+ * @SolARComponentInjectable{SolAR::api::geom::IImage2WorldMapper}
+ * @SolARComponentInjectable{SolAR::api::solver::pose::I3DTransformFinderFrom2D3D}
+ * @SolARComponentInjectable{SolAR::api::sink::ISinkPoseImage}
+ * @SolARComponentInjectable{SolAR::api::source::ISourceImage}
+ * @SolARComponentInjectable{SolAR::api::image::IImageConvertor}
+ * @SolARComponentInjectablesEnd
+ *
+ * @SolARComponentPropertiesBegin
+ * @SolARComponentProperty{ minThreshold,
+ *                          ,
+ *                          @SolARComponentPropertyDescNum{ int, [0..MAX INT], 50 }}
+ * @SolARComponentProperty{ maxThreshold,
+ *                          ,
+ *                          @SolARComponentPropertyDescNum{ int, [0..MAX INT], 220 }}
+ * @SolARComponentProperty{ nbTestedThreshold,
+ *                          ,
+ *                          @SolARComponentPropertyDescNum{ int, [0..MAX INT], 6 }}
+ * @SolARComponentPropertiesEnd
+ *
  */
 
 class SOLARPIPELINEFIDUCIALMARKER_EXPORT_API PipelineFiducialMarker : public org::bcom::xpcf::ConfigurableBase,
