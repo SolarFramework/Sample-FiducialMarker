@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <xpcf-registry autoAlias="true" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<module uuid="63b4282f-94cf-44d0-8ec0-9e8b0639fff6" name="PipelineFiducialMarker" path="$REMAKEN_PKG_ROOT/packages/SolARBuild/win-cl-14.1/PipelineFiducialMarker/0.9.0/lib/x86_64/shared" description="The module embedding a pipeline to estimate the pose based on a squared fiducial marker">
+        <module uuid="63b4282f-94cf-44d0-8ec0-9e8b0639fff6" name="SolARPipeline_FiducialMarker" path="$REMAKEN_PKG_ROOT/packages/SolARBuild/win-cl-14.1/SolARPipeline_FiducialMarker/0.9.0/lib/x86_64/shared" description="The module embedding a pipeline to estimate the pose based on a squared fiducial marker">
 		<component uuid="3898cc3b-3986-4edc-b7c8-f4fba0f6c22a" name="PipelineFiducialMarker" description="A pipeline to estimate the pose based on a squared fiducial marker">
 			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect" />
                         <interface uuid="b5a6225e-6a91-4050-b298-886f4c17d9d2" name="IPoseEstimationPipeline" description="The interface to define a video see-throuh pipeline" />
