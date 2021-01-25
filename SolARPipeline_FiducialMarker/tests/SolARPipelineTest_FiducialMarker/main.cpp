@@ -42,7 +42,10 @@ int main(){
         componentMgr->load("PipelineFiducialMarker.xml");
         auto pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
 
-    if (pipeline->init() == FrameworkReturnCode::_SUCCESS)
+        if (pipeline->init() == FrameworkReturnCode::_SUCCESS)
+        {
+            auto imageViewerResult = componentMgr->resolve<display::IImageViewer>();
+            auto overlay3DComponent = componentMgr->resolve<display::I3DOverlay>();
 
             // Set camera parameters
             CameraParameters camParam = pipeline->getCameraParameters();
@@ -94,8 +97,3 @@ int main(){
         return -1;
     }
 }
-
-
-
-
-
