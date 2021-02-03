@@ -233,9 +233,9 @@ int main(int argc, char *argv[]){
                    }
 
                    std::cout << recognizedContours.size() <<" Recognized Pattern contour " << std::endl;
-                   for (int i = 0; i < recognizedContours.size()/4; i++)
+                   for (unsigned int i = 0; i < recognizedContours.size()/4; i++)
                    {
-                       for (int j = 0; j < recognizedContours[0].size(); j++)
+                       for (unsigned int j = 0; j < recognizedContours[0].size(); j++)
                        {
                            for (int k = 0; k < 4; k++)
                            {
@@ -253,7 +253,7 @@ int main(int argc, char *argv[]){
                     {
     #ifndef NDEBUG
                         std::cout << "Matches :" << std::endl;
-                        for (int num_match = 0; num_match < patternMatches.size(); num_match++)
+                        for (unsigned int num_match = 0; num_match < patternMatches.size(); num_match++)
                             std::cout << "Match [" << patternMatches[num_match].getIndexInDescriptorA() << "," << patternMatches[num_match].getIndexInDescriptorB() << "], dist = " << patternMatches[num_match].getMatchingScore() << std::endl;
                         std::cout << std::endl << std::endl;
     #endif
@@ -267,7 +267,7 @@ int main(int argc, char *argv[]){
                         img2worldMapper->map(pattern2DPoints, pattern3DPoints);
     #ifndef NDEBUG
                         std::cout << "3D Points position:" << std::endl;
-                        for (int i = 0; i < pattern3DPoints.size(); i++)
+                        for (unsigned int i = 0; i < pattern3DPoints.size(); i++)
                             LOG_DEBUG("{}", pattern3DPoints[i]);
     #endif
                         // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
