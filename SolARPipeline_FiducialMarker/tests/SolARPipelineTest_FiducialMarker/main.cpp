@@ -38,7 +38,7 @@ int main(){
 
     LOG_ADD_LOG_TO_CONSOLE();
     SRef<xpcf::IComponentManager> componentMgr = xpcf::getComponentManagerInstance();
-    componentMgr->load("PipelineFiducialMarker.xml");
+    componentMgr->load("SolARPipelineTest_FiducialMarker_conf.xml");
     auto pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
 
     if (pipeline->init(componentMgr) == FrameworkReturnCode::_SUCCESS)
