@@ -20,16 +20,46 @@ The SolAR **Fiducial Image Marker sample** shows a SolAR pipeline for augmented 
 
 * To change properties of the components of the fiducial pipeline, edit the [conf_FiducialMarker.xml](./SolARSample_FiducialMarker_Mono/conf_FiducialMarker.xml) file.
 
+If you want to run your Fiducial samples after having built them, do not forget to install the required dependencies if not already done:
+
+<pre><code>remaken install packagedependencies.txt</code></pre>
+
+and for debug mode:
+
+<pre><code>remaken install packagedependencies.txt -c debug</code></pre>
+
+For more information about how to install remaken on your machine, visit the [install page](https://solarframework.github.io/install/) on the SolAR website.
+
 ### SolARSample_FiducialMarker_Mono
 
-* Open a terminal and execute `./bin/Release/SolARSample_FiducialMarker_Mono.exe`
+* Open a terminal and execute from the `bin/Debug` or `bin/Release` folder:
+
+> #### Windows
+>
+	SolARSample_FiducialMarker_Mono.exe
+
+> #### Linux
+>
+	./run.sh ./SolARSample_FiducialMarker_Mono
+
 * Target your fiducial marker with your camera
 * Press `escape` to quit the application
 
 ### SolARPipeline_FiducialMarker
 
-You should have bundle every required librairy in your Unity project (`./Assets/Plugins`). Then from Unity Gameobject *PipelineLoader* you can load your configuration file for the fiducial pipeline. You can directly edit parameters from Unity Editor's inspector.
+* Open a terminal and execute from the `bin/Debug` or `bin/Release` folder:
 
+> #### Windows
+>
+	SolARPipelineTest_FiducialMarker.exe
+
+> #### Linux
+>
+	./run.sh ./SolARPipelineTest_FiducialMarker
+
+### Plugin
+
+You should have bundle every required library in your Unity project (`./Assets/Plugins`). Then from Unity Gameobject *PipelineLoader* you can load your configuration file for the natural image pipeline. You can directly edit parameters from Unity Editor's inspector.
 
 ## Contact 
 Website https://solarframework.github.io/
