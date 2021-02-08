@@ -19,7 +19,7 @@ node("master") {
         moduleName="FiducialMarker_Test"
         dirName="SolARBuild"
         buildDir="SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker"
-        android=true
+        android=false
         binPackage=true
     }
 }
