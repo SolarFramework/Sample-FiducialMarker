@@ -5,7 +5,7 @@ node("master") {
         dirName="SolARBuild"
         buildDir="SolARSample_FiducialMarker_Mono"
         android=false
-        binPackage=true
+        buildScripts=../bundleSamples
     }
 
     SolArModulePipeline {
@@ -13,6 +13,7 @@ node("master") {
         dirName="SolARBuild"
         buildDir="SolARPipeline_FiducialMarker"
         android=true
+        buildScripts=../bundleSamples        
     }
 
     SolArModulePipeline {
@@ -20,6 +21,6 @@ node("master") {
         dirName="SolARBuild"
         buildDir="SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker"
         android=false
-        binPackage=true
+        buildScripts=../../../bundleSamples
     }
 }
