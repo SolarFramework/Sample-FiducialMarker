@@ -36,10 +36,10 @@ int main(){
     boost::log::core::get()->set_logging_enabled(false);
 #endif
 
-    LOG_ADD_LOG_TO_CONSOLE();
-    try {
+    try{
+        LOG_ADD_LOG_TO_CONSOLE();
         SRef<xpcf::IComponentManager> componentMgr = xpcf::getComponentManagerInstance();
-        componentMgr->load("PipelineFiducialMarker.xml");
+        componentMgr->load("SolARPipelineTest_FiducialMarker_conf.xml");
         auto pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
 
         if (pipeline->init(componentMgr) == FrameworkReturnCode::_SUCCESS)
