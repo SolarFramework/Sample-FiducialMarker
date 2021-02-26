@@ -117,7 +117,7 @@
 			<!--SolARContoursExtractorOpencv-->
 		</configure>
 		<configure component="SolARContoursFilterBinaryMarkerOpencv">
-            <property name="epsilon" type="float" value="0,05" description="The maximum distance between the original curve and its approximation (default = 0.05)" />
+            <property name="epsilon" type="float" value="0.05" description="The maximum distance between the original curve and its approximation (default = 0.05)" />
             <property name="minContourLength" type="float" value="20" description="The minimum length of an edge of the contour in pixels to be considered as valid (default = 20)." />
             <property name="minDistanceBetweenContourCorners" type="float" value="10" description="The minimum average distance in pixels between corners of a contour and the same corners of another contour to consider the contour as valid (default = 10)" />
 			<!--SolARContoursFilterBinaryMarkerOpencv-->
