@@ -25,6 +25,7 @@ namespace SolAR {
         declareInjectable<features::IDescriptorsExtractorSBPattern>(m_patternDescriptorExtractor);
         declareInjectable<features::IDescriptorMatcher>(m_patternMatcher);
         declareInjectable<features::ISBPatternReIndexer>(m_patternReIndexer);
+        declareInjectable<features::ICornerRefinement>(m_cornerRefinement);
         declareInjectable<geom::IImage2WorldMapper>(m_img2worldMapper);
         declareInjectable<solver::pose::I3DTransformFinderFrom2D3D>(m_PnP);
         declareInjectable<sink::ISinkPoseImage>(m_sink);
@@ -167,6 +168,9 @@ namespace SolAR {
 
                     // Compute the 3D position of each corner of the marker
                     m_img2worldMapper->map(pattern2DPoints, pattern3DPoints);
+
+					// Refine corner locations
+					m_cornerRefinement->refine(greyImage, img2DPoints);
 
                     // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
                     if (m_PnP->estimate(img2DPoints, pattern3DPoints, m_pose) == FrameworkReturnCode::_SUCCESS)

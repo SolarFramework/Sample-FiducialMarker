@@ -50,6 +50,7 @@
 #include "api/solver/pose/I2DTransformFinder.h"
 #include "api/solver/pose/IHomographyValidation.h"
 #include "api/features/IKeypointsReIndexer.h"
+#include "api/features/ICornerRefinement.h"
 #include "api/solver/pose/I3DTransformFinderFrom2D3D.h"
 #include "api/geom/IImage2WorldMapper.h"
 #include "api/geom/I2DTransform.h"
@@ -151,6 +152,7 @@ private:
     SRef<api::features::IDescriptorsExtractorSBPattern> m_patternDescriptorExtractor;
     SRef<api::features::IDescriptorMatcher> m_patternMatcher;
     SRef<api::features::ISBPatternReIndexer> m_patternReIndexer;
+    SRef<api::features::ICornerRefinement> m_cornerRefinement;
     SRef<api::geom::IImage2WorldMapper> m_img2worldMapper;
     SRef<api::solver::pose::I3DTransformFinderFrom2D3D> m_PnP;
     SRef<api::sink::ISinkPoseImage> m_sink;
