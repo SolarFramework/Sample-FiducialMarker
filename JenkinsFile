@@ -1,25 +1,19 @@
 node("master") {
 
     SolArModulePipeline {
-        moduleName="FiducialMarker"
-        dirName="SolARBuild"
-        buildDir="SolARSample_FiducialMarker_Mono"
-        android=false
-        packageScripts="bundleSamples"
-    }
-
-    SolArModulePipeline {
         moduleName="SolARPipeline_FiducialMarker"
         dirName="SolARBuild"
         buildDir="SolARPipeline_FiducialMarker"
         android=true
+        makeTarget="install install_deps"
         packageScripts="bundleSamples"        
     }
 
     SolArModulePipeline {
-        moduleName="FiducialMarker_Test"
+        moduleName="FiducialMarker"
         dirName="SolARBuild"
-        buildDir="SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker"
+        buildDir="SolARSample_FiducialMarker_Mono,SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker"
+        makeTarget="install install_deps"
         android=false
         packageScripts="bundleSamples"
     }
