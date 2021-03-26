@@ -25,7 +25,7 @@
 #include "xpcf/xpcf.h"
 #include "core/Log.h"
 #include "api/input/devices/ICamera.h"
-#include "api/input/files/IMarker2DSquaredBinary.h"
+#include "api/input/files/ITrackableLoader.h"
 #include "api/display/IImageViewer.h"
 #include "api/image/IImageFilter.h"
 #include "api/image/IImageConvertor.h"
@@ -39,6 +39,7 @@
 #include "api/solver/pose/I3DTransformFinderFrom2D3D.h"
 #include "api/display/I3DOverlay.h"
 #include "api/display/I2DOverlay.h"
+#include "datastructure/FiducialMarker.h"
 
 #define MIN_THRESHOLD -1
 #define MAX_THRESHOLD 220
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]){
         LOG_INFO("Start creating components");
 
         auto camera =xpcfComponentManager->resolve<input::devices::ICamera>();
-        auto binaryMarker =xpcfComponentManager->resolve<input::files::IMarker2DSquaredBinary>();
+        auto trackableLoader = xpcfComponentManager->resolve<input::files::ITrackableLoader>();
 
         auto imageViewer =xpcfComponentManager->resolve<display::IImageViewer>("original");
         auto imageViewerGrey =xpcfComponentManager->resolve<display::IImageViewer>("grey");
@@ -96,7 +97,8 @@ int main(int argc, char *argv[]){
         auto overlay2DContours =xpcfComponentManager->resolve<display::I2DOverlay>("contours");
         auto overlay2DCircles =xpcfComponentManager->resolve<display::I2DOverlay>("circles");
 
-
+        SRef<Trackable> trackable;
+        SRef<FiducialMarker> fiducialMarker;
         SRef<Image> inputImage;
         SRef<Image> greyImage;
         SRef<Image> binaryImage;
@@ -118,18 +120,26 @@ int main(int argc, char *argv[]){
         CamCalibration K;
 
         // components initialisation
-        binaryMarker->loadMarker();
-        patternDescriptorExtractor->extract(binaryMarker->getPattern(), markerPatternDescriptor);
+        trackableLoader->loadTrackable(trackable);
+        if (trackable->getType() == TrackableType::FIDUCIAL_MARKER)
+            fiducialMarker = xpcf::utils::dynamic_pointer_cast<FiducialMarker>(trackable);
+        else
+        {
+            LOG_ERROR("The trackable required for this sample must be a fiducial marker");
+            return -1;
+        }
 
-        LOG_DEBUG ("Marker pattern:\n {}", binaryMarker->getPattern().getPatternMatrix())
+        patternDescriptorExtractor->extract(fiducialMarker->getPattern(), markerPatternDescriptor);
+
+        LOG_DEBUG ("Marker pattern:\n {}", fiducialMarker->getPattern().getPatternMatrix())
 
         // Set the size of the box to display according to the marker size in world unit
-        overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().width,0);
-        overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().height,1);
-        overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(binaryMarker->getSize().height/2.0f,2);
+        overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(fiducialMarker->getSize().width,0);
+        overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(fiducialMarker->getSize().height,1);
+        overlay3D->bindTo<xpcf::IConfigurable>()->getProperty("size")->setFloatingValue(fiducialMarker->getSize().height/2.0f,2);
 
 
-        int patternSize = binaryMarker->getPattern().getSize();
+        int patternSize = fiducialMarker->getPattern().getSize();
 
         patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
         patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
@@ -137,8 +147,8 @@ int main(int argc, char *argv[]){
         // NOT WORKING ! initialize image mapper with the reference image size and marker size
         img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalWidth")->setIntegerValue(patternSize);
         img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalHeight")->setIntegerValue(patternSize);
-        img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(binaryMarker->getSize().width);
-        img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(binaryMarker->getSize().height);
+        img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(fiducialMarker->getSize().width);
+        img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(fiducialMarker->getSize().height);
 
         PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
         overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());

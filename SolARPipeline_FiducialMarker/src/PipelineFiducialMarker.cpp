@@ -1,4 +1,5 @@
 #include "xpcf/module/ModuleFactory.h"
+#include "datastructure/FiducialMarker.h"
 #include "PipelineFiducialMarker.h"
 #include "core/Log.h"
 
@@ -16,7 +17,7 @@ namespace SolAR {
     {
         declareInterface<api::pipeline::IPoseEstimationPipeline>(this);
         declareInjectable<input::devices::ICamera>(m_camera);
-        declareInjectable<input::files::IMarker2DSquaredBinary>(m_binaryMarker);
+        declareInjectable<input::files::ITrackableLoader>(m_trackableLoader);
         declareInjectable<image::IImageFilter>(m_imageFilterBinary);
         declareInjectable<image::IImageConvertor>(m_imageConvertor);
         declareInjectable<features::IContoursExtractor>(m_contoursExtractor);
@@ -62,23 +63,33 @@ namespace SolAR {
     {
         // load marker
         LOG_INFO("LOAD MARKER IMAGE ");
-        if( m_binaryMarker->loadMarker()==FrameworkReturnCode::_ERROR_){
+        SRef<Trackable> trackable;
+        SRef<FiducialMarker> fiducialMarker;
+        if( m_trackableLoader->loadTrackable(trackable)==FrameworkReturnCode::_ERROR_){
+            LOG_ERROR("Cannot load the trackable");
             return FrameworkReturnCode::_ERROR_;
         }
-        LOG_INFO("MARKER IMAGE LOADED");
+        if (trackable->getType() == TrackableType::FIDUCIAL_MARKER)
+            fiducialMarker = xpcf::utils::dynamic_pointer_cast<FiducialMarker>(trackable);
+        else
+        {
+            LOG_ERROR("The trackable required for this sample must be a fiducial marker");
+            return FrameworkReturnCode::_ERROR_;
+        }
+        LOG_INFO("FIDUCIAL IMAGE LOADED");
 
-        m_patternDescriptorExtractor->extract(m_binaryMarker->getPattern(), m_markerPatternDescriptor);
-        LOG_INFO ("Marker pattern:\n {}", m_binaryMarker->getPattern().getPatternMatrix())
+        m_patternDescriptorExtractor->extract(fiducialMarker->getPattern(), m_markerPatternDescriptor);
+        LOG_INFO ("Marker pattern:\n {}", fiducialMarker->getPattern().getPatternMatrix())
 
-                int patternSize = m_binaryMarker->getPattern().getSize();
+                int patternSize = fiducialMarker->getPattern().getSize();
 
         m_patternDescriptorExtractor->bindTo<xpcf::IConfigurable>()->getProperty("patternSize")->setIntegerValue(patternSize);
         m_patternReIndexer->bindTo<xpcf::IConfigurable>()->getProperty("sbPatternSize")->setIntegerValue(patternSize);
 
         m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalWidth")->setIntegerValue(patternSize);
         m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("digitalHeight")->setIntegerValue(patternSize);
-        m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(m_binaryMarker->getSize().width);
-        m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(m_binaryMarker->getSize().height);
+        m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(fiducialMarker->getSize().width);
+        m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(fiducialMarker->getSize().height);
 
         m_PnP->setCameraParameters(m_camera->getIntrinsicsParameters(), m_camera->getDistortionParameters());
 

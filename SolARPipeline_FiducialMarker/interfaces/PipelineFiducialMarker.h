@@ -34,7 +34,7 @@
 // Add the headers to datastructures and component interfaces used by the pipeline
 #include "api/input/devices/ICamera.h"
 #include "api/input/files/IMarker2DNaturalImage.h"
-#include "api/input/files/IMarker2DSquaredBinary.h"
+#include "api/input/files/ITrackableLoader.h"
 #include "api/image/IImageFilter.h"
 #include "api/image/IImageConvertor.h"
 #include "api/features/IContoursExtractor.h"
@@ -140,7 +140,7 @@ private:
 
     // Declaration of the components used by the pipeline
     SRef<api::input::devices::ICamera> m_camera;
-    SRef<api::input::files::IMarker2DSquaredBinary> m_binaryMarker;
+    SRef<api::input::files::ITrackableLoader> m_trackableLoader;
     SRef<api::image::IImageFilter> m_imageFilterBinary;
     SRef<xpcf::IConfigurable> m_imageFilterBinaryConfigurable;
     SRef<api::image::IImageConvertor> m_imageConvertor;
