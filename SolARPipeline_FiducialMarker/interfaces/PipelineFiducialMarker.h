@@ -33,7 +33,6 @@
 
 // Add the headers to datastructures and component interfaces used by the pipeline
 #include "api/input/devices/ICamera.h"
-#include "api/input/files/IMarker2DNaturalImage.h"
 #include "api/input/files/ITrackableLoader.h"
 #include "api/image/IImageFilter.h"
 #include "api/image/IImageConvertor.h"
