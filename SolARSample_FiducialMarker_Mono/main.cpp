@@ -35,6 +35,7 @@
 #include "api/features/IDescriptorsExtractorSBPattern.h"
 #include "api/features/IDescriptorMatcher.h"
 #include "api/features/ISBPatternReIndexer.h"
+#include "api/features/ICornerRefinement.h"
 #include "api/geom/IImage2WorldMapper.h"
 #include "api/solver/pose/I3DTransformFinderFrom2D3D.h"
 #include "api/display/I3DOverlay.h"
@@ -87,7 +88,7 @@ int main(int argc, char *argv[]){
         auto contoursFilter =xpcfComponentManager->resolve<features::IContoursFilter>();
         auto perspectiveController =xpcfComponentManager->resolve<image::IPerspectiveController>();
         auto patternDescriptorExtractor =xpcfComponentManager->resolve<features::IDescriptorsExtractorSBPattern>();
-
+		auto cornerRefinement = xpcfComponentManager->resolve<features::ICornerRefinement>();
         auto patternMatcher =xpcfComponentManager->resolve<features::IDescriptorMatcher>();
         auto patternReIndexer = xpcfComponentManager->resolve<features::ISBPatternReIndexer>();
 
@@ -280,6 +281,8 @@ int main(int argc, char *argv[]){
                         for (unsigned int i = 0; i < pattern3DPoints.size(); i++)
                             LOG_DEBUG("{}", pattern3DPoints[i]);
     #endif
+						// Refine corner locations
+						cornerRefinement->refine(greyImage, img2DPoints);
                         // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
                         if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
                         {
