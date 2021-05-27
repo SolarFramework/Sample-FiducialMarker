@@ -41,6 +41,8 @@
 #include "api/display/I3DOverlay.h"
 #include "api/display/I2DOverlay.h"
 
+#include <gtest/gtest.h>
+
 #define MIN_THRESHOLD -1
 #define MAX_THRESHOLD 220
 #define NB_THRESHOLD 8
@@ -51,7 +53,12 @@ using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
 
-int main(int argc, char *argv[]){
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
+
+TEST(Test_SolARPipeline_FiducialMarker, mono) {
 
 #if NDEBUG
     boost::log::core::get()->set_logging_enabled(false);
@@ -63,11 +70,8 @@ int main(int argc, char *argv[]){
     /* this is needed in dynamic mode */
     SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-        if(xpcfComponentManager->load("SolARSample_FiducialMarker_Mono_conf.xml")!=org::bcom::xpcf::_SUCCESS)
-        {
-            LOG_ERROR("Failed to load the configuration file SolARSample_FiducialMarker_Mono_conf.xml")
-            return -1;
-        }
+        ASSERT_TRUE(xpcfComponentManager->load("SolARSample_FiducialMarker_Mono_conf.xml") == org::bcom::xpcf::_SUCCESS)
+                << "Failed to load the configuration file SolARSample_FiducialMarker_Mono_conf.xml";
 
         // declare and create components
         LOG_INFO("Start creating components");
@@ -144,11 +148,7 @@ int main(int argc, char *argv[]){
         PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
         overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
 
-        if (camera->start() != FrameworkReturnCode::_SUCCESS) // Camera
-        {
-            LOG_ERROR ("Camera cannot start");
-            return -1;
-        }
+        ASSERT_TRUE(camera->start() == FrameworkReturnCode::_SUCCESS) << "Camera cannot start";
 
         // to count the average number of processed frames per seconds
         int count=0;
@@ -158,8 +158,11 @@ int main(int argc, char *argv[]){
         //cv::Mat img_temp;
         bool process = true;
         while (process){
-            if(camera->getNextImage(inputImage)==SolAR::FrameworkReturnCode::_ERROR_)
+            auto getNextImageStatus = camera->getNextImage(inputImage);
+            EXPECT_TRUE(getNextImageStatus != SolAR::FrameworkReturnCode::_ERROR_);
+            if (getNextImageStatus == SolAR::FrameworkReturnCode::_ERROR_)
                 break;
+
             count++;
 
            // Convert Image from RGB to grey
@@ -307,12 +310,10 @@ int main(int argc, char *argv[]){
     }
     catch (xpcf::Exception e)
     {
-        LOG_ERROR ("The following exception has been catch : {}", e.what());
-        return -1;
+        FAIL() << "The following exception has been catch : " << e.what();
     }
 
-    return 0;
-
+    SUCCEED();
 }
 
 
