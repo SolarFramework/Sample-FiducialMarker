@@ -84,7 +84,9 @@ config_files.path = $${TARGETDEPLOYDIR}
 config_files.files=$$files($${PWD}/SolARSample_FiducialMarker_Mono_conf.xml)\
 					$$files($${PWD}/camera_calibration.yml)\
 					$$files($${PWD}/fiducialMarker.yml)\
-					$$files($${PWD}/FiducialMarker.gif)
+                                        $$files($${PWD}/FiducialMarker.gif)\
+                                        $$files($${PWD}/SolARPipeline_FiducialMarker_test_0001.mp4)
+
 INSTALLS += config_files
 
 linux {

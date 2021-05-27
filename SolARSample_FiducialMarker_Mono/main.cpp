@@ -157,7 +157,14 @@ TEST(Test_SolARPipeline_FiducialMarker, mono) {
 
         //cv::Mat img_temp;
         bool process = true;
+        bool marker_found = false;
         while (process){
+
+            if ((double(clock() - start) / CLOCKS_PER_SEC) > 2)
+            {
+                process = false;
+            }
+
             auto getNextImageStatus = camera->getNextImage(inputImage);
             EXPECT_TRUE(getNextImageStatus != SolAR::FrameworkReturnCode::_ERROR_);
             if (getNextImageStatus == SolAR::FrameworkReturnCode::_ERROR_)
@@ -168,7 +175,6 @@ TEST(Test_SolARPipeline_FiducialMarker, mono) {
            // Convert Image from RGB to grey
            imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
-           bool marker_found = false;
            for (int num_threshold = 0; !marker_found && num_threshold < NB_THRESHOLD; num_threshold++)
            {
                 // Compute the current Threshold valu for image binarization
@@ -303,6 +309,9 @@ TEST(Test_SolARPipeline_FiducialMarker, mono) {
                process = false;
            }
         }
+
+        ASSERT_TRUE(marker_found);
+
         end= clock();
         double duration=double(end - start) / CLOCKS_PER_SEC;
         printf ("\n\nElasped time is %.2lf seconds.\n",duration );
