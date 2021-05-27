@@ -319,7 +319,7 @@ TEST(Test_SolARPipeline_FiducialMarker, mono) {
     }
     catch (xpcf::Exception e)
     {
-        FAIL() << "The following exception has been catch : " << e.what();
+        FAIL() << "The following exception has been caught : " << e.what();
     }
 
     SUCCEED();
