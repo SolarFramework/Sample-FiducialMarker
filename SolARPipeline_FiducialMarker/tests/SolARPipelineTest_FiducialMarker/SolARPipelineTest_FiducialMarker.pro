@@ -10,31 +10,44 @@ DEFINES += MYVERSION=$${VERSION}
 CONFIG += c++1z
 CONFIG += console
 
+DEFINES += $$(USE_AS_GTEST)
+
 include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
     TARGETDEPLOYDIR = $${PWD}/../../../bin/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
+    #LIBS += -lgtest_maind
+    LIBS += -lgtestd
+    LIBS += -lgmockd
 }
 
 CONFIG(release,debug|release) {
     TARGETDEPLOYDIR = $${PWD}/../../../bin/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
+    #LIBS += -lgtest_main
+    LIBS += -lgtest
+    LIBS += -lgmock
 }
 
 DEPENDENCIESCONFIG = sharedlib install_recurse
+
 
 PROJECTCONFIG = QTVS
 
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib, QMAKE_TARGET.arch and PROJECTDEPLOYDIR MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/templateappconfig.pri)))  # Shell_quote & shell_path required for visual on windows
 
+INCLUDEPATH += include
+
 HEADERS += \
+    include/SolARPipelineTest_FiducialMarker.h
 
 SOURCES += \
-    main.cpp
+    src/main.cpp\
+    src/SolARPipelineTest_FiducialMarker.cpp
 
 unix {
     LIBS += -ldl
@@ -61,7 +74,8 @@ config_files.path = $${TARGETDEPLOYDIR}
 config_files.files= $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml)\
                     $$files($${PWD}/camera_calibration.yml)\
                     $$files($${PWD}/fiducialMarker.yml)\
-                    $$files($${PWD}/FiducialMarker.gif)
+                    $$files($${PWD}/FiducialMarker.gif)\
+                    $$files($${PWD}/SolARPipeline_FiducialMarker_test_0001.mp4)
 INSTALLS += config_files
 
 linux {

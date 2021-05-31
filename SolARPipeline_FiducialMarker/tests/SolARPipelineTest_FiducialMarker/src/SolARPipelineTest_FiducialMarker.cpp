@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "SolARPipelineTest_FiducialMarker.h"
+
 #include <boost/log/core.hpp>
 #include "core/Log.h"
 #include "xpcf/xpcf.h"
@@ -24,13 +26,100 @@
 #include "api/display/I3DOverlay.h"
 #include "datastructure/CameraDefinitions.h"
 
+
 namespace xpcf  = org::bcom::xpcf;
 
 using namespace SolAR;
 using namespace SolAR::datastructure;
 using namespace SolAR::api;
 
-int main(){
+
+SolARPipelineTest_FiducialMarker::Builder&
+SolARPipelineTest_FiducialMarker::Builder::selectPlaybackMode(const std::string& configFileName,
+                                                          const std::string& videoFileName,
+                                                          int timeoutInS)
+{
+    m_mode = Mode::playback;
+    m_configFileName = configFileName;
+    m_videoFileName = videoFileName;
+    m_timeoutInS = timeoutInS;
+    return *this;
+}
+
+SolARPipelineTest_FiducialMarker::Builder&
+SolARPipelineTest_FiducialMarker::Builder::selectLiveMode(const std::string& configFileName)
+{
+    m_mode = Mode::live;
+    m_configFileName = configFileName;
+    return *this;
+}
+
+std::shared_ptr<SolARPipelineTest_FiducialMarker> SolARPipelineTest_FiducialMarker::Builder::build()
+{
+    auto result = std::shared_ptr<SolARPipelineTest_FiducialMarker>(new SolARPipelineTest_FiducialMarker());
+    switch(m_mode)
+    {
+        case Mode::unset:
+        {
+            throw std::runtime_error("A mode must be selected");
+        }
+        case Mode::live:
+        {
+            if (m_configFileName.empty())
+            {
+                throw std::runtime_error("A configuration file must be provided");
+            } 
+            result->selectLiveMode(m_configFileName);
+            break;
+        }
+        case Mode::playback:
+        {
+            if (m_configFileName.empty())
+            {
+                throw std::runtime_error("A configuration file must be provided");
+            }
+            if (m_videoFileName.empty())
+            {
+                throw std::runtime_error("A video file must be provided");
+            } 
+            result->selectPlaybackMode(m_configFileName, m_videoFileName, m_timeoutInS);
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error("Unknown mode selected");
+        }
+
+    }
+
+    return result;
+}
+
+void SolARPipelineTest_FiducialMarker::selectPlaybackMode(const std::string& configFileName,
+                                                               const std::string& videoFileName,
+                                                               int timeoutInS)
+{
+    m_mode = Mode::playback;
+    m_configFileName = configFileName;
+    m_videoFileName = videoFileName;
+    m_timeoutInS = timeoutInS;
+}
+
+void SolARPipelineTest_FiducialMarker::selectLiveMode(const std::string& configFileName)
+{
+    m_mode = Mode::live;
+    m_configFileName = configFileName;
+}
+
+int SolARPipelineTest_FiducialMarker::pipeline_test_main(){
+
+    bool replayModeEnabled = m_mode == Mode::playback;
+
+    m_poseDetected = false;
+
+#if NDEBUG
+    boost::log::core::get()->set_logging_enabled(false);
+#endif
 
 #if NDEBUG
     boost::log::core::get()->set_logging_enabled(false);
@@ -38,6 +127,7 @@ int main(){
 
     try{
         LOG_ADD_LOG_TO_CONSOLE();
+        // TODO(jmhenaff): select configuration wrt replayModeEnabled
         SRef<xpcf::IComponentManager> componentMgr = xpcf::getComponentManagerInstance();
         componentMgr->load("SolARPipelineTest_FiducialMarker_conf.xml");
         auto pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
@@ -69,6 +159,8 @@ int main(){
 
                     if ((returnCode == sink::SinkReturnCode::_NEW_POSE) || (returnCode == sink::SinkReturnCode::_NEW_POSE_AND_IMAGE))
                     {
+                        m_poseDetected = true;
+
                         for(int i=0;i<3;i++)
                              for(int j=0;j<3;j++)
                                  s_pose(i,j)=pose(i,j);
@@ -80,22 +172,28 @@ int main(){
                         overlay3DComponent->draw(s_pose, camImage);
                     }
 
-                    if (imageViewerResult->display(camImage) == SolAR::FrameworkReturnCode::_STOP){
+                    if (imageViewerResult->display(camImage) == SolAR::FrameworkReturnCode::_STOP
+                         || (replayModeEnabled && ++count > 20)){
                         pipeline->stop();
                         break;
                     }
                  }
+
             }
             delete[] r_imageData;
         }
-
-        return 0;
     }
     catch (xpcf::Exception e)
     {
         LOG_ERROR ("The following exception has been catch : {}", e.what());
         return -1;
     }
+    return 0;
+}
+
+bool SolARPipelineTest_FiducialMarker::isPoseDetected()
+{
+    return m_poseDetected;
 }
 
 

@@ -17,11 +17,14 @@ include(findremakenrules.pri)
 CONFIG(debug,debug|release) {
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
+    LIBS += -lgtestd
+    LIBS += -lgmockd
 }
 
 CONFIG(release,debug|release) {
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
+
 }
 
 DEPENDENCIESCONFIG = sharedlib recurse install

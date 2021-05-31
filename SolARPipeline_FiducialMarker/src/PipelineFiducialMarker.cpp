@@ -199,6 +199,7 @@ namespace SolAR {
 
     FrameworkReturnCode PipelineFiducialMarker::start(void* imageDataBuffer)
     {
+
         if (m_initOK==false)
         {
             LOG_WARNING("Try to start the Fiducial marker pipeline without initializing it");

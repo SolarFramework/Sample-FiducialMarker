@@ -1,1 +1,2 @@
 SolARFramework|0.9.1|SolARFramework|SolARBuild@github|https://github.com/SolarFramework/SolarFramework/releases/download
+gtest|1.10.0|gtest|conan-solar@conan|conan-center|default|shared=True

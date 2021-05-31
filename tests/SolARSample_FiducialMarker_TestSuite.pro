@@ -3,7 +3,7 @@ QT       -= core gui
 CONFIG -= qt
 
 ## global defintions : target lib name, version
-TARGET = SolARSample_FiducialMarker_Mono
+TARGET = SolARSample_FiducialMarker_TestSuite
 VERSION=0.9.1
 
 DEFINES += MYVERSION=$${VERSION}
@@ -13,7 +13,7 @@ CONFIG += console
 include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
-    TARGETDEPLOYDIR = $${PWD}/../bin/Debug
+    TARGETDEPLOYDIR = $${PWD}/../bin-test/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
     LIBS += -lgtestd
@@ -21,7 +21,7 @@ CONFIG(debug,debug|release) {
 }
 
 CONFIG(release,debug|release) {
-    TARGETDEPLOYDIR = $${PWD}/../bin/Release
+    TARGETDEPLOYDIR = $${PWD}/../bin-test/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
     LIBS += -lgtest
@@ -44,12 +44,21 @@ DEFINES += BOOST_ALL_DYN_LINK
 DEFINES += BOOST_AUTO_LINK_NOMANGLE
 DEFINES += BOOST_LOG_DYN_LINK
 
-DEFINES += $$(USE_AS_GTEST)
+DEFINES += USE_AS_GTEST
+
+QMAKE_PROJECT_DEPTH  = 0
+
+INCLUDEPATH += \
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/include
 
 HEADERS += \
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/include/SolARPipelineTest_FiducialMarker.h
 
 SOURCES += \
-main.cpp
+main.cpp \
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/src/SolARPipelineTest_FiducialMarker.cpp \
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/test/test.cpp \
+../SolARSample_FiducialMarker_Mono/test2.cpp
 
 linux {
     ## Add rpath to find dependencies at runtime
@@ -84,6 +93,7 @@ android {
 
 config_files.path = $${TARGETDEPLOYDIR}
 config_files.files=$$files($${PWD}/SolARSample_FiducialMarker_Mono_conf.xml)\
+                            $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml)\
 					$$files($${PWD}/camera_calibration.yml)\
 					$$files($${PWD}/fiducialMarker.yml)\
                                         $$files($${PWD}/FiducialMarker.gif)\

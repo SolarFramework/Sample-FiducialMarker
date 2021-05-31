@@ -85,8 +85,11 @@ int main(){
 //        ASSERT_TRUE(xpcfComponentManager->load("SolARSample_FiducialMarker_Mono_conf.xml") == org::bcom::xpcf::_SUCCESS)
 //                << "Failed to load the configuration file SolARSample_FiducialMarker_Mono_conf.xml";
 
+    // Required to run several tests with same mngr instance
+    xpcfComponentManager->clear();
+
     auto cmpManagerLoadStatus = xpcfComponentManager->load("SolARSample_FiducialMarker_Mono_conf.xml");
-    ASSERT_TRUE(cmpManagerLoadStatus == org::bcom::xpcf::_SUCCESS);
+    ASSERT_EQ(cmpManagerLoadStatus, org::bcom::xpcf::_SUCCESS);
 
         // declare and create components
         LOG_INFO("Start creating components");
@@ -339,6 +342,7 @@ int main(){
     }
 
     SUCCEED();
+
 }
 
 
