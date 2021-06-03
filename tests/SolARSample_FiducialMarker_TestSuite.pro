@@ -10,6 +10,9 @@ DEFINES += MYVERSION=$${VERSION}
 CONFIG += c++1z
 CONFIG += console
 
+DEFINES += USE_AS_GTEST
+QMAKE_PROJECT_DEPTH = 0
+
 include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
@@ -44,10 +47,6 @@ DEFINES += BOOST_ALL_DYN_LINK
 DEFINES += BOOST_AUTO_LINK_NOMANGLE
 DEFINES += BOOST_LOG_DYN_LINK
 
-DEFINES += USE_AS_GTEST
-
-QMAKE_PROJECT_DEPTH  = 0
-
 INCLUDEPATH += \
 ../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/include
 
@@ -57,6 +56,7 @@ HEADERS += \
 SOURCES += \
 main.cpp \
 ../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/src/SolARPipelineTest_FiducialMarker.cpp \
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/test/PipelineMainTest.cpp \
 ../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/test/test.cpp \
 ../SolARSample_FiducialMarker_Mono/test2.cpp
 
@@ -92,12 +92,13 @@ android {
 }
 
 config_files.path = $${TARGETDEPLOYDIR}
-config_files.files=$$files($${PWD}/SolARSample_FiducialMarker_Mono_conf.xml)\
-                            $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml)\
-					$$files($${PWD}/camera_calibration.yml)\
-					$$files($${PWD}/fiducialMarker.yml)\
-                                        $$files($${PWD}/FiducialMarker.gif)\
-                                        $$files($${PWD}/SolARPipeline_FiducialMarker_test_0001.mp4)
+config_files.files=$$files($${PWD}/data/SolARSample_FiducialMarker_Mono_conf.xml)\
+                   $$files($${PWD}/data/SolARPipelineTest_FiducialMarker_conf_test0001.xml)\
+                   $$files($${PWD}/data/SolARPipeline_FiducialMarker_test_0001.mp4)\
+                   $$files($${PWD}/data/camera_calibration.yml)\
+                   $$files($${PWD}/data/fiducialMarker.yml)\
+                   $$files($${PWD}/data/FiducialMarker.gif)
+
 
 INSTALLS += config_files
 

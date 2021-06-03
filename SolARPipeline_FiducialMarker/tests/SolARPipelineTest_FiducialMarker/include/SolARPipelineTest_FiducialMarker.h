@@ -27,7 +27,7 @@ class SolARPipelineTest_FiducialMarker
     {
         public:
 
-        Builder& selectPlaybackMode(const std::string& configFileName, const std::string& videoFileName, int timeoutInS);
+        Builder& selectPlaybackMode(const std::string& configFileName, int timeoutInS);
         Builder& selectLiveMode(const std::string& configFileName);
         std::shared_ptr<SolARPipelineTest_FiducialMarker> build();
 
@@ -42,13 +42,11 @@ class SolARPipelineTest_FiducialMarker
 
         Mode m_mode = Mode::unset ;
         std::string m_configFileName = "";
-        std::string m_videoFileName = "";
         int m_timeoutInS = -1;
     };
 
-    int pipeline_test_main();
+    int pipelineTestMain();
     bool isPoseDetected();
-
 
     private:
 
@@ -60,12 +58,11 @@ class SolARPipelineTest_FiducialMarker
     };
 
     SolARPipelineTest_FiducialMarker() = default;
-    void selectPlaybackMode(const std::string& configFileName, const std::string& videoFileName, int timeoutInS);
+    void selectPlaybackMode(const std::string& configFileName, int timeoutInS);
     void selectLiveMode(const std::string& configFileName);
 
     Mode m_mode = Mode::unset;
     std::string m_configFileName = "";
-    std::string m_videoFileName = "";
     int m_timeoutInS = -1;
 
     bool m_poseDetected = false;

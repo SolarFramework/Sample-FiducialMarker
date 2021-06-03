@@ -36,12 +36,10 @@ using namespace SolAR::api;
 
 SolARPipelineTest_FiducialMarker::Builder&
 SolARPipelineTest_FiducialMarker::Builder::selectPlaybackMode(const std::string& configFileName,
-                                                          const std::string& videoFileName,
-                                                          int timeoutInS)
+                                                              int timeoutInS)
 {
     m_mode = Mode::playback;
     m_configFileName = configFileName;
-    m_videoFileName = videoFileName;
     m_timeoutInS = timeoutInS;
     return *this;
 }
@@ -78,11 +76,7 @@ std::shared_ptr<SolARPipelineTest_FiducialMarker> SolARPipelineTest_FiducialMark
             {
                 throw std::runtime_error("A configuration file must be provided");
             }
-            if (m_videoFileName.empty())
-            {
-                throw std::runtime_error("A video file must be provided");
-            } 
-            result->selectPlaybackMode(m_configFileName, m_videoFileName, m_timeoutInS);
+            result->selectPlaybackMode(m_configFileName, m_timeoutInS);
             break;
         }
         default:
@@ -96,12 +90,10 @@ std::shared_ptr<SolARPipelineTest_FiducialMarker> SolARPipelineTest_FiducialMark
 }
 
 void SolARPipelineTest_FiducialMarker::selectPlaybackMode(const std::string& configFileName,
-                                                               const std::string& videoFileName,
-                                                               int timeoutInS)
+                                                          int timeoutInS)
 {
     m_mode = Mode::playback;
     m_configFileName = configFileName;
-    m_videoFileName = videoFileName;
     m_timeoutInS = timeoutInS;
 }
 
@@ -111,7 +103,7 @@ void SolARPipelineTest_FiducialMarker::selectLiveMode(const std::string& configF
     m_configFileName = configFileName;
 }
 
-int SolARPipelineTest_FiducialMarker::pipeline_test_main(){
+int SolARPipelineTest_FiducialMarker::pipelineTestMain(){
 
     bool replayModeEnabled = m_mode == Mode::playback;
 
@@ -127,9 +119,12 @@ int SolARPipelineTest_FiducialMarker::pipeline_test_main(){
 
     try{
         LOG_ADD_LOG_TO_CONSOLE();
-        // TODO(jmhenaff): select configuration wrt replayModeEnabled
         SRef<xpcf::IComponentManager> componentMgr = xpcf::getComponentManagerInstance();
-        componentMgr->load("SolARPipelineTest_FiducialMarker_conf.xml");
+
+        // Required to run several tests with same mngr instance
+        componentMgr->clear();
+
+        componentMgr->load(m_configFileName.c_str());
         auto pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
 
         if (pipeline->init(componentMgr) == FrameworkReturnCode::_SUCCESS)
@@ -145,9 +140,12 @@ int SolARPipelineTest_FiducialMarker::pipeline_test_main(){
             SRef<Image> camImage = xpcf::utils::make_shared<Image>(r_imageData, camParam.resolution.width, camParam.resolution.height, Image::LAYOUT_BGR, Image::INTERLEAVED, Image::TYPE_8U);
 
             Transform3Df s_pose;
-            int count(0);
             if (pipeline->start(camImage->data()) == FrameworkReturnCode::_SUCCESS)
             {
+                clock_t start,end;
+                start= clock();
+                clock_t timeoutInMs = m_timeoutInS * CLOCKS_PER_SEC;
+
                 while (true)
                 {
                     Transform3Df pose;
@@ -172,8 +170,9 @@ int SolARPipelineTest_FiducialMarker::pipeline_test_main(){
                         overlay3DComponent->draw(s_pose, camImage);
                     }
 
-                    if (imageViewerResult->display(camImage) == SolAR::FrameworkReturnCode::_STOP
-                         || (replayModeEnabled && ++count > 20)){
+                    if ( imageViewerResult->display(camImage) == SolAR::FrameworkReturnCode::_STOP
+                         || ( replayModeEnabled && timeoutInMs >= 0 && (clock() - start) > timeoutInMs ) )
+                    {
                         pipeline->stop();
                         break;
                     }

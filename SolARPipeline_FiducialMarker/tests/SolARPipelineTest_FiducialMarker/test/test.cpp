@@ -14,41 +14,81 @@
  * limitations under the License.
  */
 
-#include "SolARPipelineTest_FiducialMarker.h"
+#include <core/Log.h>
 
+#include <api/pipeline/IPoseEstimationPipeline.h>
+#include <api/display/IImageViewer.h>
+#include <api/display/I3DOverlay.h>
+#include <datastructure/CameraDefinitions.h>
+
+#include <xpcf/xpcf.h>
+
+#include <boost/log/core.hpp>
 #include <gtest/gtest.h>
 
-TEST(SolARPipelineTest_FiducialMarker, testNominalPlayback)
+namespace xpcf  = org::bcom::xpcf;
+
+using namespace SolAR;
+using namespace SolAR::datastructure;
+using namespace SolAR::api;
+
+/*
+ * Example of fixture to test Pipeline init function with
+ * various parameters without writing the same initialization
+ * code several times.
+ */
+class PipelineInitFixture : public testing::Test
 {
-    auto builder = SolARPipelineTest_FiducialMarker::Builder()
-                    .selectPlaybackMode("SolARPipelineTest_FiducialMarker_conf_test0001.xml",
-                        "SolARPipeline_FiducialMarker_test_0001.mp4",
-                        2);
+protected:
+    void SetUp() override
+    {
+        LOG_ADD_LOG_TO_CONSOLE();
 
-    std::shared_ptr<SolARPipelineTest_FiducialMarker> prog;
-    ASSERT_NO_THROW(prog = builder.build());
+        componentMgr = xpcf::getComponentManagerInstance();
 
-    EXPECT_EQ(prog->pipeline_test_main(), 0);
+        // Required to run several tests with same mngr instance
+        componentMgr->clear();
 
-    EXPECT_TRUE(prog->isPoseDetected());
+        componentMgr->load("SolARPipelineTest_FiducialMarker_conf_test0001.xml");
+
+        pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
+    }
+
+    void TearDown() override {}
+
+    SRef<xpcf::IComponentManager> componentMgr = nullptr;
+    SRef<pipeline::IPoseEstimationPipeline> pipeline = nullptr;
+};
+
+TEST_F(PipelineInitFixture, testPipelineInit)
+{
+    ASSERT_EQ(pipeline->init(componentMgr), FrameworkReturnCode::_SUCCESS);
 }
 
-TEST(SolARPipelineTest_FiducialMarker, testEmptyConfiguration)
+TEST_F(PipelineInitFixture, testPipelineInitWithNull)
 {
-    auto builder = SolARPipelineTest_FiducialMarker::Builder()
-                    .selectPlaybackMode("",
-                        "",
-                        -1);
-
-    ASSERT_THROW(builder.build(), std::runtime_error);
+    GTEST_SKIP() << "Ignore, TODO check init() for nullptr";
+    ASSERT_EQ(pipeline->init(nullptr), FrameworkReturnCode::_ERROR_);
 }
 
-// Add tests with other videos, configurations, ...
 
+TEST(SolARPipelineTest_FiducialMarker, testNonExistingConfigurationThrows)
+{
+    LOG_ADD_LOG_TO_CONSOLE();
+    auto componentMgr = xpcf::getComponentManagerInstance();
+    // Required to run several tests with same mngr instance
+    componentMgr->clear();
 
+    EXPECT_EQ(componentMgr->load("bogus.xml"), xpcf::XPCFErrorCode::_FAIL);
 
-
-
-
-
+    try
+    {
+        auto pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
+        FAIL() << "An exception should have been thrown";
+    }
+    catch(xpcf::Exception e)
+    {
+        ASSERT_EQ(e.getErrorCode(), xpcf::XPCFErrorCode::_ERROR_INJECTABLE_NOBIND);
+    }
+}
 

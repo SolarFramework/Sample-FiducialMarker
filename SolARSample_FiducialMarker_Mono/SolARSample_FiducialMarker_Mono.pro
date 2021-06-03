@@ -16,16 +16,12 @@ CONFIG(debug,debug|release) {
     TARGETDEPLOYDIR = $${PWD}/../bin/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
-    LIBS += -lgtestd
-    LIBS += -lgmockd
 }
 
 CONFIG(release,debug|release) {
     TARGETDEPLOYDIR = $${PWD}/../bin/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
-    LIBS += -lgtest
-    LIBS += -lgmock
 }
 
 win32:CONFIG -= static
@@ -43,8 +39,6 @@ include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/templateappconf
 DEFINES += BOOST_ALL_DYN_LINK
 DEFINES += BOOST_AUTO_LINK_NOMANGLE
 DEFINES += BOOST_LOG_DYN_LINK
-
-DEFINES += $$(USE_AS_GTEST)
 
 HEADERS += \
 
@@ -86,8 +80,7 @@ config_files.path = $${TARGETDEPLOYDIR}
 config_files.files=$$files($${PWD}/SolARSample_FiducialMarker_Mono_conf.xml)\
 					$$files($${PWD}/camera_calibration.yml)\
 					$$files($${PWD}/fiducialMarker.yml)\
-                                        $$files($${PWD}/FiducialMarker.gif)\
-                                        $$files($${PWD}/SolARPipeline_FiducialMarker_test_0001.mp4)
+                                        $$files($${PWD}/FiducialMarker.gif)
 
 INSTALLS += config_files
 

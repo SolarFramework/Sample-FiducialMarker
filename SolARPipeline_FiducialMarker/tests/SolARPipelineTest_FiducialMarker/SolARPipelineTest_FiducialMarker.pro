@@ -10,26 +10,18 @@ DEFINES += MYVERSION=$${VERSION}
 CONFIG += c++1z
 CONFIG += console
 
-DEFINES += $$(USE_AS_GTEST)
-
 include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
     TARGETDEPLOYDIR = $${PWD}/../../../bin/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
-    #LIBS += -lgtest_maind
-    LIBS += -lgtestd
-    LIBS += -lgmockd
 }
 
 CONFIG(release,debug|release) {
     TARGETDEPLOYDIR = $${PWD}/../../../bin/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
-    #LIBS += -lgtest_main
-    LIBS += -lgtest
-    LIBS += -lgmock
 }
 
 DEPENDENCIESCONFIG = sharedlib install_recurse

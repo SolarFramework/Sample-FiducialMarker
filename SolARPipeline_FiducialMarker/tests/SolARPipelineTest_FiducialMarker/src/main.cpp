@@ -20,7 +20,7 @@ int main()
 {
     return SolARPipelineTest_FiducialMarker::Builder()
                  .selectLiveMode("SolARPipelineTest_FiducialMarker_conf.xml")
-                 .build()->pipeline_test_main();
+                 .build()->pipelineTestMain();
 }
 
 
