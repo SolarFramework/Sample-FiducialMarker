@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(SolARPipelineTest_FiducialMarker, testNominalPlayback)
+TEST(TestSolARPipelineTest_FiducialMarker, testNominalPlayback)
 {
     auto builder = SolARPipelineTest_FiducialMarker::Builder()
                     .selectPlaybackMode("SolARPipelineTest_FiducialMarker_conf_test0001.xml",
@@ -32,7 +32,7 @@ TEST(SolARPipelineTest_FiducialMarker, testNominalPlayback)
     EXPECT_TRUE(prog->isPoseDetected());
 }
 
-TEST(SolARPipelineTest_FiducialMarker, testEmptyConfiguration)
+TEST(TestSolARPipelineTest_FiducialMarker, testEmptyConfiguration)
 {
     auto builder = SolARPipelineTest_FiducialMarker::Builder()
                      .selectPlaybackMode("", -1);
@@ -40,7 +40,7 @@ TEST(SolARPipelineTest_FiducialMarker, testEmptyConfiguration)
     ASSERT_THROW(builder.build(), std::runtime_error);
 }
 
-TEST(SolARPipelineTest_FiducialMarker, testNonExistingConfiguration)
+TEST(TestSolARPipelineTest_FiducialMarker, testNonExistingConfiguration)
 {
     auto builder = SolARPipelineTest_FiducialMarker::Builder()
                      .selectPlaybackMode("bogus.xml", -1);

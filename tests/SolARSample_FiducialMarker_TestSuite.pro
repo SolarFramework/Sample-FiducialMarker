@@ -10,7 +10,6 @@ DEFINES += MYVERSION=$${VERSION}
 CONFIG += c++1z
 CONFIG += console
 
-DEFINES += USE_AS_GTEST
 QMAKE_PROJECT_DEPTH = 0
 
 include(findremakenrules.pri)
@@ -48,17 +47,20 @@ DEFINES += BOOST_AUTO_LINK_NOMANGLE
 DEFINES += BOOST_LOG_DYN_LINK
 
 INCLUDEPATH += \
-../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/include
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/include \
+../SolARSample_FiducialMarker_Mono/include
 
 HEADERS += \
-../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/include/SolARPipelineTest_FiducialMarker.h
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/include/SolARPipelineTest_FiducialMarker.h \
+../SolARSample_FiducialMarker_Mono/include/SolARSample_FiducialMono.h
 
 SOURCES += \
 main.cpp \
 ../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/src/SolARPipelineTest_FiducialMarker.cpp \
-../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/test/PipelineMainTest.cpp \
-../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/test/test.cpp \
-../SolARSample_FiducialMarker_Mono/test2.cpp
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/test/Test_SolarPipeline_FiducialMarker_1.cpp\
+../SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/test/Test_SolarPipeline_FiducialMarker_2.cpp\
+../SolARSample_FiducialMarker_Mono/src/SolARSample_FiducialMono.cpp\
+../SolARSample_FiducialMarker_Mono/test/src/Test_SolARSample_FiducialMono.cpp
 
 linux {
     ## Add rpath to find dependencies at runtime
@@ -92,7 +94,7 @@ android {
 }
 
 config_files.path = $${TARGETDEPLOYDIR}
-config_files.files=$$files($${PWD}/data/SolARSample_FiducialMarker_Mono_conf.xml)\
+config_files.files=$$files($${PWD}/data/SolARSample_FiducialMarker_Mono_conf_test0001.xml)\
                    $$files($${PWD}/data/SolARPipelineTest_FiducialMarker_conf_test0001.xml)\
                    $$files($${PWD}/data/SolARPipeline_FiducialMarker_test_0001.mp4)\
                    $$files($${PWD}/data/camera_calibration.yml)\

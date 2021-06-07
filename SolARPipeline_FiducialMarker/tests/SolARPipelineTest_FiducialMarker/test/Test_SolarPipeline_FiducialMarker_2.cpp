@@ -72,7 +72,7 @@ TEST_F(PipelineInitFixture, testPipelineInitWithNull)
 }
 
 
-TEST(SolARPipelineTest_FiducialMarker, testNonExistingConfigurationThrows)
+TEST(TestSolARPipelineTest_FiducialMarker, testNonExistingConfigurationThrows)
 {
     LOG_ADD_LOG_TO_CONSOLE();
     auto componentMgr = xpcf::getComponentManagerInstance();

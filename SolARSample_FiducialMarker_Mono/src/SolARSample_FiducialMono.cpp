@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "SolARSample_FiducialMono.h"
+
 #include <boost/log/core.hpp>
 
 #include <iostream>
@@ -41,7 +43,6 @@
 #include "api/display/I3DOverlay.h"
 #include "api/display/I2DOverlay.h"
 
-#include <gtest/gtest.h>
 
 #define MIN_THRESHOLD -1
 #define MAX_THRESHOLD 220
@@ -53,26 +54,80 @@ using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
 
-#ifdef USE_AS_GTEST
-//int main(int argc, char **argv) {
-//  ::testing::InitGoogleTest(&argc, argv);0
-//  return RUN_ALL_TESTS();
-//}
+SolARSample_FiducialMono::Builder&
+SolARSample_FiducialMono::Builder::selectPlaybackMode(const std::string& configFileName,
+                                                              int timeoutInS)
+{
+    m_mode = Mode::playback;
+    m_configFileName = configFileName;
+    m_timeoutInS = timeoutInS;
+    return *this;
+}
 
-TEST(Test_SolARPipeline_FiducialMarker, standalone_mono) {
+SolARSample_FiducialMono::Builder&
+SolARSample_FiducialMono::Builder::selectLiveMode(const std::string& configFileName)
+{
+    m_mode = Mode::live;
+    m_configFileName = configFileName;
+    return *this;
+}
 
-#else
-// TODO(jmhenaff): add this in a common header?
-// Disable GTest MACROs
-#define FAIL();
-#define SUCCEED();
-#define EXPECT_TRUE(X);
-#define ASSERT_TRUE(X); if(!(X)) return -1;
+std::shared_ptr<SolARSample_FiducialMono> SolARSample_FiducialMono::Builder::build()
+{
+    auto result = std::shared_ptr<SolARSample_FiducialMono>(new SolARSample_FiducialMono());
+    switch(m_mode)
+    {
+        case Mode::unset:
+        {
+            throw std::runtime_error("A mode must be selected");
+        }
+        case Mode::live:
+        {
+            if (m_configFileName.empty())
+            {
+                throw std::runtime_error("A configuration file must be provided");
+            } 
+            result->selectLiveMode(m_configFileName);
+            break;
+        }
+        case Mode::playback:
+        {
+            if (m_configFileName.empty())
+            {
+                throw std::runtime_error("A configuration file must be provided");
+            }
+            result->selectPlaybackMode(m_configFileName, m_timeoutInS);
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error("Unknown mode selected");
+        }
 
-int main(){
-#endif
+    }
 
-#if NDEBUG
+    return result;
+}
+
+void SolARSample_FiducialMono::selectPlaybackMode(const std::string& configFileName,
+                                                          int timeoutInS)
+{
+    m_mode = Mode::playback;
+    m_configFileName = configFileName;
+    m_timeoutInS = timeoutInS;
+}
+
+void SolARSample_FiducialMono::selectLiveMode(const std::string& configFileName)
+{
+    m_mode = Mode::live;
+    m_configFileName = configFileName;
+}
+
+int SolARSample_FiducialMono::main_impl(){
+
+    bool replayModeEnabled = m_mode == Mode::playback;
+
+ #if NDEBUG
     boost::log::core::get()->set_logging_enabled(false);
 #endif
 
@@ -82,11 +137,14 @@ int main(){
     /* this is needed in dynamic mode */
     SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-//        ASSERT_TRUE(xpcfComponentManager->load("SolARSample_FiducialMarker_Mono_conf.xml") == org::bcom::xpcf::_SUCCESS)
-//                << "Failed to load the configuration file SolARSample_FiducialMarker_Mono_conf.xml";
+    // Required to run several tests with same mngr instance
+    xpcfComponentManager->clear();
 
-    auto cmpManagerLoadStatus = xpcfComponentManager->load("SolARSample_FiducialMarker_Mono_conf.xml");
-    ASSERT_TRUE(cmpManagerLoadStatus == org::bcom::xpcf::_SUCCESS);
+        if(xpcfComponentManager->load(m_configFileName.c_str())!=org::bcom::xpcf::_SUCCESS)
+        {
+            LOG_ERROR("Failed to load the configuration file '" + m_configFileName + "'");
+            return -1;
+        }
 
         // declare and create components
         LOG_INFO("Start creating components");
@@ -163,33 +221,29 @@ int main(){
         PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
         overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
 
-       // ASSERT_TRUE(camera->start() == FrameworkReturnCode::_SUCCESS) << "Camera cannot start";
-        ASSERT_TRUE(camera->start() == FrameworkReturnCode::_SUCCESS);
+        if (camera->start() != FrameworkReturnCode::_SUCCESS) // Camera
+        {
+            LOG_ERROR ("Camera cannot start");
+            return -1;
+        }
 
         // to count the average number of processed frames per seconds
         int count=0;
         clock_t start,end;
         start= clock();
+        clock_t timeoutInMs = m_timeoutInS * CLOCKS_PER_SEC;
 
         //cv::Mat img_temp;
         bool process = true;
-        bool marker_found = false;
         while (process){
-
-            auto getNextImageStatus = camera->getNextImage(inputImage);
-            EXPECT_TRUE(getNextImageStatus != SolAR::FrameworkReturnCode::_ERROR_);
-            if (getNextImageStatus == SolAR::FrameworkReturnCode::_ERROR_)
+            if(camera->getNextImage(inputImage)==SolAR::FrameworkReturnCode::_ERROR_)
                 break;
-
-            // If playback (TODO add test, param/config), expected at the end of video
-            if (getNextImageStatus == SolAR::FrameworkReturnCode::_ERROR_LOAD_IMAGE)
-                break;
-
             count++;
 
            // Convert Image from RGB to grey
            imageConvertor->convert(inputImage, greyImage, Image::ImageLayout::LAYOUT_GREY);
 
+           bool marker_found = false;
            for (int num_threshold = 0; !marker_found && num_threshold < NB_THRESHOLD; num_threshold++)
            {
                 // Compute the current Threshold valu for image binarization
@@ -311,22 +365,19 @@ int main(){
 
            // display images in viewers
            if (
-             (imageViewer->display(inputImage) == FrameworkReturnCode::_STOP)
+             (imageViewer->display(inputImage) == FrameworkReturnCode::_STOP) 
     #ifndef NDEBUG
              ||(imageViewerGrey->display(greyImage) == FrameworkReturnCode::_STOP)
              ||(imageViewerBinary->display(binaryImage) == FrameworkReturnCode::_STOP)
              ||(imageViewerContours->display(contoursImage) == FrameworkReturnCode::_STOP)
              ||(imageViewerFilteredContours->display(filteredContoursImage) == FrameworkReturnCode::_STOP)
-
     #endif
+             || ( replayModeEnabled && timeoutInMs >= 0 && (clock() - start) > timeoutInMs )
              )
            {
                process = false;
            }
         }
-
-        ASSERT_TRUE(marker_found);
-
         end= clock();
         double duration=double(end - start) / CLOCKS_PER_SEC;
         printf ("\n\nElasped time is %.2lf seconds.\n",duration );
@@ -334,12 +385,14 @@ int main(){
     }
     catch (xpcf::Exception e)
     {
-        // FAIL() << "The following exception has been caught : " << e.what();
-        FAIL();
+        LOG_ERROR ("The following exception has been catch : {}", e.what());
+        return -1;
     }
 
-    SUCCEED();
+    return 0;
 }
+
+
 
 
 

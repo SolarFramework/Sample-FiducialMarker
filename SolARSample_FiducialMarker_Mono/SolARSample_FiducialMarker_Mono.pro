@@ -40,10 +40,15 @@ DEFINES += BOOST_ALL_DYN_LINK
 DEFINES += BOOST_AUTO_LINK_NOMANGLE
 DEFINES += BOOST_LOG_DYN_LINK
 
+INCLUDEPATH += \
+include
+
 HEADERS += \
+include/SolARSample_FiducialMono.h
 
 SOURCES += \
-main.cpp
+src/main.cpp\
+src/SolARSample_FiducialMono.cpp
 
 linux {
     ## Add rpath to find dependencies at runtime

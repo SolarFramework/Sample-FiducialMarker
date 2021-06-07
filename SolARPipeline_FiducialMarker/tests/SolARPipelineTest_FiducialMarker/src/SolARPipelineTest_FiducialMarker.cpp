@@ -142,9 +142,8 @@ int SolARPipelineTest_FiducialMarker::pipelineTestMain(){
             Transform3Df s_pose;
             if (pipeline->start(camImage->data()) == FrameworkReturnCode::_SUCCESS)
             {
-                clock_t start,end;
-                start= clock();
                 clock_t timeoutInMs = m_timeoutInS * CLOCKS_PER_SEC;
+                clock_t start = clock();
 
                 while (true)
                 {
