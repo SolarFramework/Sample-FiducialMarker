@@ -1,5 +1,5 @@
 /**
- * @copyright Copyright (c) 2017 B-com http://www.b-com.com/
+ * @copyright Copyright (c) 2021 B-com http://www.b-com.com/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "SolARPipelineTest_FiducialMarker.h"
+#include "SolARPipelineFiducialMarkerRunner.h"
+
+#include <core/Log.h>
+#include <xpcf/xpcf.h>
+
+
+#include <api/pipeline/IPoseEstimationPipeline.h>
+#include <api/display/IImageViewer.h>
+#include <api/display/I3DOverlay.h>
+#include <datastructure/CameraDefinitions.h>
 
 #include <boost/log/core.hpp>
-#include "core/Log.h"
-#include "xpcf/xpcf.h"
-
-
-#include "api/pipeline/IPoseEstimationPipeline.h"
-#include "api/display/IImageViewer.h"
-#include "api/display/I3DOverlay.h"
-#include "datastructure/CameraDefinitions.h"
-
 
 namespace xpcf  = org::bcom::xpcf;
 
@@ -33,9 +33,11 @@ using namespace SolAR;
 using namespace SolAR::datastructure;
 using namespace SolAR::api;
 
+namespace SolAR::PIPELINES::runner
+{
 
-SolARPipelineTest_FiducialMarker::Builder&
-SolARPipelineTest_FiducialMarker::Builder::selectPlaybackMode(const std::string& configFileName,
+SolARPipelineFiducialMarkerRunner::Builder&
+SolARPipelineFiducialMarkerRunner::Builder::selectPlaybackMode(const std::string& configFileName,
                                                               int timeoutInS)
 {
     m_mode = Mode::playback;
@@ -44,17 +46,17 @@ SolARPipelineTest_FiducialMarker::Builder::selectPlaybackMode(const std::string&
     return *this;
 }
 
-SolARPipelineTest_FiducialMarker::Builder&
-SolARPipelineTest_FiducialMarker::Builder::selectLiveMode(const std::string& configFileName)
+SolARPipelineFiducialMarkerRunner::Builder&
+SolARPipelineFiducialMarkerRunner::Builder::selectLiveMode(const std::string& configFileName)
 {
     m_mode = Mode::live;
     m_configFileName = configFileName;
     return *this;
 }
 
-std::shared_ptr<SolARPipelineTest_FiducialMarker> SolARPipelineTest_FiducialMarker::Builder::build()
+std::shared_ptr<SolARPipelineFiducialMarkerRunner> SolARPipelineFiducialMarkerRunner::Builder::build()
 {
-    auto result = std::shared_ptr<SolARPipelineTest_FiducialMarker>(new SolARPipelineTest_FiducialMarker());
+    auto result = std::shared_ptr<SolARPipelineFiducialMarkerRunner>(new SolARPipelineFiducialMarkerRunner());
     switch(m_mode)
     {
         case Mode::unset:
@@ -89,7 +91,7 @@ std::shared_ptr<SolARPipelineTest_FiducialMarker> SolARPipelineTest_FiducialMark
     return result;
 }
 
-void SolARPipelineTest_FiducialMarker::selectPlaybackMode(const std::string& configFileName,
+void SolARPipelineFiducialMarkerRunner::selectPlaybackMode(const std::string& configFileName,
                                                           int timeoutInS)
 {
     m_mode = Mode::playback;
@@ -97,13 +99,13 @@ void SolARPipelineTest_FiducialMarker::selectPlaybackMode(const std::string& con
     m_timeoutInS = timeoutInS;
 }
 
-void SolARPipelineTest_FiducialMarker::selectLiveMode(const std::string& configFileName)
+void SolARPipelineFiducialMarkerRunner::selectLiveMode(const std::string& configFileName)
 {
     m_mode = Mode::live;
     m_configFileName = configFileName;
 }
 
-int SolARPipelineTest_FiducialMarker::pipelineTestMain(){
+int SolARPipelineFiducialMarkerRunner::run(){
 
     bool replayModeEnabled = m_mode == Mode::playback;
 
@@ -189,12 +191,12 @@ int SolARPipelineTest_FiducialMarker::pipelineTestMain(){
     return 0;
 }
 
-bool SolARPipelineTest_FiducialMarker::isPoseDetected()
+bool SolARPipelineFiducialMarkerRunner::isPoseDetected()
 {
     return m_poseDetected;
 }
 
-
+} // namespace SolAR::PIPELINES::runner
 
 
 

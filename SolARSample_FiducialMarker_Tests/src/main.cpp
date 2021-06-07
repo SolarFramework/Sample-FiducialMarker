@@ -1,5 +1,5 @@
 /**
- * @copyright Copyright (c) 2017 B-com http://www.b-com.com/
+ * @copyright Copyright (c) 2021 B-com http://www.b-com.com/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-#include "SolARPipelineTest_FiducialMarker.h"
+#include <gtest/gtest.h>
 
-int main()
-{
-    return SolARPipelineTest_FiducialMarker::Builder()
-                 .selectLiveMode("SolARPipelineTest_FiducialMarker_conf.xml")
-                 .build()->pipelineTestMain();
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
-
-
-
-
-

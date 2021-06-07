@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef SOLAR_PIPELINE_TEST_FIDUCIAL_MARKER
-#define SOLAR_PIPELINE_TEST_FIDUCIAL_MARKER
+#ifndef SOLAR_STANDALONE_FIDUCIAL_MARKER_MONO
+#define SOLAR_STANDALONE_FIDUCIAL_MARKER_MONO
 
 #include <memory>
 #include <string>
 
-class SolARPipelineTest_FiducialMarker
+namespace SolAR::standalone
+{
+
+class SolARStandAloneFiducialMono
 {
     public:
     class Builder
@@ -29,7 +32,7 @@ class SolARPipelineTest_FiducialMarker
 
         Builder& selectPlaybackMode(const std::string& configFileName, int timeoutInS);
         Builder& selectLiveMode(const std::string& configFileName);
-        std::shared_ptr<SolARPipelineTest_FiducialMarker> build();
+        std::shared_ptr<SolARStandAloneFiducialMono> build();
 
         private:
 
@@ -45,8 +48,7 @@ class SolARPipelineTest_FiducialMarker
         int m_timeoutInS = -1;
     };
 
-    int pipelineTestMain();
-    bool isPoseDetected();
+    int main_impl();
 
     private:
 
@@ -57,7 +59,7 @@ class SolARPipelineTest_FiducialMarker
         playback
     };
 
-    SolARPipelineTest_FiducialMarker() = default;
+    SolARStandAloneFiducialMono() = default;
     void selectPlaybackMode(const std::string& configFileName, int timeoutInS);
     void selectLiveMode(const std::string& configFileName);
 
@@ -70,4 +72,6 @@ class SolARPipelineTest_FiducialMarker
     friend class Builder;
 };
 
-#endif // SOLAR_PIPELINE_TEST_FIDUCIAL_MARKER
+} // namespace SolAR::standalone
+
+#endif // SOLAR_STANDALONE_FIDUCIAL_MARKER_MONO

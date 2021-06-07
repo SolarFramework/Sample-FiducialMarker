@@ -104,7 +104,7 @@
 		</configure>
                 <configure component="SolARVideoAsCameraOpencv">
 			<property name="calibrationFile" type="string" value="camera_calibration.yml" description="path of the .yml file describing the calibration parameter of the camera." />
-            <property name="videoPath" type="string" value="SolARPipeline_FiducialMarker_test_0001.mp4" description="Path to video to use as camera feed"/>
+            <property name="videoPath" type="string" value="SolARSample_FiducialMarker_video_001.mp4" description="Path to video to use as camera feed"/>
 			<!--SolARCameraOpencv-->
 		</configure>
 		<configure component="SolARMarker2DSquaredBinaryOpencv">

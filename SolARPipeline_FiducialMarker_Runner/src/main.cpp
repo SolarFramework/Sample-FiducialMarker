@@ -1,5 +1,5 @@
 /**
- * @copyright Copyright (c) 2017 B-com http://www.b-com.com/
+ * @copyright Copyright (c) 2021 B-com http://www.b-com.com/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#include "SolARSample_FiducialMono.h"
+#include "SolARPipelineFiducialMarkerRunner.h"
+
+using SolAR::PIPELINES::runner::SolARPipelineFiducialMarkerRunner;
 
 int main()
 {
-    return SolARSample_FiducialMono::Builder()
-                 .selectLiveMode("SolARSample_FiducialMarker_Mono_conf.xml")
-                 .build()->main_impl();
+    return SolARPipelineFiducialMarkerRunner::Builder()
+                 .selectLiveMode("SolARPipeline_FiducialMarker_conf.xml")
+                 .build()->run();
 }
+
 
 
 

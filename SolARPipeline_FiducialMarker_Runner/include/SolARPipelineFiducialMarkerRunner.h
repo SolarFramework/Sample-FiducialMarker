@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef SOLAR_SAMPLE_FIDUCIAL_MARKER_MONO
-#define SOLAR_SAMPLE_FIDUCIAL_MARKER_MONO
+#ifndef SOLAR_PIPELINE_FIDUCIAL_MARKER_RUNNER
+#define SOLAR_PIPELINE_FIDUCIAL_MARKER_RUNNER
 
 #include <memory>
 #include <string>
 
-class SolARSample_FiducialMono
+namespace SolAR::PIPELINES::runner
+{
+
+class SolARPipelineFiducialMarkerRunner
 {
     public:
     class Builder
@@ -29,7 +32,7 @@ class SolARSample_FiducialMono
 
         Builder& selectPlaybackMode(const std::string& configFileName, int timeoutInS);
         Builder& selectLiveMode(const std::string& configFileName);
-        std::shared_ptr<SolARSample_FiducialMono> build();
+        std::shared_ptr<SolARPipelineFiducialMarkerRunner> build();
 
         private:
 
@@ -45,7 +48,8 @@ class SolARSample_FiducialMono
         int m_timeoutInS = -1;
     };
 
-    int main_impl();
+    int run();
+    bool isPoseDetected();
 
     private:
 
@@ -56,7 +60,7 @@ class SolARSample_FiducialMono
         playback
     };
 
-    SolARSample_FiducialMono() = default;
+    SolARPipelineFiducialMarkerRunner() = default;
     void selectPlaybackMode(const std::string& configFileName, int timeoutInS);
     void selectLiveMode(const std::string& configFileName);
 
@@ -69,4 +73,6 @@ class SolARSample_FiducialMono
     friend class Builder;
 };
 
-#endif // SOLAR_SAMPLE_FIDUCIAL_MARKER_MONO
+} // namespace SolAR::PIPELINES::runner
+
+#endif // SOLAR_PIPELINE_FIDUCIAL_MARKER_RUNNER

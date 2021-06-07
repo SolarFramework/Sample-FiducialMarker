@@ -3,25 +3,31 @@ QT       -= core gui
 CONFIG -= qt
 
 ## global defintions : target lib name, version
-TARGET = SolARSample_FiducialMarker_Mono
+TARGET = SolARSample_FiducialMarker_Tests
 VERSION=0.9.1
 
 DEFINES += MYVERSION=$${VERSION}
 CONFIG += c++1z
 CONFIG += console
 
+QMAKE_PROJECT_DEPTH = 0
+
 include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
-    TARGETDEPLOYDIR = $${PWD}/../bin/Debug
+    TARGETDEPLOYDIR = $${PWD}/../bin-test/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
+    LIBS += -lgtestd
+    LIBS += -lgmockd
 }
 
 CONFIG(release,debug|release) {
-    TARGETDEPLOYDIR = $${PWD}/../bin/Release
+    TARGETDEPLOYDIR = $${PWD}/../bin-test/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
+    LIBS += -lgtest
+    LIBS += -lgmock
 }
 
 win32:CONFIG -= static
@@ -41,14 +47,21 @@ DEFINES += BOOST_AUTO_LINK_NOMANGLE
 DEFINES += BOOST_LOG_DYN_LINK
 
 INCLUDEPATH += \
-include
+../SolARPipeline_FiducialMarker_Runner/include \
+../SolARStandAlone_FiducialMarker_Mono/include
 
 HEADERS += \
-include/SolARSample_FiducialMono.h
+../SolARPipeline_FiducialMarker_Runner/include/SolARPipelineFiducialMarkerRunner.h\
+../SolARStandAlone_FiducialMarker_Mono/include/SolARStandAloneFiducialMono.h
 
 SOURCES += \
-src/main.cpp\
-src/SolARSample_FiducialMono.cpp
+src/main.cpp \
+../SolARPipeline_FiducialMarker_Runner/src/SolARPipelineFiducialMarkerRunner.cpp\
+../SolARPipeline_FiducialMarker_Runner/test/TestSolarPipelineFiducialMarker1.cpp\
+../SolARPipeline_FiducialMarker_Runner/test/TestSolarPipelineFiducialMarker2.cpp\
+../SolARStandAlone_FiducialMarker_Mono/src/SolARStandAloneFiducialMono.cpp\
+../SolARStandAlone_FiducialMarker_Mono/test/TestSolARStandAloneFiducialMono.cpp
+
 
 linux {
     ## Add rpath to find dependencies at runtime
@@ -82,10 +95,15 @@ android {
 }
 
 config_files.path = $${TARGETDEPLOYDIR}
-config_files.files=$$files($${PWD}/SolARSample_FiducialMarker_Mono_conf.xml)\
-					$$files($${PWD}/camera_calibration.yml)\
-					$$files($${PWD}/fiducialMarker.yml)\
-                                        $$files($${PWD}/FiducialMarker.gif)
+config_files.files=\
+                   $$files($${PWD}/../data/camera_calibration.yml)\
+                   $$files($${PWD}/../data/FiducialMarker.gif)\
+                   $$files($${PWD}/../data/fiducialMarker.yml)\
+                   \ # Tests
+                   $$files($${PWD}/../data/SolARPipeline_FiducialMarker_conf_test_001.xml)\
+                   $$files($${PWD}/../data/SolARStandalone_FiducialMarker_Mono_conf_test_001.xml)\
+                   $$files($${PWD}/../data/SolARSample_FiducialMarker_video_001.mp4)\
+
 
 INSTALLS += config_files
 

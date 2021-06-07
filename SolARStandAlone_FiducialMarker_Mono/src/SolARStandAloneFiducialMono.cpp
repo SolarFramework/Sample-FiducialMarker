@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "SolARSample_FiducialMono.h"
+#include "SolARStandAloneFiducialMono.h"
 
 #include <boost/log/core.hpp>
 
@@ -54,8 +54,11 @@ using namespace SolAR::api;
 using namespace SolAR::datastructure;
 namespace xpcf  = org::bcom::xpcf;
 
-SolARSample_FiducialMono::Builder&
-SolARSample_FiducialMono::Builder::selectPlaybackMode(const std::string& configFileName,
+namespace SolAR::standalone
+{
+
+SolARStandAloneFiducialMono::Builder&
+SolARStandAloneFiducialMono::Builder::selectPlaybackMode(const std::string& configFileName,
                                                               int timeoutInS)
 {
     m_mode = Mode::playback;
@@ -64,17 +67,17 @@ SolARSample_FiducialMono::Builder::selectPlaybackMode(const std::string& configF
     return *this;
 }
 
-SolARSample_FiducialMono::Builder&
-SolARSample_FiducialMono::Builder::selectLiveMode(const std::string& configFileName)
+SolARStandAloneFiducialMono::Builder&
+SolARStandAloneFiducialMono::Builder::selectLiveMode(const std::string& configFileName)
 {
     m_mode = Mode::live;
     m_configFileName = configFileName;
     return *this;
 }
 
-std::shared_ptr<SolARSample_FiducialMono> SolARSample_FiducialMono::Builder::build()
+std::shared_ptr<SolARStandAloneFiducialMono> SolARStandAloneFiducialMono::Builder::build()
 {
-    auto result = std::shared_ptr<SolARSample_FiducialMono>(new SolARSample_FiducialMono());
+    auto result = std::shared_ptr<SolARStandAloneFiducialMono>(new SolARStandAloneFiducialMono());
     switch(m_mode)
     {
         case Mode::unset:
@@ -109,7 +112,7 @@ std::shared_ptr<SolARSample_FiducialMono> SolARSample_FiducialMono::Builder::bui
     return result;
 }
 
-void SolARSample_FiducialMono::selectPlaybackMode(const std::string& configFileName,
+void SolARStandAloneFiducialMono::selectPlaybackMode(const std::string& configFileName,
                                                           int timeoutInS)
 {
     m_mode = Mode::playback;
@@ -117,13 +120,13 @@ void SolARSample_FiducialMono::selectPlaybackMode(const std::string& configFileN
     m_timeoutInS = timeoutInS;
 }
 
-void SolARSample_FiducialMono::selectLiveMode(const std::string& configFileName)
+void SolARStandAloneFiducialMono::selectLiveMode(const std::string& configFileName)
 {
     m_mode = Mode::live;
     m_configFileName = configFileName;
 }
 
-int SolARSample_FiducialMono::main_impl(){
+int SolARStandAloneFiducialMono::main_impl(){
 
     bool replayModeEnabled = m_mode == Mode::playback;
 
@@ -132,6 +135,7 @@ int SolARSample_FiducialMono::main_impl(){
 #endif
 
     LOG_ADD_LOG_TO_CONSOLE();
+
     try {
     /* instantiate component manager*/
     /* this is needed in dynamic mode */
@@ -142,7 +146,7 @@ int SolARSample_FiducialMono::main_impl(){
 
         if(xpcfComponentManager->load(m_configFileName.c_str())!=org::bcom::xpcf::_SUCCESS)
         {
-            LOG_ERROR("Failed to load the configuration file '" + m_configFileName + "'");
+            LOG_ERROR("Failed to load the configuration file '{}", m_configFileName);
             return -1;
         }
 
@@ -392,7 +396,7 @@ int SolARSample_FiducialMono::main_impl(){
     return 0;
 }
 
-
+} // namespace SolAR::standalone
 
 
 

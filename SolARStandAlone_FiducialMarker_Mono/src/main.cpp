@@ -1,5 +1,5 @@
 /**
- * @copyright Copyright (c) 2021 B-com http://www.b-com.com/
+ * @copyright Copyright (c) 2017 B-com http://www.b-com.com/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-#include "SolARSample_FiducialMono.h"
+#include "SolARStandAloneFiducialMono.h"
 
-#include <gtest/gtest.h>
+using SolAR::standalone::SolARStandAloneFiducialMono;
 
-TEST(TestSolARSample_FiducialMono, testNominalPlayback)
+int main()
 {
-    auto builder = SolARSample_FiducialMono::Builder()
-                    .selectPlaybackMode("SolARSample_FiducialMarker_Mono_conf_test0001.xml",
-                     /* timeoutInS = */ 2);
-
-    std::shared_ptr<SolARSample_FiducialMono> prog;
-    ASSERT_NO_THROW(prog = builder.build());
-
-    EXPECT_EQ(prog->main_impl(), 0);
+    return SolARStandAloneFiducialMono::Builder()
+                 .selectLiveMode("SolARStandAlone_FiducialMarker_Mono_conf.xml")
+                 .build()->main_impl();
 }
-
-

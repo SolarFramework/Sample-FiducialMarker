@@ -28,16 +28,16 @@
 
 namespace xpcf  = org::bcom::xpcf;
 
-using namespace SolAR;
-using namespace SolAR::datastructure;
-using namespace SolAR::api;
+using SolAR::api::pipeline::IPoseEstimationPipeline;
+using SolAR::FrameworkReturnCode;
+using SolAR::Log;
 
 /*
  * Example of fixture to test Pipeline init function with
  * various parameters without writing the same initialization
  * code several times.
  */
-class PipelineInitFixture : public testing::Test
+class TestPipelineInit : public testing::Test
 {
 protected:
     void SetUp() override
@@ -49,30 +49,30 @@ protected:
         // Required to run several tests with same mngr instance
         componentMgr->clear();
 
-        componentMgr->load("SolARPipelineTest_FiducialMarker_conf_test0001.xml");
+        componentMgr->load("SolARPipeline_FiducialMarker_conf_test_001.xml");
 
-        pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
+        pipeline = componentMgr->resolve<IPoseEstimationPipeline>();
     }
 
     void TearDown() override {}
 
     SRef<xpcf::IComponentManager> componentMgr = nullptr;
-    SRef<pipeline::IPoseEstimationPipeline> pipeline = nullptr;
+    SRef<IPoseEstimationPipeline> pipeline = nullptr;
 };
 
-TEST_F(PipelineInitFixture, testPipelineInit)
+TEST_F(TestPipelineInit, testPipelineInit)
 {
     ASSERT_EQ(pipeline->init(componentMgr), FrameworkReturnCode::_SUCCESS);
 }
 
-TEST_F(PipelineInitFixture, testPipelineInitWithNull)
+TEST_F(TestPipelineInit, testPipelineInitWithNull)
 {
     GTEST_SKIP() << "Ignore, TODO check init() for nullptr";
     ASSERT_EQ(pipeline->init(nullptr), FrameworkReturnCode::_ERROR_);
 }
 
 
-TEST(TestSolARPipelineTest_FiducialMarker, testNonExistingConfigurationThrows)
+TEST(TestSolARPipelineFiducialMarker, testNonExistingConfigurationThrows)
 {
     LOG_ADD_LOG_TO_CONSOLE();
     auto componentMgr = xpcf::getComponentManagerInstance();
@@ -83,7 +83,7 @@ TEST(TestSolARPipelineTest_FiducialMarker, testNonExistingConfigurationThrows)
 
     try
     {
-        auto pipeline = componentMgr->resolve<pipeline::IPoseEstimationPipeline>();
+        auto pipeline = componentMgr->resolve<IPoseEstimationPipeline>();
         FAIL() << "An exception should have been thrown";
     }
     catch(xpcf::Exception e)

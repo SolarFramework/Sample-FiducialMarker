@@ -14,42 +14,44 @@
  * limitations under the License.
  */
 
-#include "SolARPipelineTest_FiducialMarker.h"
+#include "SolARPipelineFiducialMarkerRunner.h"
 
 #include <gtest/gtest.h>
 
-TEST(TestSolARPipelineTest_FiducialMarker, testNominalPlayback)
+using SolAR::PIPELINES::runner::SolARPipelineFiducialMarkerRunner;
+
+TEST(TestSolARPipelineFiducialMarkerRunner, testNominalPlayback)
 {
-    auto builder = SolARPipelineTest_FiducialMarker::Builder()
-                    .selectPlaybackMode("SolARPipelineTest_FiducialMarker_conf_test0001.xml",
+    auto builder = SolARPipelineFiducialMarkerRunner::Builder()
+                    .selectPlaybackMode("SolARPipeline_FiducialMarker_conf_test_001.xml",
                      /* timeoutInS = */ 2);
 
-    std::shared_ptr<SolARPipelineTest_FiducialMarker> prog;
+    std::shared_ptr<SolARPipelineFiducialMarkerRunner> prog;
     ASSERT_NO_THROW(prog = builder.build());
 
-    EXPECT_EQ(prog->pipelineTestMain(), 0);
+    EXPECT_EQ(prog->run(), 0);
 
     EXPECT_TRUE(prog->isPoseDetected());
 }
 
-TEST(TestSolARPipelineTest_FiducialMarker, testEmptyConfiguration)
+TEST(TestSolARPipelineFiducialMarkerRunner, testEmptyConfiguration)
 {
-    auto builder = SolARPipelineTest_FiducialMarker::Builder()
+    auto builder = SolARPipelineFiducialMarkerRunner::Builder()
                      .selectPlaybackMode("", -1);
 
     ASSERT_THROW(builder.build(), std::runtime_error);
 }
 
-TEST(TestSolARPipelineTest_FiducialMarker, testNonExistingConfiguration)
+TEST(TestSolARPipelineFiducialMarkerRunner, testNonExistingConfiguration)
 {
-    auto builder = SolARPipelineTest_FiducialMarker::Builder()
+    auto builder = SolARPipelineFiducialMarkerRunner::Builder()
                      .selectPlaybackMode("bogus.xml", -1);
 
-    std::shared_ptr<SolARPipelineTest_FiducialMarker> prog;
+    std::shared_ptr<SolARPipelineFiducialMarkerRunner> prog;
     ASSERT_NO_THROW(prog = builder.build());
 
     // Main has caught and handle the xpcf exception
-    EXPECT_NE(prog->pipelineTestMain(), 0);
+    EXPECT_NE(prog->run(), 0);
 }
 
 
