@@ -14,10 +14,48 @@
  * limitations under the License.
  */
 
+#include <core/Log.h>
+
+#include <boost/log/core.hpp>
 #include <gtest/gtest.h>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+using SolAR::Log;
+
+class TestOutputFileLogger : public testing::EmptyTestEventListener {
+
+  void OnTestStart(const testing::TestInfo& test_info) override {
+      std::string stdOutFileName =
+              fs::current_path().string() + "/"
+               + std::string(test_info.test_suite_name()) + "_"
+               + std::string(test_info.name()) + "_output.txt";
+
+      LOG_ADD_LOG_TO_FILE(stdOutFileName.c_str(), "r");
+      LOG_SET_DEBUG_LEVEL();
+  }
+
+  // Called after a failed assertion or a SUCCESS().
+  void OnTestPartResult(const testing::TestPartResult& test_part_result) override {
+
+  }
+
+  // Called after a test ends.
+  void OnTestEnd(const testing::TestInfo& test_info) override {
+        LOG_RELEASE;
+  }
+};
 
 int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+
+    ::testing::InitGoogleTest(&argc, argv);
+
+//    Experimental
+//    testing::TestEventListeners& listeners =
+//        testing::UnitTest::GetInstance()->listeners();
+//    listeners.Append(new TestOutputFileLogger());
+
+    return RUN_ALL_TESTS();
 }

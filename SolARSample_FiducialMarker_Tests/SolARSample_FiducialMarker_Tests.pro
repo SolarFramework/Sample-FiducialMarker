@@ -15,7 +15,7 @@ QMAKE_PROJECT_DEPTH = 0
 include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
-    TARGETDEPLOYDIR = $${PWD}/../bin-test/Debug
+    TARGETDEPLOYDIR = $${PWD}/bin/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
     LIBS += -lgtestd
@@ -23,7 +23,7 @@ CONFIG(debug,debug|release) {
 }
 
 CONFIG(release,debug|release) {
-    TARGETDEPLOYDIR = $${PWD}/../bin-test/Release
+    TARGETDEPLOYDIR = $${PWD}/bin/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
     LIBS += -lgtest
