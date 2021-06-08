@@ -20,10 +20,73 @@
 # your PATH and invoke this script with 'sh runTests.sh' from a CMD.exe/Powershell
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+TEST_REPORT_ROOT=$SCRIPT_DIR/../test-report
+CONFIG="both"
 
-TEST_REPORT_DIR=$SCRIPT_DIR/../test-report
+function usage()
+{
+    echo "Usage:"
+    echo "`basename "$0"` [<option>=<value> ]*"
+    echo "Options:"
+    echo "   -c, --config: 'release', 'debug' or 'both' (default: 'both')"
+}
 
-mkdir $TEST_REPORT_DIR
+# TODO(jmhenaff): add options to pass to gtest exec (filter, output dir, ...)
+# Parse args
+while [ "$1" != "" ]; do
+    PARAM=`echo $1 | awk -F= '{print $1}'`
+    VALUE=`echo $1 | awk -F= '{print $2}'`
+    case $PARAM in
+        -h | --help)
+            usage
+            exit
+            ;;
+        -c | --config)
+            if [ "$VALUE" != "release" ] && [ "$VALUE" != "debug" ] && [ "$VALUE" != "both" ]; then
+                echo "ERROR: '$VALUE' is not a valid configuration"
+                usage
+                exit 1
+            fi
+            CONFIG=$VALUE
+            ;;
+        *)
+            echo "ERROR: unknown parameter '$PARAM'"
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
 
-# Warning: Don't put directly $TEST_REPORT_DIR in --gtest_output path because gtest will attempt to interpret this as a relative path and append it to $pwd
-(cd $SCRIPT_DIR/../SolARSample_FiducialMarker_Tests/bin/Debug/ && ./SolARSample_FiducialMarker_Tests --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR)
+# $1: configuration name (either release or debug)
+function run()
+{
+    if [ "$1" != "release" ] && [ "$1" != "debug" ]; then
+        echo "ERROR: '$VALUE' is not a valid configuration for run(), only 'release' and 'debug' are valid"
+        exit 1
+    fi
+
+    if [[ ! -f $SCRIPT_DIR/../SolARSample_FiducialMarker_Tests/bin/$1/SolARSample_FiducialMarker_Tests ]]; then
+        echo "WARNING: skipping run of config '$1' as executable does not seem to have been built"
+        return
+    fi
+
+    TEST_REPORT_DIR=$TEST_REPORT_ROOT/$1
+    mkdir -p $TEST_REPORT_DIR/output
+    
+    # Warning: Don't put directly $TEST_REPORT_DIR in --gtest_output path because gtest will attempt to interpret this as a relative path and append it to $pwd
+    (cd $SCRIPT_DIR/../SolARSample_FiducialMarker_Tests/bin/$1/ && ./SolARSample_FiducialMarker_Tests --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR/output/)
+}
+
+#
+# MAIN
+#
+
+if [ "$CONFIG" == "both" ]; then
+    run release
+    run debug
+else
+    run $CONFIG
+fi
+
+
