@@ -6,8 +6,8 @@
                         <interface uuid="b5a6225e-6a91-4050-b298-886f4c17d9d2" name="IPoseEstimationPipeline" description="The interface to define a video see-throuh pipeline" />
 		</component>
 	</module>
-	<module uuid="15e1990b-86b2-445c-8194-0cbe80ede970" name="SolARModuleOpenCV" path="$REMAKEN_PKG_ROOT/packages/SolARBuild/win-cl-14.1/SolARModuleOpenCV/0.9.1/lib/x86_64/shared" description="OpenCV">
-		<component uuid="5B7396F4-A804-4F3C-A0EB-FB1D56042BB4" name="SolARCameraOpencv" description="SolARCameraOpencv">
+        <module uuid="15e1990b-86b2-445c-8194-0cbe80ede970" name="SolARModuleOpenCV" path="$REMAKEN_PKG_ROOT/packages/SolARBuild/win-cl-14.1/SolARModuleOpenCV/0.9.1/lib/x86_64/shared" description="OpenCV">
+                <component uuid="fa4a780a-9720-11e8-9eb6-529269fb1459" name="SolARVideoAsCameraOpencv" description="SolARVideoAsCameraOpencv">
 			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect" />
 			<interface uuid="5DDC7DF0-8377-437F-9C81-3643F7676A5B" name="ICamera" description="ICamera" />
 		</component>
@@ -90,7 +90,7 @@
 	</module>
 	<factory>
 		<bindings>
-			<bind interface="ICamera" to="SolARCameraOpencv" />
+                        <bind interface="ICamera" to="SolARVideoAsCameraOpencv" />
 			<bind interface="IImageConvertor" to="SolARImageConvertorOpencv" />
 			<bind interface="IImageConvertor" to="SolARImageConvertorUnity" name="imageConvertorUnity" />
 		</bindings>
@@ -102,13 +102,13 @@
             <property name="nbTestedThreshold" type="int" value="10" description="The number of thresholds for image binarization tested between minThreshold and maxThreshold" />
 			<!--PipelineFiducialMarker-->
 		</configure>
-		<configure component="SolARCameraOpencv">
-			<property name="calibrationFile" type="string" value="camera_calibration.yml" description="path of the .yml file describing the calibration parameter of the camera." />
-            <property name="deviceID" type="uint" value="0" description="ID of the camera (default = 0)" />
+                <configure component="SolARVideoAsCameraOpencv">
+			<property name="calibrationFile" type="string" value="CameraCalibration.yml" description="path of the .yml file describing the calibration parameter of the camera." />
+            <property name="videoPath" type="string" value="SolARSample_FiducialMarker_video_001.mp4" description="Path to video to use as camera feed"/>
 			<!--SolARCameraOpencv-->
 		</configure>
 		<configure component="SolARMarker2DSquaredBinaryOpencv">
-			<property name="filePath" type="string" value="fiducialMarker.yml" description="Path of the .yml file describing the fiducial marker." />
+			<property name="filePath" type="string" value="FiducialMarker.yml" description="Path of the .yml file describing the fiducial marker." />
 			<!--SolARMarker2DSquaredBinaryOpencv-->
 		</configure>
 		<configure component="SolARImageFilterBinaryOpencv">

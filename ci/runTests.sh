@@ -21,14 +21,14 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 TEST_REPORT_ROOT=$SCRIPT_DIR/../test-report
-CONFIG="both"
+CONFIG="all"
 
 function usage()
 {
     echo "Usage:"
     echo "`basename "$0"` [<option>=<value> ]*"
     echo "Options:"
-    echo "   -c, --config: 'release', 'debug' or 'both' (default: 'both')"
+    echo "   -c, --config: 'release', 'debug' or 'all' (default: 'all')"
 }
 
 # TODO(jmhenaff): add options to pass to gtest exec (filter, output dir, ...)
@@ -42,7 +42,7 @@ while [ "$1" != "" ]; do
             exit
             ;;
         -c | --config)
-            if [ "$VALUE" != "release" ] && [ "$VALUE" != "debug" ] && [ "$VALUE" != "both" ]; then
+            if [ "$VALUE" != "release" ] && [ "$VALUE" != "debug" ] && [ "$VALUE" != "all" ]; then
                 echo "ERROR: '$VALUE' is not a valid configuration"
                 usage
                 exit 1
@@ -58,11 +58,12 @@ while [ "$1" != "" ]; do
     shift
 done
 
+# Run tests for a specific config (release, debug)
 # $1: configuration name (either release or debug)
 function run()
 {
     if [ "$1" != "release" ] && [ "$1" != "debug" ]; then
-        echo "ERROR: '$VALUE' is not a valid configuration for run(), only 'release' and 'debug' are valid"
+        echo "ERROR: '$1' is not a valid configuration for run(), only 'release' and 'debug' are valid"
         exit 1
     fi
 
@@ -75,14 +76,14 @@ function run()
     mkdir -p $TEST_REPORT_DIR/output
     
     # Warning: Don't put directly $TEST_REPORT_DIR in --gtest_output path because gtest will attempt to interpret this as a relative path and append it to $pwd
-    (cd $SCRIPT_DIR/../SolARSample_FiducialMarker_Tests/bin/$1/ && ./SolARSample_FiducialMarker_Tests --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR/output/)
+    (cd $SCRIPT_DIR/../bin-test/$1/ && ./SolARSample_FiducialMarker_Tests --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR/output/)
 }
 
 #
 # MAIN
 #
 
-if [ "$CONFIG" == "both" ]; then
+if [ "$CONFIG" == "all" ]; then
     run release
     run debug
 else

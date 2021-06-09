@@ -15,7 +15,7 @@ QMAKE_PROJECT_DEPTH = 0
 include(findremakenrules.pri)
 
 CONFIG(debug,debug|release) {
-    TARGETDEPLOYDIR = $${PWD}/bin/debug
+    TARGETDEPLOYDIR = $${PWD}/../bin-test/debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
     LIBS += -lgtestd
@@ -23,7 +23,7 @@ CONFIG(debug,debug|release) {
 }
 
 CONFIG(release,debug|release) {
-    TARGETDEPLOYDIR = $${PWD}/bin/release
+    TARGETDEPLOYDIR = $${PWD}/../bin-test/release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
     LIBS += -lgtest
@@ -57,10 +57,10 @@ HEADERS += \
 SOURCES += \
 src/main.cpp \
 ../SolARPipeline_FiducialMarker_Runner/src/SolARPipelineFiducialMarkerRunner.cpp\
-../SolARPipeline_FiducialMarker_Runner/test/TestSolarPipelineFiducialMarker1.cpp\
-../SolARPipeline_FiducialMarker_Runner/test/TestSolarPipelineFiducialMarker2.cpp\
+../SolARPipeline_FiducialMarker_Runner/test/src/TestSolarPipelineFiducialMarker1.cpp\
+../SolARPipeline_FiducialMarker_Runner/test/src/TestSolarPipelineFiducialMarker2.cpp\
 ../SolARStandAlone_FiducialMarker_Mono/src/SolARStandAloneFiducialMono.cpp\
-../SolARStandAlone_FiducialMarker_Mono/test/TestSolARStandAloneFiducialMono.cpp
+../SolARStandAlone_FiducialMarker_Mono/test/src/TestSolARStandAloneFiducialMono.cpp
 
 
 linux {
@@ -96,13 +96,12 @@ android {
 
 config_files.path = $${TARGETDEPLOYDIR}
 config_files.files=\
-                   $$files($${PWD}/../data/camera_calibration.yml)\
-                   $$files($${PWD}/../data/FiducialMarker.gif)\
-                   $$files($${PWD}/../data/fiducialMarker.yml)\
-                   \ # Tests
-                   $$files($${PWD}/../data/SolARPipeline_FiducialMarker_conf_test_001.xml)\
-                   $$files($${PWD}/../data/SolARStandalone_FiducialMarker_Mono_conf_test_001.xml)\
-                   $$files($${PWD}/../data/SolARSample_FiducialMarker_video_001.mp4)\
+                   $$files($${PWD}/../data/camera/CameraCalibration.yml)\
+                   $$files($${PWD}/../data/markers/FiducialMarker.gif)\
+                   $$files($${PWD}/../data/markers/FiducialMarker.yml)\
+                   $$files($${PWD}/../data/videos/SolARSample_FiducialMarker_video_001.mp4)\
+                   $$files($${PWD}/../SolARPipeline_FiducialMarker_Runner/test/SolARPipeline_FiducialMarker_Runner_conf_test_001.xml)\
+                   $$files($${PWD}/../SolARStandAlone_FiducialMarker_Mono/test/SolARStandalone_FiducialMarker_Mono_conf_test_001.xml)\
 
 
 INSTALLS += config_files

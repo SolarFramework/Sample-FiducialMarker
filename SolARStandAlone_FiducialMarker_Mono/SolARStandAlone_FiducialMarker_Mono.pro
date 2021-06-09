@@ -83,9 +83,9 @@ android {
 
 config_files.path = $${TARGETDEPLOYDIR}
 config_files.files=$$files($${PWD}/SolARStandAlone_FiducialMarker_Mono_conf.xml)\
-                   $$files($${PWD}/../data/camera_calibration.yml)\
-                   $$files($${PWD}/../data/FiducialMarker.gif)\
-                   $$files($${PWD}/../data/fiducialMarker.yml)\
+                   $$files($${PWD}/../data/camera/CameraCalibration.yml)\
+                   $$files($${PWD}/../data/markers/FiducialMarker.gif)\
+                   $$files($${PWD}/../data/markers/FiducialMarker.yml)
 
 INSTALLS += config_files
 

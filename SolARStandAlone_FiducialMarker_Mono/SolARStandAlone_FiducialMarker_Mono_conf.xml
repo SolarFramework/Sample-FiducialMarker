@@ -83,11 +83,11 @@
 	</factory>
 	<properties>
 		<configure component="SolARCameraOpencv">
-			<property name="calibrationFile" type="string" value="camera_calibration.yml" description="path of the .yml file describing the calibration parameter of the camera."/>
+                        <property name="calibrationFile" type="string" value="CameraCalibration.yml" description="path of the .yml file describing the calibration parameter of the camera."/>
             <property name="deviceID" type="uint" value="0" description="ID of the camera (default = 0)"/>
 		</configure>
 		<configure component="SolARMarker2DSquaredBinaryOpencv">
-			<property name="filePath" type="string" value="fiducialMarker.yml" description="Path of the .yml file describing the fiducial marker."/>
+                        <property name="filePath" type="string" value="FiducialMarker.yml" description="Path of the .yml file describing the fiducial marker."/>
 		</configure>
 		<configure component="SolARImageFilterBinaryOpencv">
             <property name="min" type="int" value="-1" description="minimum threshold (-1 to automatically compute it on the global image)"/>

@@ -63,28 +63,29 @@ win32 {
 }
 
 config_files.path = $${TARGETDEPLOYDIR}
-config_files.files= $$files($${PWD}/SolARPipeline_FiducialMarker_conf.xml)\
-                    $$files($${PWD}/../data/camera_calibration.yml)\
-                    $$files($${PWD}/../data/fiducialMarker.yml)\
-                    $$files($${PWD}/../data/FiducialMarker.gif)\
-                    $$files($${PWD}/../data/SolARPipeline_FiducialMarker_test_0001.mp4)
+config_files.files= $$files($${PWD}/SolARPipeline_FiducialMarker_Runner_conf.xml)\
+                    $$files($${PWD}/../data/camera/CameraCalibration.yml)\
+                    $$files($${PWD}/../data/markers/FiducialMarker.gif)\
+                    $$files($${PWD}/../data/markers/FiducialMarker.yml)
+
 INSTALLS += config_files
 
 linux {
   run_install.path = $${TARGETDEPLOYDIR}
-  run_install.files = $${PWD}/../../../run.sh
+  run_install.files = $${PWD}/../run.sh
   CONFIG(release,debug|release) {
-    run_install.extra = cp $$files($${PWD}/../../../runRelease.sh) $${PWD}/../../../run.sh
+    run_install.extra = cp $$files($${PWD}/../runRelease.sh) $${PWD}/../run.sh
   }
   CONFIG(debug,debug|release) {
-    run_install.extra = cp $$files($${PWD}/../../../runDebug.sh) $${PWD}/../../../run.sh
+    run_install.extra = cp $$files($${PWD}/../runDebug.sh) $${PWD}/../run.sh
   }
   INSTALLS += run_install
 }
 
 
 OTHER_FILES += \
-    packagedependencies.txt
+    packagedependencies.txt\
+    SolARPipeline_FiducialMarker_Runner_conf.xml
 
 #NOTE : Must be placed at the end of the .pro
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/remaken_install_target.pri)))) # Shell_quote & shell_path required for visual on windows

@@ -49,7 +49,7 @@ protected:
         // Required to run several tests with same mngr instance
         componentMgr->clear();
 
-        componentMgr->load("SolARPipeline_FiducialMarker_conf_test_001.xml");
+        componentMgr->load("SolARPipeline_FiducialMarker_Runner_conf_test_001.xml");
 
         pipeline = componentMgr->resolve<IPoseEstimationPipeline>();
     }

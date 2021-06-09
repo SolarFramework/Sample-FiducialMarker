@@ -23,7 +23,7 @@ using SolAR::PIPELINES::runner::SolARPipelineFiducialMarkerRunner;
 TEST(TestSolARPipelineFiducialMarkerRunner, testNominalPlayback)
 {
     auto builder = SolARPipelineFiducialMarkerRunner::Builder()
-                    .selectPlaybackMode("SolARPipeline_FiducialMarker_conf_test_001.xml",
+                    .selectPlaybackMode("SolARPipeline_FiducialMarker_Runner_conf_test_001.xml",
                      /* timeoutInS = */ 2);
 
     std::shared_ptr<SolARPipelineFiducialMarkerRunner> prog;

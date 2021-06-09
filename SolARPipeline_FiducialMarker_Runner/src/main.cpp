@@ -21,7 +21,7 @@ using SolAR::PIPELINES::runner::SolARPipelineFiducialMarkerRunner;
 int main()
 {
     return SolARPipelineFiducialMarkerRunner::Builder()
-                 .selectLiveMode("SolARPipeline_FiducialMarker_conf.xml")
+                 .selectLiveMode("SolARPipeline_FiducialMarker_Runner_conf.xml")
                  .build()->run();
 }
 
