@@ -1,43 +1,30 @@
+::
+:: @copyright Copyright (c) 2021 B-com http://www.b-com.com/
+::
+:: Licensed under the Apache License, Version 2.0 (the "License");
+:: you may not use this file except in compliance with the License.
+:: You may obtain a copy of the License at
+::
+::     http://www.apache.org/licenses/LICENSE-2.0
+::
+:: Unless required by applicable law or agreed to in writing, software
+:: distributed under the License is distributed on an "AS IS" BASIS,
+:: WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+:: See the License for the specific language governing permissions and
+:: limitations under the License.
+::
+
+:: This script is here for compatibility with current CI scripts until
+:: all samples uses this CLI for bundling.
+
 @echo off
 SETLOCAL EnableDelayedExpansion
 
-SET version=0.9.1
-
-SET filename=SolAR_Fiducial_%version%
-SET arg1=%1
-
-IF NOT "!arg1!"=="" (SET filename=%arg1%)
-echo filename is %filename%
-
-
-
-echo "**** Install dependencies locally"
-remaken install packagedependencies.txt
-remaken install packagedependencies.txt -c debug
-
-echo "**** Bundle dependencies in bin folder"
- FOR /D /R %%d IN (SolARSample*) DO (
-    For %%f IN (%%~fd\*_conf.xml) DO (
-      echo "** Bundle sample configuration file %%f"
-      remaken bundleXpcf "%%f" -d ./bin/Release -s modules
-      remaken bundleXpcf "%%f" -d ./bin/Debug -s modules -c debug
-   )
-)
-
-FOR /D /R %%d IN (SolARPipeline*) DO (
-   For %%f IN (%%~fd\*_conf.xml) DO (
-      echo "** Bundle sample configuration file %%f"
-      remaken bundleXpcf "%%f" -d ./bin/Release -s modules
-      remaken bundleXpcf "%%f" -d ./bin/Debug -s modules -c debug
-   )
+if ["%~1"]==[""] (
+    "sh.exe" bundleSamplesCommon.sh --platform=windows
+) else (
+    "sh.exe" bundleSamplesCommon.sh --platform=windows --file-name=%1
 )
 
 
-echo "**** Zip bundles"
-"7z.exe" a -tzip bin\%filename%_debug.zip README.md
-"7z.exe" a -tzip bin\%filename%_release.zip README.md
-"7z.exe" a -tzip bin\%filename%_debug.zip LICENSE
-"7z.exe" a -tzip bin\%filename%_release.zip LICENSE
-"7z.exe" a -tzip bin\%filename%_debug.zip bin\Debug
-"7z.exe" a -tzip bin\%filename%_release.zip bin\Release
 
