@@ -5,7 +5,7 @@
 The SolAR **Fiducial Image Marker sample** shows a SolAR pipeline for augmented reality based on a fiducials markers image. This pipeline loads a reference image marker, then tries to detect it on real-time camera images and to estimate the pose of the camera in relation to the coordinate system of the image marker. If the marker is detected, the pipeline over the current camera image renders a 3D cube from a virtual camera which pose corresponds to the one estimated by the pipeline.
 
 
-| ![](./doc/PipelineRunner.jpg) | ![](./doc/UnityPLugin.jpg) |
+| ![](./README-res/PipelineRunner.jpg) | ![](./README-res/UnityPlugin.jpg) |
 |:-:|:-:|
 | SolARStandAlone_FiducialMarker_Mono | SolARPipeline_FiducialMarker in Unity plugin |
 
