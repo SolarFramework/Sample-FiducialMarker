@@ -83,8 +83,8 @@ do
    file=$f
    # Work on copy to avoid polluting the git status
    if [ "$PLATFORM" == "linux" ]; then
-        sed 's/win-cl-14.1/linux-gcc/' $f > tmp_$f
-        file=tmp_$f
+        sed 's/win-cl-14.1/linux-gcc/' $f > $f.tmp
+        file=$f.tmp
    fi
 
    echo "install dependencies for config file: $file"
@@ -92,7 +92,7 @@ do
    remaken bundleXpcf $file -d ./bin/Debug -s modules -c debug
 
    if [ "$PLATFORM" == "linux" ]; then
-        rm tmp_$f
+        rm $f.tmp
    fi
 done
 
