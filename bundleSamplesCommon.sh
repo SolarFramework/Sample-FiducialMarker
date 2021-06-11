@@ -111,16 +111,16 @@ fi
 
 # TODO(jmhenaff): see if can get zip installed on Windows bots to avoid this condition
 if [ "$PLATFORM" == "linux" ]; then
-   zip --symlinks -r "./bin/${FILE_NAME}_release.zip" ./bin/Release ./README.md doc/ ./LICENSE
-   zip --symlinks -r "./bin/${FILE_NAME}_debug.zip" ./bin/Debug ./README.md doc/ ./LICENSE
+   zip --symlinks -r "./bin/${FILE_NAME}_release.zip" ./bin/Release ./README.md ./README-res ./LICENSE
+   zip --symlinks -r "./bin/${FILE_NAME}_debug.zip" ./bin/Debug ./README.md ./README-res ./LICENSE
 else
    7z a -tzip bin/${FILE_NAME}_debug.zip bin/Debug
    7z a -tzip bin/${FILE_NAME}_debug.zip README.md
+   7z a -tzip bin/${FILE_NAME}_debug.zip README-res
    7z a -tzip bin/${FILE_NAME}_debug.zip LICENSE
-   7z a -tzip bin/${FILE_NAME}_debug.zip doc
 
    7z a -tzip bin/${FILE_NAME}_release.zip bin/Release
    7z a -tzip bin/${FILE_NAME}_release.zip README.md
+   7z a -tzip bin/${FILE_NAME}_release.zip README-res
    7z a -tzip bin/${FILE_NAME}_release.zip LICENSE
-   7z a -tzip bin/${FILE_NAME}_release.zip doc
 fi
