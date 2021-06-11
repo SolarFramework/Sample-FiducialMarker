@@ -15,7 +15,10 @@
 # limitations under the License.
 #
 
-export REMAKEN_PKG_ROOT=~/.remaken
+if [ "$REMAKEN_PKG_ROOT" == "" ]
+then
+    export REMAKEN_PKG_ROOT=~/.remaken
+fi
 echo "REMAKEN_PKG_ROOT=$REMAKEN_PKG_ROOT"
 
 # Update configuration files by replacing win-cl-1.1 by linux in module paths

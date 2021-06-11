@@ -15,6 +15,12 @@
 # limitations under the License.
 #
 
+if [ "$REMAKEN_PKG_ROOT" == "" ]
+then
+    export REMAKEN_PKG_ROOT=~/.remaken
+fi
+echo "REMAKEN_PKG_ROOT=$REMAKEN_PKG_ROOT"
+
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD:$PWD/modules $1
 
 
