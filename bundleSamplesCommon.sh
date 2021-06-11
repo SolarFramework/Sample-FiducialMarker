@@ -20,6 +20,12 @@ NAME="SolAR_Fiducial"
 VERSION="0.9.1"
 FILE_NAME=$NAME"_"$VERSION
 
+if [ "$REMAKEN_PKG_ROOT" == "" ]
+then
+    export REMAKEN_PKG_ROOT=~/.remaken
+fi
+
+
 function help()
 {
     echo "Creates a bundle of all executables for this sample. It zips the bin/ directory so"
@@ -78,13 +84,13 @@ remaken install packagedependencies.txt
 remaken install packagedependencies.txt -c debug
 
 echo "**** Bundle dependencies in bin folder"
-for f in `find . -not \( -path "./bin" -prune \) -not \( -path "./bin-test" -prune  \) -name "*_conf*.xml"`
+for f in `find . -not \( -path "./bin" -prune \) -not \( -path "./bin-test" -prune  \) \( -name "*_conf*.xml" ! -name "*.tmp_conf.xml" \) `
 do
    file=$f
    # Work on copy to avoid polluting the git status
    if [ "$PLATFORM" == "linux" ]; then
-        sed 's/win-cl-14.1/linux-gcc/' $f > tmp_$f
-        file=tmp_$f
+        sed 's/win-cl-14.1/linux-gcc/' $f > $f.tmp_conf.xml
+        file=$f.tmp_conf.xml
    fi
 
    echo "install dependencies for config file: $file"
@@ -92,7 +98,7 @@ do
    remaken bundleXpcf $file -d ./bin/Debug -s modules -c debug
 
    if [ "$PLATFORM" == "linux" ]; then
-        rm tmp_$f
+        rm $f.tmp_conf.xml
    fi
 done
 
