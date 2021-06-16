@@ -12,7 +12,7 @@ node("master") {
         moduleName="SolARSample_FiducialMarker"
         dirName="SolARBuild"
         buildDir="SolARPipeline_FiducialMarker_Runner,\
-                  SolARPipeline_FiducialMarker_Runner"
+                  SolARStandAlone_FiducialMarker_Mono"
         makeTarget="install install_deps"
         android=false
         packageScripts="bundleSamples"
