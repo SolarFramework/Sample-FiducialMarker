@@ -19,6 +19,9 @@
 # Note: to run this on windows either use git bash GUI, or add C:\Program Files\Git\bin to 
 # your PATH and invoke this script with 'sh runTests.sh' from a CMD.exe/Powershell
 
+# TODO(jmhenaff): make that an option so that script is fully project agnostic and could be reused
+TEST_EXEC=SolARSample_FiducialMarker_Tests
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 TEST_REPORT_ROOT=$SCRIPT_DIR/../test-report
 CONFIG="all"
@@ -67,7 +70,7 @@ function run()
         exit 1
     fi
 
-    if [[ ! -f $SCRIPT_DIR/../SolARSample_FiducialMarker_Tests/bin/$1/SolARSample_FiducialMarker_Tests ]]; then
+    if [[ ! -f $SCRIPT_DIR/../bin-test/$1/$TEST_EXEC ]]; then
         echo "WARNING: skipping run of config '$1' as executable does not seem to have been built"
         return
     fi
@@ -76,7 +79,7 @@ function run()
     mkdir -p $TEST_REPORT_DIR/output
     
     # Warning: Don't put directly $TEST_REPORT_DIR in --gtest_output path because gtest will attempt to interpret this as a relative path and append it to $pwd
-    (cd $SCRIPT_DIR/../bin-test/$1/ && ./SolARSample_FiducialMarker_Tests --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR/output/)
+    (cd $SCRIPT_DIR/../bin-test/$1/ && ./$TEST_EXEC --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR/output/)
 }
 
 #
