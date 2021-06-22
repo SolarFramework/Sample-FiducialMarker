@@ -1,3 +1,3 @@
 SolARFramework|0.9.1|SolARFramework|SolARBuild@github|https://github.com/SolarFramework/SolarFramework/releases/download
-SolARPipeline_FiducialMarker|0.9.1|SolARPipeline_FiducialMarker|SolARBuild@github|https://github.com/SolarFramework/https://github.com/SolarFramework/Sample-FiducialMarker/releases/download
+SolARPipeline_FiducialMarker|0.9.1|SolARPipeline_FiducialMarker|SolARBuild@github|https://github.com/SolarFramework/Sample-FiducialMarker/releases/download
 
