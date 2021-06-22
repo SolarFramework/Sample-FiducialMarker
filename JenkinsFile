@@ -14,6 +14,8 @@ node("master") {
         buildDir="SolARPipeline_FiducialMarker_Runner,\
                   SolARStandAlone_FiducialMarker_Mono"
         makeTarget="install install_deps"
+        runGTests=["release":"ci/runTests.sh --config=release","debug":"ci/runTests.sh --config=debug"]
+        testsDir="SolARSample_FiducialMarker_Tests"
         android=false
         packageScripts="bundleSamples"
     }
