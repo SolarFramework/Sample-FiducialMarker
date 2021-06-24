@@ -1,3 +1,4 @@
 SolARModuleOpenCV|0.9.3|SolARModuleOpenCV|SolARBuild@github|https://github.com/SolarFramework/SolarModuleOpenCV/releases/download
 SolARModuleTools|0.9.3|SolARModuleTools|SolARBuild@github|https://github.com/SolarFramework/SolARModuleTools/releases/download
 
+
