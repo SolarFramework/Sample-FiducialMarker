@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-#include <core/Log.h>
+//#include <core/Log.h>
 
-#include <boost/log/core.hpp>
+//#include <boost/log/core.hpp>
 #include <gtest/gtest.h>
 
-#include <filesystem>
+// #include <filesystem>
 
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
 
-using SolAR::Log;
+// using SolAR::Log;
 
+// Experimental, commented out because gcc on CI does not implement filesystem
+/*
 class TestOutputFileLogger : public testing::EmptyTestEventListener {
 
   void OnTestStart(const testing::TestInfo& test_info) override {
@@ -47,6 +49,8 @@ class TestOutputFileLogger : public testing::EmptyTestEventListener {
         LOG_RELEASE;
   }
 };
+
+*/
 
 int main(int argc, char **argv) {
 
