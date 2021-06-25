@@ -19,6 +19,9 @@
 # Note: to run this on windows either use git bash GUI, or add C:\Program Files\Git\bin to 
 # your PATH and invoke this script with 'sh runTests.sh' from a CMD.exe/Powershell
 
+# Note: to visualize the test report as an HTML page, you can use this:
+# https://github.com/adarmalik/gtest2html
+
 # TODO(jmhenaff): make that an option so that script is fully project agnostic and could be reused
 TEST_EXEC=SolARSample_FiducialMarker_Tests
 
