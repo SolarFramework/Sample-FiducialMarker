@@ -28,15 +28,16 @@ TEST_EXEC=SolARSample_FiducialMarker_Tests
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 TEST_REPORT_ROOT=$SCRIPT_DIR/../test-report
 CONFIG="all"
-HOST="unset"
+PLATFORM="unset"
 
 function usage()
 {
     echo "Usage:"
     echo "`basename "$0"` [<option>=<value>]+"
     echo "Options:"
+    echo "   -h, --help: displays this message"
     echo "   -c, --config: 'release', 'debug' or 'all' (default: 'all')"
-    echo "   -h, --host: 'windows', 'linux' (mandatory)"
+    echo "   -p, --platform: 'windows', 'linux' (mandatory)"
 }
 
 # TODO(jmhenaff): add options to pass to gtest exec (filter, output dir, ...)
@@ -57,13 +58,13 @@ while [ "$1" != "" ]; do
             fi
             CONFIG=$VALUE
             ;;
-        -h | --host)
+        -p | --platform)
             if [ "$VALUE" != "windows" ] && [ "$VALUE" != "linux" ]; then
-                echo "ERROR: '$VALUE' is not a valid value for host"
+                echo "ERROR: '$VALUE' is not a valid value for platform"
                 usage
                 exit 1
             fi
-            HOST=$VALUE
+            PLATFORM=$VALUE
             ;;
         *)
             echo "ERROR: unknown parameter '$PARAM'"
@@ -74,15 +75,15 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ "$HOST" == "unset" ]; then
-    echo "ERROR: host is not set, you must specify one"
+if [ "$PLATFORM" == "unset" ]; then
+    echo "ERROR: platform is not set, you must specify one"
     usage
     exit 1
 fi
 
-if [ "$HOST" == "linux" ]; then
+if [ "$PLATFORM" == "linux" ]; then
     TEST_CMD="./run.sh $TEST_EXEC"
-elif [ "$HOST" == "windows" ]; then
+elif [ "$PLATFORM" == "windows" ]; then
     TEST_CMD="./$TEST_EXEC"
 fi
 
