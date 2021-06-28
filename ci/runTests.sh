@@ -105,7 +105,18 @@ function run()
     mkdir -p $TEST_REPORT_DIR/output
     
     # Warning: Don't put directly $TEST_REPORT_DIR in --gtest_output path because gtest will attempt to interpret this as a relative path and append it to $pwd
-    (cd $SCRIPT_DIR/../bin-test/$1/ && $TEST_CMD --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR/output/)
+    OLD_PWD=$PWD
+    cd $SCRIPT_DIR/../bin-test/$1/
+    $TEST_CMD --gtest_output=xml:./tests.xml
+    if [ ! -f  tests.xml ]; then
+        echo "ERROR: xml report has not been generated"
+        exit 1
+    fi
+    cp tests.xml $TEST_REPORT_DIR/
+    for f in `find . -name "*_output.txt"`; do
+        cp $f $TEST_REPORT_DIR/output/
+    done
+    cd $OLD_PWD
 }
 
 #

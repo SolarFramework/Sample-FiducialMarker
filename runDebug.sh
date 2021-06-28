@@ -37,5 +37,13 @@ do
    done
 done
 
-echo "LD_LIBRARY_PATH=$ld_library_path $1"
-LD_LIBRARY_PATH=$ld_library_path $1
+ARGS=""
+for ARG in "$@"
+do
+   if [ $ARG != $0 ]; then
+      ARGS="$ARGS $ARG"
+   fi
+done
+
+echo "LD_LIBRARY_PATH=$ld_library_path $ARGS"
+LD_LIBRARY_PATH=$ld_library_path $ARGS
