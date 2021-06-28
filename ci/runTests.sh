@@ -28,13 +28,15 @@ TEST_EXEC=SolARSample_FiducialMarker_Tests
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 TEST_REPORT_ROOT=$SCRIPT_DIR/../test-report
 CONFIG="all"
+HOST="unset"
 
 function usage()
 {
     echo "Usage:"
-    echo "`basename "$0"` [<option>=<value> ]*"
+    echo "`basename "$0"` [<option>=<value>]+"
     echo "Options:"
     echo "   -c, --config: 'release', 'debug' or 'all' (default: 'all')"
+    echo "   -h, --host: 'windows', 'linux' (mandatory)"
 }
 
 # TODO(jmhenaff): add options to pass to gtest exec (filter, output dir, ...)
@@ -55,6 +57,14 @@ while [ "$1" != "" ]; do
             fi
             CONFIG=$VALUE
             ;;
+        -h | --host)
+            if [ "$VALUE" != "windows" ] && [ "$VALUE" != "linux" ]; then
+                echo "ERROR: '$VALUE' is not a valid value for host"
+                usage
+                exit 1
+            fi
+            HOST=$VALUE
+            ;;
         *)
             echo "ERROR: unknown parameter '$PARAM'"
             usage
@@ -63,6 +73,18 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
+
+if [ "$HOST" == "unset" ]; then
+    echo "ERROR: host is not set, you must specify one"
+    usage
+    exit 1
+fi
+
+if [ "$HOST" == "linux" ]; then
+    TEST_CMD="./run.sh $TEST_EXEC"
+elif [ "$HOST" == "windows" ]; then
+    TEST_CMD="./$TEST_EXEC"
+fi
 
 # Run tests for a specific config (release, debug)
 # $1: configuration name (either release or debug)
@@ -82,7 +104,7 @@ function run()
     mkdir -p $TEST_REPORT_DIR/output
     
     # Warning: Don't put directly $TEST_REPORT_DIR in --gtest_output path because gtest will attempt to interpret this as a relative path and append it to $pwd
-    (cd $SCRIPT_DIR/../bin-test/$1/ && ./$TEST_EXEC --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR/output/)
+    (cd $SCRIPT_DIR/../bin-test/$1/ && $TEST_CMD --gtest_output=xml:tests.xml && cp tests.xml $TEST_REPORT_DIR/ && cp *_output.txt $TEST_REPORT_DIR/output/)
 }
 
 #
