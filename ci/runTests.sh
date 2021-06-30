@@ -127,6 +127,12 @@ function run()
 # MAIN
 #
 
+# TODO: specify these kind of steps in JenkinsFile ?
+if ! sh $SCRIPT_DIR/../installData.sh; then
+        echo "ERROR: could not install data"
+        exit 1
+fi
+
 if [ "$CONFIG" == "all" ]; then
     run release
     run debug
