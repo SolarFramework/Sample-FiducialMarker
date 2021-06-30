@@ -108,6 +108,10 @@ function run()
     OLD_PWD=$PWD
     cd $SCRIPT_DIR/../bin-test/$1/
     $TEST_CMD --gtest_output=xml:./tests.xml
+    if [ $? -ne 0 ]; then
+        echo "ERROR: tests failed"
+        exit 1
+    fi
     if [ ! -f  tests.xml ]; then
         echo "ERROR: xml report has not been generated"
         exit 1
