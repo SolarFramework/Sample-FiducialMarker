@@ -40,10 +40,14 @@ done
 ARGS=""
 for ARG in "$@"
 do
-   if [ $ARG != $0 ]; then
-      ARGS="$ARGS $ARG"
+   if [ "$ARG" != "$0" ]; then
+      if [ "$ARGS" == "" ]; then
+         ARGS="$ARG"
+      else
+         ARGS="$ARGS $ARG"
+      fi
    fi
 done
 
-echo "LD_LIBRARY_PATH=$ld_library_path $ARGS"
-LD_LIBRARY_PATH=$ld_library_path $ARGS
+echo "LD_LIBRARY_PATH=$ld_library_path ./$ARGS"
+LD_LIBRARY_PATH=$ld_library_path ./$ARGS
