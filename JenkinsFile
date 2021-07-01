@@ -15,6 +15,7 @@ node("master") {
                   SolARStandAlone_FiducialMarker_Mono"
         makeTarget="install install_deps"
         testsDir="SolARSample_FiducialMarker_Tests"
+        installTestData="installData.sh"
         android=false
         packageScripts="bundleSamples"
     }
