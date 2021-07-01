@@ -32,6 +32,7 @@ class SolARPipelineFiducialMarkerRunner
 
         Builder& selectPlaybackMode(const std::string& configFileName, int timeoutInS);
         Builder& selectLiveMode(const std::string& configFileName);
+        Builder& disableDisplay();
         std::shared_ptr<SolARPipelineFiducialMarkerRunner> build();
 
         private:
@@ -46,6 +47,7 @@ class SolARPipelineFiducialMarkerRunner
         Mode m_mode = Mode::unset ;
         std::string m_configFileName = "";
         int m_timeoutInS = -1;
+        bool m_displayEnabled = true;
     };
 
     int run();
@@ -63,12 +65,15 @@ class SolARPipelineFiducialMarkerRunner
     SolARPipelineFiducialMarkerRunner() = default;
     void selectPlaybackMode(const std::string& configFileName, int timeoutInS);
     void selectLiveMode(const std::string& configFileName);
+    void disableDisplay();
 
     Mode m_mode = Mode::unset;
     std::string m_configFileName = "";
     int m_timeoutInS = -1;
 
     bool m_poseDetected = false;
+
+    bool m_displayEnabled = true;
 
     friend class Builder;
 };

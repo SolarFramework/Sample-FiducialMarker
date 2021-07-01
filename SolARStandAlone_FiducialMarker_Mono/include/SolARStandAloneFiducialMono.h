@@ -32,6 +32,7 @@ class SolARStandAloneFiducialMono
 
         Builder& selectPlaybackMode(const std::string& configFileName, int timeoutInS);
         Builder& selectLiveMode(const std::string& configFileName);
+        Builder& disableDisplay();
         std::shared_ptr<SolARStandAloneFiducialMono> build();
 
         private:
@@ -46,6 +47,7 @@ class SolARStandAloneFiducialMono
         Mode m_mode = Mode::unset ;
         std::string m_configFileName = "";
         int m_timeoutInS = -1;
+        bool m_displayEnabled = true;
     };
 
     int main_impl();
@@ -62,10 +64,13 @@ class SolARStandAloneFiducialMono
     SolARStandAloneFiducialMono() = default;
     void selectPlaybackMode(const std::string& configFileName, int timeoutInS);
     void selectLiveMode(const std::string& configFileName);
+    void disableDisplay();
 
     Mode m_mode = Mode::unset;
     std::string m_configFileName = "";
     int m_timeoutInS = -1;
+
+    bool m_displayEnabled = true;
 
     bool m_poseDetected = false;
 

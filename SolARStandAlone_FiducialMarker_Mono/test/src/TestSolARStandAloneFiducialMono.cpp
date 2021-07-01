@@ -24,7 +24,8 @@ TEST(SolARStandAloneFiducialMono, testNominalPlayback)
 {
     auto builder = SolARStandAloneFiducialMono::Builder()
                     .selectPlaybackMode("SolARStandalone_FiducialMarker_Mono_conf_test_001.xml",
-                     /* timeoutInS = */ 2);
+                     /* timeoutInS = */ 2)
+                    .disableDisplay();
 
     std::shared_ptr<SolARStandAloneFiducialMono> prog;
     ASSERT_NO_THROW(prog = builder.build());

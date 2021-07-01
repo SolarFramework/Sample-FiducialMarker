@@ -59,7 +59,7 @@ namespace SolAR::standalone
 
 SolARStandAloneFiducialMono::Builder&
 SolARStandAloneFiducialMono::Builder::selectPlaybackMode(const std::string& configFileName,
-                                                              int timeoutInS)
+                                                         int timeoutInS)
 {
     m_mode = Mode::playback;
     m_configFileName = configFileName;
@@ -72,6 +72,13 @@ SolARStandAloneFiducialMono::Builder::selectLiveMode(const std::string& configFi
 {
     m_mode = Mode::live;
     m_configFileName = configFileName;
+    return *this;
+}
+
+SolARStandAloneFiducialMono::Builder&
+SolARStandAloneFiducialMono::Builder::disableDisplay()
+{
+    m_displayEnabled = false;
     return *this;
 }
 
@@ -109,11 +116,20 @@ std::shared_ptr<SolARStandAloneFiducialMono> SolARStandAloneFiducialMono::Builde
 
     }
 
+    if (!m_displayEnabled)
+    {
+        if (m_mode == Mode::live)
+        {
+            LOG_WARNING ("Live mode with disabled display is discouraged, since you cannot exit the app properly");
+        }
+        result->disableDisplay();
+    }
+
     return result;
 }
 
 void SolARStandAloneFiducialMono::selectPlaybackMode(const std::string& configFileName,
-                                                          int timeoutInS)
+                                                     int timeoutInS)
 {
     m_mode = Mode::playback;
     m_configFileName = configFileName;
@@ -124,6 +140,11 @@ void SolARStandAloneFiducialMono::selectLiveMode(const std::string& configFileNa
 {
     m_mode = Mode::live;
     m_configFileName = configFileName;
+}
+
+void SolARStandAloneFiducialMono::disableDisplay()
+{
+    m_displayEnabled = false;
 }
 
 int SolARStandAloneFiducialMono::main_impl(){
@@ -368,15 +389,17 @@ int SolARStandAloneFiducialMono::main_impl(){
            }
 
            // display images in viewers
-           if (
-             (imageViewer->display(inputImage) == FrameworkReturnCode::_STOP) 
+           if ( ( m_displayEnabled &&
+                   ((imageViewer->display(inputImage) == FrameworkReturnCode::_STOP)
     #ifndef NDEBUG
-             ||(imageViewerGrey->display(greyImage) == FrameworkReturnCode::_STOP)
-             ||(imageViewerBinary->display(binaryImage) == FrameworkReturnCode::_STOP)
-             ||(imageViewerContours->display(contoursImage) == FrameworkReturnCode::_STOP)
-             ||(imageViewerFilteredContours->display(filteredContoursImage) == FrameworkReturnCode::_STOP)
+                   || (imageViewerGrey->display(greyImage) == FrameworkReturnCode::_STOP)
+                   || (imageViewerBinary->display(binaryImage) == FrameworkReturnCode::_STOP)
+                   || (imageViewerContours->display(contoursImage) == FrameworkReturnCode::_STOP)
+                   || (imageViewerFilteredContours->display(filteredContoursImage) == FrameworkReturnCode::_STOP)
     #endif
-             || ( replayModeEnabled && timeoutInMs >= 0 && (clock() - start) > timeoutInMs )
+                   )
+                )
+                || ( replayModeEnabled && timeoutInMs >= 0 && (clock() - start) > timeoutInMs )
              )
            {
                process = false;

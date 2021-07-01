@@ -38,7 +38,7 @@ namespace SolAR::PIPELINES::runner
 
 SolARPipelineFiducialMarkerRunner::Builder&
 SolARPipelineFiducialMarkerRunner::Builder::selectPlaybackMode(const std::string& configFileName,
-                                                              int timeoutInS)
+                                                               int timeoutInS)
 {
     m_mode = Mode::playback;
     m_configFileName = configFileName;
@@ -51,6 +51,13 @@ SolARPipelineFiducialMarkerRunner::Builder::selectLiveMode(const std::string& co
 {
     m_mode = Mode::live;
     m_configFileName = configFileName;
+    return *this;
+}
+
+SolARPipelineFiducialMarkerRunner::Builder&
+SolARPipelineFiducialMarkerRunner::Builder::disableDisplay()
+{
+    m_displayEnabled = false;
     return *this;
 }
 
@@ -78,6 +85,10 @@ std::shared_ptr<SolARPipelineFiducialMarkerRunner> SolARPipelineFiducialMarkerRu
             {
                 throw std::runtime_error("A configuration file must be provided");
             }
+            if (m_timeoutInS < 0)
+            {
+                throw std::runtime_error("Timeout value must be positive");
+            }
             result->selectPlaybackMode(m_configFileName, m_timeoutInS);
             break;
         }
@@ -88,11 +99,20 @@ std::shared_ptr<SolARPipelineFiducialMarkerRunner> SolARPipelineFiducialMarkerRu
 
     }
 
+    if (!m_displayEnabled)
+    {
+        if (m_mode == Mode::live)
+        {
+            LOG_WARNING ("Live mode with disabled display is discouraged, since you cannot exit the app properly");
+        }
+        result->disableDisplay();
+    }
+
     return result;
 }
 
 void SolARPipelineFiducialMarkerRunner::selectPlaybackMode(const std::string& configFileName,
-                                                          int timeoutInS)
+                                                           int timeoutInS)
 {
     m_mode = Mode::playback;
     m_configFileName = configFileName;
@@ -103,6 +123,11 @@ void SolARPipelineFiducialMarkerRunner::selectLiveMode(const std::string& config
 {
     m_mode = Mode::live;
     m_configFileName = configFileName;
+}
+
+void SolARPipelineFiducialMarkerRunner::disableDisplay()
+{
+    m_displayEnabled = false;
 }
 
 int SolARPipelineFiducialMarkerRunner::run(){
@@ -171,8 +196,8 @@ int SolARPipelineFiducialMarkerRunner::run(){
                         overlay3DComponent->draw(s_pose, camImage);
                     }
 
-                    if ( imageViewerResult->display(camImage) == SolAR::FrameworkReturnCode::_STOP
-                         || ( replayModeEnabled && timeoutInMs >= 0 && (clock() - start) > timeoutInMs ) )
+                    if ((m_displayEnabled && imageViewerResult->display(camImage) == SolAR::FrameworkReturnCode::_STOP)
+                         || ( replayModeEnabled && timeoutInMs >= 0 && (clock() - start) > timeoutInMs ))
                     {
                         pipeline->stop();
                         break;

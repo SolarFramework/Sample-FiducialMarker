@@ -24,7 +24,8 @@ TEST(TestSolARPipelineFiducialMarkerRunner, testNominalPlayback)
 {
     auto builder = SolARPipelineFiducialMarkerRunner::Builder()
                     .selectPlaybackMode("SolARPipeline_FiducialMarker_Runner_conf_test_001.xml",
-                     /* timeoutInS = */ 2);
+                     /* timeoutInS = */ 2)
+                    .disableDisplay();
 
     std::shared_ptr<SolARPipelineFiducialMarkerRunner> prog;
     ASSERT_NO_THROW(prog = builder.build());
@@ -37,7 +38,8 @@ TEST(TestSolARPipelineFiducialMarkerRunner, testNominalPlayback)
 TEST(TestSolARPipelineFiducialMarkerRunner, testEmptyConfiguration)
 {
     auto builder = SolARPipelineFiducialMarkerRunner::Builder()
-                     .selectPlaybackMode("", -1);
+                     .selectPlaybackMode("", 0)
+                     .disableDisplay();
 
     ASSERT_THROW(builder.build(), std::runtime_error);
 }
@@ -45,7 +47,8 @@ TEST(TestSolARPipelineFiducialMarkerRunner, testEmptyConfiguration)
 TEST(TestSolARPipelineFiducialMarkerRunner, testNonExistingConfiguration)
 {
     auto builder = SolARPipelineFiducialMarkerRunner::Builder()
-                     .selectPlaybackMode("bogus.xml", -1);
+                     .selectPlaybackMode("bogus.xml", 0)
+                     .disableDisplay();
 
     std::shared_ptr<SolARPipelineFiducialMarkerRunner> prog;
     ASSERT_NO_THROW(prog = builder.build());
