@@ -21,6 +21,18 @@ then
 fi
 echo "REMAKEN_PKG_ROOT=$REMAKEN_PKG_ROOT"
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD:$PWD/modules $1
+ARGS=""
+for ARG in "$@"
+do
+   if [ "$ARG" != "$0" ]; then
+      if [ "$ARGS" == "" ]; then
+         ARGS="$ARG"
+      else
+         ARGS="$ARGS $ARG"
+      fi
+   fi
+done
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD:$PWD/modules $ARGS
 
 
