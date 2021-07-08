@@ -15,6 +15,9 @@
 # limitations under the License.
 #
 
+# Stop on first error (not used because of no error message being displayed)
+# set -e
+
 PLATFORM=""
 NAME="SolAR_Fiducial"
 VERSION="0.9.1"
@@ -81,7 +84,15 @@ fi
 
 echo "**** Install dependencies locally"
 remaken install packagedependencies.txt
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to install 'release' dependencies"
+    exit 1
+fi
 remaken install packagedependencies.txt -c debug
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to install 'debug' dependencies"
+    exit 1
+fi
 
 echo "**** Bundle dependencies in bin folder"
 for f in `find . -not \( -path "./bin" -prune \) -not \( -path "./bin-test" -prune  \) \( -name "*_conf*.xml" ! -name "*.tmp_conf.xml" \) `
@@ -94,8 +105,16 @@ do
    fi
 
    echo "install dependencies for config file: $file"
-   remaken bundleXpcf $file -d ./bin/Release -s modules
+   remaken bundleXpc $file -d ./bin/Release -s modules
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Failed to bundle 'release' dependencies for $file"
+        exit 1
+    fi
    remaken bundleXpcf $file -d ./bin/Debug -s modules -c debug
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Failed to bundle 'debug' dependencies for $file"
+        exit 1
+    fi
 
    if [ "$PLATFORM" == "linux" ]; then
         rm $f.tmp_conf.xml
