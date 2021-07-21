@@ -260,7 +260,7 @@ int main(int argc, char *argv[]){
     #endif
 
                     // From extracted squared binary pattern, match the one corresponding to the squared binary marker
-                    if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::IDescriptorMatcher::DESCRIPTORS_MATCHER_OK)
+                    if (patternMatcher->match(markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == FrameworkReturnCode::_SUCCESS)
                     {
     #ifndef NDEBUG
                         std::cout << "Matches :" << std::endl;

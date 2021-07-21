@@ -16,9 +16,9 @@ The SolAR **Fiducial Image Marker sample** shows a SolAR pipeline for augmented 
 
 * If you want to change your fiducial marker, you can edit the [fiducialMarker.yml](./SolARSample_FiducialMarker_Mono/fiducialMarker.yml)
 
-* If you want to change the calibration parameters of the camera, edit the [camera_calibration.yml](./SolARSample_FiducialMarker_Mono/camera_calibration.yml)
+* If you want to change the calibration parameters of the camera, edit the [camera_calibration.json](./SolARSample_FiducialMarker_Mono/camera_calibration.json)
 
-* To change properties of the components of the fiducial pipeline, edit the [conf_FiducialMarker.xml](./SolARSample_FiducialMarker_Mono/conf_FiducialMarker.xml) file.
+* To change properties of the components of the fiducial pipeline, edit the [SolARSample_FiducialMarker_Mono_conf.xml](./SolARSample_FiducialMarker_Mono/SolARSample_FiducialMarker_Mono_conf.xml) file.
 
 If you want to run your Fiducial samples after having built them, do not forget to install the required dependencies if not already done:
 

@@ -172,7 +172,7 @@ namespace SolAR {
             if (m_patternDescriptorExtractor->extract(patches, filtered_contours, recognizedPatternsDescriptors, recognizedContours) != FrameworkReturnCode::_ERROR_)
             {
                 // From extracted squared binary pattern, match the one corresponding to the squared binary marker
-                if (m_patternMatcher->match(m_markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == features::IDescriptorMatcher::RetCode::DESCRIPTORS_MATCHER_OK)
+                if (m_patternMatcher->match(m_markerPatternDescriptor, recognizedPatternsDescriptors, patternMatches) == FrameworkReturnCode::_SUCCESS)
                 {
                     // Reindex the pattern to create two vector of points, the first one corresponding to marker corner, the second one corresponding to the poitsn of the contour
                     m_patternReIndexer->reindex(recognizedContours, patternMatches, pattern2DPoints, img2DPoints);
