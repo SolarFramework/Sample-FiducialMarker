@@ -1,7 +1,7 @@
 node("master") {
 
     SolArModulePipeline {
-        moduleName="SolARPipeline_FiducialMarker"
+        moduleName="SolARPipelineFiducialMarker"
         dirName="SolARBuild"
         buildDir="SolARPipeline_FiducialMarker"
         android=true
