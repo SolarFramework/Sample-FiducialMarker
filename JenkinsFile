@@ -5,7 +5,7 @@ node("master") {
         dirName="SolARBuild"
         buildDir="SolARPipeline_FiducialMarker"
         android=true
-        makeTarget="install install_deps"       
+        makeTarget="install"       
     }
 
     SolArModulePipeline {
