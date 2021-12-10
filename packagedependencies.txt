@@ -1,3 +1,6 @@
-SolARModuleOpenCV|0.10.0|SolARModuleOpenCV|SolARBuild@github|https://github.com/SolarFramework/SolarModuleOpenCV/releases/download
-SolARModuleTools|0.10.0|SolARModuleTools|SolARBuild@github|https://github.com/SolarFramework/SolARModuleTools/releases/download
-SolARPipelineFiducialMarker|0.10.0|SolARPipelineFiducialMarker|SolARBuild@github|https://github.com/SolarFramework/Sample-FiducialMarker/releases/download
+SolARModuleOpenCV|0.11.0|SolARModuleOpenCV|SolARBuild@github|https://github.com/SolarFramework/SolarModuleOpenCV/releases/download
+SolARModuleTools|0.11.0|SolARModuleTools|SolARBuild@github|https://github.com/SolarFramework/SolARModuleTools/releases/download
+SolARPipeline_FiducialMarker|0.11.0|SolARPipeline_FiducialMarker|SolARBuild@github|https://github.com/SolarFramework/Sample-FiducialMarker/releases/download
+
+
+
