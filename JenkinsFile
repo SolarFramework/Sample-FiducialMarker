@@ -4,15 +4,13 @@ node("master") {
         moduleName="SolARPipelineFiducialMarker"
         dirName="SolARBuild"
         buildDir="SolARPipeline_FiducialMarker"
-        android=true
-        makeTarget="install"       
+        android=true      
     }
 
     SolArModulePipeline {
         moduleName="SolARSample_FiducialMarker"
         dirName="SolARBuild"
         buildDir="SolARSample_FiducialMarker_Mono,SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker"
-        makeTarget="install install_deps"
         android=false
         packageScripts="bundleSamples"
     }
