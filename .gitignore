@@ -7,7 +7,7 @@
 *.o
 *.obj
 build*/
-*/.build-rules/
+*build-rules
 
 # Precompiled Headers
 *.gch
