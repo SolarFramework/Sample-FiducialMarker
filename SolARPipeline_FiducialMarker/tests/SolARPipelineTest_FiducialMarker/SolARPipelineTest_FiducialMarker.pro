@@ -2,9 +2,11 @@
 QT       -= core gui
 CONFIG -= qt
 
+QMAKE_PROJECT_DEPTH = 0
+
 ## global defintions : target lib name, version
 TARGET = SolARPipelineTest_FiducialMarker
-VERSION=0.11.0
+VERSION=1.0.0
 PROJECTDEPLOYDIR = $${PWD}/../../..
 
 DEFINES += MYVERSION=$${VERSION}

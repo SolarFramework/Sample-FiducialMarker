@@ -151,8 +151,7 @@ int main(int argc, char *argv[]){
         img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(fiducialMarker->getSize().width);
         img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(fiducialMarker->getSize().height);
 
-        PnP->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
-        overlay3D->setCameraParameters(camera->getIntrinsicsParameters(), camera->getDistortionParameters());
+		CameraParameters camParams = camera->getParameters();
 
         if (camera->start() != FrameworkReturnCode::_SUCCESS) // Camera
         {
@@ -284,11 +283,11 @@ int main(int argc, char *argv[]){
 						// Refine corner locations
 						cornerRefinement->refine(greyImage, img2DPoints);
                         // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-                        if (PnP->estimate(img2DPoints, pattern3DPoints, pose) == FrameworkReturnCode::_SUCCESS)
+                        if (PnP->estimate(img2DPoints, pattern3DPoints, camParams, pose) == FrameworkReturnCode::_SUCCESS)
                         {
                             LOG_DEBUG("Camera pose : \n {}", pose.matrix());
                             // Display a 3D box over the marker
-                            overlay3D->draw(pose,inputImage);
+                            overlay3D->draw(pose, camParams, inputImage);
                             marker_found = true;
                         }
                     }
