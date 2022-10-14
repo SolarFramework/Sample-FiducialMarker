@@ -7,7 +7,7 @@ QMAKE_PROJECT_DEPTH = 0
 ## global defintions : target lib name, version
 TARGET = SolARSample_FiducialMarker_Mono
 VERSION=0.11.0
-PROJECTDEPLOYDIR = $${PWD}/..
+PROJECTDEPLOYDIR = $${PWD}/../deploy
 
 DEFINES += MYVERSION=$${VERSION}
 CONFIG += c++1z
@@ -28,9 +28,14 @@ CONFIG(release,debug|release) {
 win32:CONFIG -= static
 win32:CONFIG += shared
 
-DEPENDENCIESCONFIG = sharedlib install_recurse
+DEPENDENCIESCONFIG = shared recurse
 
-PROJECTCONFIG = QTVS
+_SOLAR_USE_QTVS = $$(SOLAR_USE_QTVS)
+
+!isEmpty(_SOLAR_USE_QTVS) {
+    ## Configuration for Visual Studio to install binaries and dependencies. Work also for QT Creator by replacing QMAKE_INSTALL
+    PROJECTCONFIG = QTVS
+}
 
 
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib, QMAKE_TARGET.arch and PROJECTDEPLOYDIR MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
@@ -51,7 +56,20 @@ unix {
     QMAKE_CXXFLAGS += -DBOOST_LOG_DYN_LINK
 
     # Avoids adding install steps manually. To be commented to have a better control over them.
-    QMAKE_POST_LINK += "make install install_deps"
+    QMAKE_POST_LINK += "make install_deps"
+}
+
+isEmpty(_SOLAR_USE_QTVS) {
+    win32 {
+        QMAKE_POST_LINK += "jom install"
+#        QMAKE_POST_LINK += " && remaken bundleXpcf -d $$shell_quote($$clean_path($${TARGETDEPLOYDIR})) -c $${RemakenConfig} --cpp-std $${RemakenCppStd} -b $${REMAKEN_BUILD_TOOLCHAIN} -o $${REMAKEN_OS} -a $${REMAKEN_TARGET_ARCH} -v $${remakenBundleRecurseOption} $$_PRO_FILE_PWD_/SolARSample_FiducialMarker_Mono_conf.xml"
+        QMAKE_POST_LINK += " && remaken run -c $${RemakenConfig} --cpp-std $${RemakenCppStd} \
+                                -b $${REMAKEN_BUILD_TOOLCHAIN} -o $${REMAKEN_OS} -a $${REMAKEN_TARGET_ARCH} \
+                                $${remakenBundleRecurseOption} \
+                                --xpcf $$_PRO_FILE_PWD_/SolARSample_FiducialMarker_Mono_conf.xml \
+                                --deps $$_PRO_FILE_PWD_/packagedependencies.txt \
+                                --env > $$_PRO_FILE_PWD_/remaken-run-env.txt"
+    }
 }
 
 macx {
@@ -97,5 +115,16 @@ INSTALLS += config_files
 OTHER_FILES += \
     packagedependencies.txt
 
+
 #NOTE : Must be placed at the end of the .pro
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/remaken_install_target.pri)))) # Shell_quote & shell_path required for visual on windows
+
+# TODO: add same support for bundleXpcf as for bundle, i.e. make target (install_xpcf_deps, install_runtime_depth ?)
+# This way, in !QTVS mode, this code could be called after the unix{} block that calls 'make install_deps', and
+# the remaken rules for QTVS mode could generate the call in QMAKE_POST_LINK, so we can leave the .pri inclusion above at
+# the end of file as it should be.
+!isEmpty(_SOLAR_USE_QTVS) {
+    win32 {
+        QMAKE_POST_LINK += " && remaken bundleXpcf -d $$shell_quote($$clean_path($${TARGETDEPLOYDIR})) -c $${RemakenConfig} --cpp-std $${RemakenCppStd} -b $${REMAKEN_BUILD_TOOLCHAIN} -o $${REMAKEN_OS} -a $${REMAKEN_TARGET_ARCH} -v $${remakenBundleRecurseOption} $$_PRO_FILE_PWD_/SolARSample_FiducialMarker_Mono_conf.xml"
+    }
+}
