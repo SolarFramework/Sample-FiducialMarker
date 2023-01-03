@@ -27,7 +27,13 @@ CONFIG(release,debug|release) {
 
 DEPENDENCIESCONFIG = sharedlib install_recurse
 
-PROJECTCONFIG = QTVS
+_SOLAR_USE_QTVS = $$(SOLAR_USE_QTVS)
+!isEmpty(_SOLAR_USE_QTVS) {
+    ## Configuration for Visual Studio to install binaries and dependencies. Work also for QT Creator by replacing QMAKE_INSTALL
+    PROJECTCONFIG = QTVS
+}
+
+INSTALL_XPCF_XML_FILE=$${PWD}/SolARPipelineTest_FiducialMarker_conf.xml
 
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib, QMAKE_TARGET.arch and PROJECTDEPLOYDIR MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/templateappconfig.pri)))  # Shell_quote & shell_path required for visual on windows
@@ -38,11 +44,26 @@ SOURCES += \
     main.cpp
 
 unix {
+
+    # QMAKE_LFLAGS_RPATH += .:modules
+
+    QMAKE_LFLAGS_RPATH =
+    QMAKE_LFLAGS += "-Wl,-rpath,.,-rpath,modules"
+
+    # system($${PWD}/buildrpath.sh)
+    # include(rpath.pri)
+
     LIBS += -ldl
     QMAKE_CXXFLAGS += -DBOOST_LOG_DYN_LINK
-
     # Avoids adding install steps manually. To be commented to have a better control over them.
-    QMAKE_POST_LINK += "make install install_deps"
+    QMAKE_POST_LINK += "make install install_deps install_xpcf_deps"
+
+}
+
+isEmpty(_SOLAR_USE_QTVS) {
+    win32 {
+        QMAKE_POST_LINK += "jom install install_deps install_xpcf_deps"
+    }
 }
 
 macx {
