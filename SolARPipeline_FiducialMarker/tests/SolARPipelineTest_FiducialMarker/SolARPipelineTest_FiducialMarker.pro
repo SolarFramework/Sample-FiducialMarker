@@ -33,8 +33,6 @@ _SOLAR_USE_QTVS = $$(SOLAR_USE_QTVS)
     PROJECTCONFIG = QTVS
 }
 
-INSTALL_XPCF_XML_FILE=$${PWD}/SolARPipelineTest_FiducialMarker_conf.xml
-
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib, QMAKE_TARGET.arch and PROJECTDEPLOYDIR MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/templateappconfig.pri)))  # Shell_quote & shell_path required for visual on windows
 
@@ -44,25 +42,15 @@ SOURCES += \
     main.cpp
 
 unix {
-
-    # QMAKE_LFLAGS_RPATH += .:modules
-
-    QMAKE_LFLAGS_RPATH =
-    QMAKE_LFLAGS += "-Wl,-rpath,.,-rpath,modules"
-
-    # system($${PWD}/buildrpath.sh)
-    # include(rpath.pri)
-
     LIBS += -ldl
     QMAKE_CXXFLAGS += -DBOOST_LOG_DYN_LINK
     # Avoids adding install steps manually. To be commented to have a better control over them.
-    QMAKE_POST_LINK += "make install install_deps install_xpcf_deps"
-
+    QMAKE_POST_LINK += "make install"
 }
 
 isEmpty(_SOLAR_USE_QTVS) {
     win32 {
-        QMAKE_POST_LINK += "jom install install_deps install_xpcf_deps"
+        QMAKE_POST_LINK += "jom install"
     }
 }
 
@@ -91,15 +79,24 @@ INSTALLS += config_files
 
 linux {
   run_install.path = $${TARGETDEPLOYDIR}
-  run_install.files = $${PWD}/../../../run.sh
+  run_install.files = $${PWD}/prepare_project_env.sh
   CONFIG(release,debug|release) {
-    run_install.extra = cp $$files($${PWD}/../../../runRelease.sh) $${PWD}/../../../run.sh
+    run_install.extra = remaken run --env \
+                                    --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
+                                    --deps $$files($${PWD}/packagedependencies.txt) \
+                                    --destination $${PWD}
   }
   CONFIG(debug,debug|release) {
-    run_install.extra = cp $$files($${PWD}/../../../runDebug.sh) $${PWD}/../../../run.sh
+    run_install.extra = remaken run --config debug \
+                                    --env \
+                                    --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
+                                    --deps $$files($${PWD}/packagedependencies.txt) \
+                                    --destination $${PWD}
   }
   run_install.CONFIG += nostrip
   INSTALLS += run_install
+
+
 }
 
 

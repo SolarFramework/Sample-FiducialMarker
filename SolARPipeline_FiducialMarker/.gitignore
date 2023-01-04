@@ -60,4 +60,5 @@ x64*
 *.TMP
 *.tmp
 
-
+# Generated files
+prepare_project_env.sh
