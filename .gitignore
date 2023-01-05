@@ -96,3 +96,7 @@ tests/bin
 *.TMP
 *.tmp
 .git Merge
+
+# Generated files
+prepare_project_env.sh
+prepare_project_env.bat

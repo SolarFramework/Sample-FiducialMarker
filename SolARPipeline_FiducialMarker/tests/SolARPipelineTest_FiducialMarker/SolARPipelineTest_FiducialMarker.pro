@@ -25,7 +25,7 @@ CONFIG(release,debug|release) {
     DEFINES += NDEBUG=1
 }
 
-DEPENDENCIESCONFIG = sharedlib install_recurse
+DEPENDENCIESCONFIG = sharedlib recurse
 
 _SOLAR_USE_QTVS = $$(SOLAR_USE_QTVS)
 !isEmpty(_SOLAR_USE_QTVS) {
@@ -77,27 +77,34 @@ config_files.files= $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml)\
                     $$files($${PWD}/FiducialMarker.gif)
 INSTALLS += config_files
 
-linux {
-  run_install.path = $${TARGETDEPLOYDIR}
-  run_install.files = $${PWD}/prepare_project_env.sh
-  CONFIG(release,debug|release) {
-    run_install.extra = remaken run --env \
-                                    --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
-                                    --deps $$files($${PWD}/packagedependencies.txt) \
-                                    --destination $${PWD}
-  }
-  CONFIG(debug,debug|release) {
-    run_install.extra = remaken run --config debug \
-                                    --env \
-                                    --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
-                                    --deps $$files($${PWD}/packagedependencies.txt) \
-                                    --destination $${PWD}
-  }
-  run_install.CONFIG += nostrip
-  INSTALLS += run_install
 
-
+# Generate and deploy script to set up env to run executable
+CONFIG(release,debug|release) {
+  gen_env_script.extra = "remaken run --env \
+                                      --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
+                                      --deps $$files($${PWD}/packagedependencies.txt) \
+                                      --destination $${PWD}"
 }
+CONFIG(debug,debug|release) {
+  gen_env_script.extra = "remaken run --config debug \
+                                      --env \
+                                      --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
+                                      --deps $$files($${PWD}/packagedependencies.txt) \
+                                      --destination $${PWD}"
+}
+#unix, linux, mac, android
+!win32 {
+  install_env_script.files = $${PWD}/prepare_project_env.sh
+}
+
+win32 {
+  install_env_script.files = $${PWD}/prepare_project_env.bat
+}
+
+install_env_script.path = $${TARGETDEPLOYDIR}
+
+INSTALLS += gen_env_script
+INSTALLS += install_env_script
 
 
 OTHER_FILES += \
