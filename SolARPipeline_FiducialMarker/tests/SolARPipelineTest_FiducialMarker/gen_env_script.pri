@@ -55,7 +55,7 @@ else {
     install_env_script.commands = $${REMAKEN_RUN_ENV_DBG_CMD}
   }
 
-  install_env_script.commands += "&& $${QMAKE_MOVE} $$system_path($${TARGETDEPLOYDIR}/prepare_project_env.bat) \
+  install_env_script.commands += "&& $${QMAKE_MOVE} $$system_path($${TARGETDEPLOYDIR}/prepare_project_env$${ENV_SCRIPT_EXT}) \
                                                     $$install_env_script.target"
 
   install_env_script.depends = install
