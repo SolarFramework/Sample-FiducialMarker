@@ -79,36 +79,9 @@ INSTALLS += config_files
 
 
 # Generate and deploy script to set up env to run executable
-gen_env_script.target = gen_env_script
-QMAKE_EXTRA_TARGETS += gen_env_script
-
-CONFIG(release,debug|release) {
-  gen_env_script.commands = "remaken run --env \
-                                         --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
-                                         --deps $$files($${PWD}/packagedependencies.txt) \
-                                         --destination $${PWD}"
-}
-CONFIG(debug,debug|release) {
-  gen_env_script.commands = "remaken run --config debug \
-                                         --env \
-                                         --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
-                                         --deps $$files($${PWD}/packagedependencies.txt) \
-                                         --destination $${PWD}"
-}
-
-!win32 {
-  install_env_script.files = $${PWD}/prepare_project_env.sh
-}
-
-win32 {
-  install_env_script.files = $${PWD}/prepare_project_env.bat
-}
-
-install_env_script.path = $${TARGETDEPLOYDIR}
-install_env_script.CONFIG += nostrip
-install_env_script.depends = gen_env_script
-
-INSTALLS += install_env_script
+GEN_ENV_SCRIPT_XPCF_FILE = $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml)
+GEN_ENV_SCRIPT_DEPS_FILE = $$files($${PWD}/packagedependencies.txt)
+include(gen_env_script.pri)
 
 
 OTHER_FILES += \
@@ -116,3 +89,4 @@ OTHER_FILES += \
 
 #NOTE : Must be placed at the end of the .pro
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/remaken_install_target.pri)))) # Shell_quote & shell_path required for visual on windows
+message($$INSTALLS)
