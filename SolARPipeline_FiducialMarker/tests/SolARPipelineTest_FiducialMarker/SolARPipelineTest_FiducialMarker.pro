@@ -79,18 +79,20 @@ INSTALLS += config_files
 
 
 # Generate and deploy script to set up env to run executable
+gen_env_script.target = gen_env_script
+QMAKE_EXTRA_TARGETS += gen_env_script
 CONFIG(release,debug|release) {
-  gen_env_script.extra = "remaken run --env \
-                                      --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
-                                      --deps $$files($${PWD}/packagedependencies.txt) \
-                                      --destination $${PWD}"
+  gen_env_script.commands = "remaken run --env \
+                                         --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
+                                         --deps $$files($${PWD}/packagedependencies.txt) \
+                                         --destination $${PWD}"
 }
 CONFIG(debug,debug|release) {
-  gen_env_script.extra = "remaken run --config debug \
-                                      --env \
-                                      --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
-                                      --deps $$files($${PWD}/packagedependencies.txt) \
-                                      --destination $${PWD}"
+  gen_env_script.commands = "remaken run --config debug \
+                                         --env \
+                                         --xpcf $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml) \
+                                         --deps $$files($${PWD}/packagedependencies.txt) \
+                                         --destination $${PWD}"
 }
 #unix, linux, mac, android
 !win32 {
@@ -102,6 +104,8 @@ win32 {
 }
 
 install_env_script.path = $${TARGETDEPLOYDIR}
+install_env_script.CONFIG += nostrip
+install_env_script.depends = gen_env_script
 
 INSTALLS += gen_env_script
 INSTALLS += install_env_script
