@@ -79,8 +79,8 @@ INSTALLS += config_files
 
 
 # Generate and deploy script to set up env to run executable
-GEN_ENV_SCRIPT_XPCF_FILE = $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml)
 GEN_ENV_SCRIPT_DEPS_FILE = $$files($${PWD}/packagedependencies.txt)
+GEN_ENV_SCRIPT_XPCF_FILE = $$files($${PWD}/SolARPipelineTest_FiducialMarker_conf.xml)
 include(gen_env_script.pri)
 
 
