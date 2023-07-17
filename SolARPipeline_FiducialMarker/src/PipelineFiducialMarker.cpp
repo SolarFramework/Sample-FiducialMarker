@@ -92,8 +92,6 @@ namespace SolAR {
         m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldWidth")->setFloatingValue(fiducialMarker->getSize().width);
         m_img2worldMapper->bindTo<xpcf::IConfigurable>()->getProperty("worldHeight")->setFloatingValue(fiducialMarker->getSize().height);
 
-        m_PnP->setCameraParameters(m_camera->getIntrinsicsParameters(), m_camera->getDistortionParameters());
-
         for(int i=0;i<4;i++)
             for(int j=0;j<4;j++)
                 m_pose(i,j)=0.f;
@@ -184,7 +182,7 @@ namespace SolAR {
 					m_cornerRefinement->refine(greyImage, img2DPoints);
 
                     // Compute the pose of the camera using a Perspective n Points algorithm using only the 4 corners of the marker
-                    if (m_PnP->estimate(img2DPoints, pattern3DPoints, m_pose) == FrameworkReturnCode::_SUCCESS)
+                    if (m_PnP->estimate(img2DPoints, pattern3DPoints, m_camera->getParameters(), m_pose) == FrameworkReturnCode::_SUCCESS)
                     {
                         poseComputed = true;
                     }

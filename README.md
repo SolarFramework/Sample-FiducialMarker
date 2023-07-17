@@ -5,20 +5,20 @@
 The SolAR **Fiducial Image Marker sample** shows a SolAR pipeline for augmented reality based on a fiducials markers image. This pipeline loads a reference image marker, then tries to detect it on real-time camera images and to estimate the pose of the camera in relation to the coordinate system of the image marker. If the marker is detected, the pipeline over the current camera image renders a 3D cube from a virtual camera which pose corresponds to the one estimated by the pipeline.
 
 
-| ![](./SolARSample_FiducialMarker_Mono/standalone.jpg) | ![](./SolARPipeline_FiducialMarker/plugin.jpg) |
+| ![](./SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/standalone.jpg) | ![](./SolARPipeline_FiducialMarker/plugin.jpg) |
 |:-:|:-:|
-| SolARSample_FiducialMarker_Mono | SolARPipeline_FiducialMarker |
+| SolARPipelineTest_FiducialMarker | SolARPipeline_FiducialMarker |
 
 
 ## How to run
 
-* To run it, first print the marker [FiducialMarker.gif](./SolARSample_FiducialMarker_Mono/FiducialMarker.gif)
+* To run it, first print the marker [FiducialMarker.gif](./SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/FiducialMarker.gif)
 
-* If you want to change your fiducial marker, you can edit the [fiducialMarker.yml](./SolARSample_FiducialMarker_Mono/fiducialMarker.yml)
+* If you want to change your fiducial marker, you can edit the [fiducialMarker.yml](./SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/fiducialMarker.yml)
 
-* If you want to change the calibration parameters of the camera, edit the [camera_calibration.json](./SolARSample_FiducialMarker_Mono/camera_calibration.json)
+* If you want to change the calibration parameters of the camera, edit the [camera_calibration.json](./SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/camera_calibration.json)
 
-* To change properties of the components of the fiducial pipeline, edit the [SolARSample_FiducialMarker_Mono_conf.xml](./SolARSample_FiducialMarker_Mono/SolARSample_FiducialMarker_Mono_conf.xml) file.
+* To change properties of the components of the fiducial pipeline, edit the [SolARPipelineTest_FiducialMarker_conf.xml](./SolARPipeline_FiducialMarker/tests/SolARPipelineTest_FiducialMarker/SolARPipelineTest_FiducialMarker_conf.xml) file.
 
 If you want to run your Fiducial samples after having built them, do not forget to install the required dependencies if not already done:
 
@@ -29,21 +29,6 @@ and for debug mode:
 <pre><code>remaken install packagedependencies.txt -c debug</code></pre>
 
 For more information about how to install remaken on your machine, visit the [install page](https://solarframework.github.io/install/) on the SolAR website.
-
-### SolARSample_FiducialMarker_Mono
-
-* Open a terminal and execute from the `bin/Debug` or `bin/Release` folder:
-
-> #### Windows
->
-	SolARSample_FiducialMarker_Mono.exe
-
-> #### Linux
->
-	./run.sh ./SolARSample_FiducialMarker_Mono
-
-* Target your fiducial marker with your camera
-* Press `escape` to quit the application
 
 ### SolARPipeline_FiducialMarker
 
